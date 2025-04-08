@@ -10,11 +10,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="bg-white text-gray-900 font-sans min-h-screen" cz-shortcut-listen="true">
-          <main >
-            
+        <div className="flex flex-col md:flex-row min-h-screen" >
+          {/* 네비게이션 */}
+          <nav 
+            className="
+              fixed bottom-0 w-full h-16
+              bg-blue-600 text-white flex items-center justify-around
+              md:static md:w-64 md:h-screen md:flex-col md:items-start md:justify-start md:gap-4 p-4
+            "
+          >
+            <a href="#" className="hover:underline">홈</a>
+            <a href="#" className="hover:underline">캘린더</a>
+            <a href="#" className="hover:underline">설정</a>
+          </nav>
+
+          {/* 메인 */}
+          <main >            
               {children}
-            
           </main>
+        </div>
       </body>
     </html>
   );
