@@ -1,9 +1,18 @@
 'use client';
-import Image from 'next/image';
 
-export default function TopBar() {
+import Image from 'next/image';
+import SeasonDropdown from './SeasonDropdown';
+
+export default function DesktopHeader() {
   return (
-    <div className="hidden md:flex justify-end items-center px-6 py-3 border-b bg-white">
+    <div className="absolute top-1 left-6 right-6 hidden md:flex items-center justify-between z-10">
+      {/* 오케스트라 이름 + 시즌 선택 */}
+      <div className="flex items-center gap-4">
+        <div className="text-base font-bold text-[#3E3232]">아람 필하모닉</div>
+        <SeasonDropdown/>
+      </div>
+
+      {/* 검색 & 알림 아이콘 */}
       <div className="flex items-center gap-4">
         <Image
           src="/icons/search.svg"
