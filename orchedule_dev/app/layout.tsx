@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import BottomNav from "../components/BottomNav";
+import SideNav from "../components/SideNav";
 import { notoSansKr } from "./fonts";
 
 export const metadata: Metadata = {
@@ -11,10 +12,17 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body className={`${notoSansKr.className} min-h-screen bg-[#FAF9F6]`}>
+      <body className={`${notoSansKr.className} min-h-screen bg-[#FAF9F6]`} cz-shortcut-listen="true">
         <div className="flex flex-col md:flex-row min-h-screen">
-          {/* 네비게이션 */}
-          <BottomNav />
+          {/* 데스크탑 사이드 네비게이션 */}
+          <div className="hidden md:block">
+            <SideNav />
+          </div>
+
+          {/* 모바일 하단 네비게이션 */}
+          <div className="block md:hidden">
+            <BottomNav />
+          </div>
           {/* 메인 콘텐츠 */}
           <main className="flex-1 p-4 md:p-6 md:pl-0">
             {children}
