@@ -8,6 +8,7 @@ import { UserCircle } from 'lucide-react';
 
 const navItems = [
   { href: '/', label: '홈', icon: 'home' },
+  { href: '/menu', label: '메뉴', icon: 'menu' },
   { href: '/notice', label: '알림', icon: 'notice' },
   { href: '/attendance', label: '출석', icon: 'attendance' },
   { href: '/sheetmusic', label: '악보', icon: 'sheet' },

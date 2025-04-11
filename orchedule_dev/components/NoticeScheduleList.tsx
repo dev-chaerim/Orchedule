@@ -52,6 +52,9 @@ export function ScheduleList() {
                 {piece.note && (
                 <p className="text-xs text-gray-400 mt-1">{piece.note}</p>
                 )}
+                {idx !== schedule.pieces.length - 1 && (
+                    <hr className="border-t border-dashed border-gray-300 my-2" />
+                )}
               </div>
             ))}
           </div>

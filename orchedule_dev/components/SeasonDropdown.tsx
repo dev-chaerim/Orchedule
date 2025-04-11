@@ -10,7 +10,7 @@ export default function SeasonDropdown() {
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="inline-flex items-center gap-1 px-2 py-1 text-xs text-[#3E3232] bg-[#C6DCBA] rounded-xl font-medium cursor-pointer  hover:bg-gray-50 "
+        className="inline-flex items-center gap-1 px-2 py-1 text-xs text-[#3E3232] bg-[#C6DCBA] rounded-xl font-medium cursor-pointer  hover:bg-[#c6dcbaaf]"
       >
         <span className="align-middle font-semibold">Season 3</span>
         <ChevronDown size={14} className="mt-[1px]"/>
