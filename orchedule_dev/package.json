@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
     "dotenv": "^16.4.7",
     "lucide-react": "^0.487.0",
     "mongoose": "^8.12.1",
