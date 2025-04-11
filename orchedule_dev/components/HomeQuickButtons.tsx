@@ -18,10 +18,10 @@ export default function HomeQuickButtons() {
           <Link
             href={href}
             key={label}
-            className="flex flex-col items-center gap-1 px-4 py-3 bg-white rounded-xl shadow-md w-18"
+            className="flex flex-col items-center justify-between gap-1 px-4 py-3 bg-white rounded-xl shadow-md w-18"
           >
-            <Image src={icon} alt={label} width={28} height={28} />
-            <span className="text-xs text-[#3E3232] font-medium">{label}</span>
+            <Image src={icon} alt={label} width={30} height={30} />
+            <span className="text-xs text-[#3e3232c5] font-semibold">{label}</span>
           </Link>
         ))}
       </div>

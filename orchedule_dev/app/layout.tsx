@@ -24,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <BottomNav />
           </div>
           {/* 메인 콘텐츠 */}
-          <main className="flex-1 p-7 md:px-4 md:py-4 bg-[#FAF9F6]">            
+          <main className="flex-1 p-3 pb-20 md:px-4 md:py-4 bg-[#FAF9F6]">            
             {children}
           </main>
         </div>
