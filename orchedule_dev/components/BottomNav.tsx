@@ -17,7 +17,7 @@ export default function BottomNav() {
   return (
     <nav className="fixed bottom-0 w-full h-16 bg-white z-10 flex items-center justify-around border-t border-gray-200 md:hidden">
       {navItems.map(({ href, label, icon }) => {
-        const isActive = pathname === href;
+        const isActive = pathname === href || pathname.startsWith(`${href}/`);
         const iconSrc = isActive
           ? `/icons/${icon}-active.svg`
           : `/icons/${icon}.svg`;

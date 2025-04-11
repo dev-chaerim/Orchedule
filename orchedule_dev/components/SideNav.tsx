@@ -30,7 +30,7 @@ export default function SideNav() {
       {/* 메뉴탭 */}
       <div className="space-y-4">
         {navItems.map(({ href, label, icon }) => {
-          const isActive = pathname === href;
+          const isActive = pathname === href || pathname.startsWith(`${href}/`);
           const iconSrc = isActive
             ? `/icons/${icon}-active.svg`
             : `/icons/${icon}.svg`;

@@ -1,10 +1,9 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
-import BottomNav from "../components/BottomNav";
 import SideNav from "../components/SideNav";
-import MobileHeader from "../components/MobileHeader";
-import DesktopHeader from "../components/DesktopHeader";
 import { notoSansKr } from "./fonts";
+import ClientWrapper from "./ClientWrapper";// 👈 클라이언트 전용 영역 감싸는 컴포넌트
 
 export const metadata: Metadata = {
   title: "Orchedule",
@@ -16,38 +15,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko">
       <body className={`${notoSansKr.className} min-h-screen bg-[#FAF9F6]`} cz-shortcut-listen="true">
         <div className="flex flex-col md:flex-row min-h-screen">
-          
-          {/* 데스크탑 사이드 네비게이션 (고정 좌측) */}
           <div className="hidden md:block">
             <SideNav />
           </div>
-
-          {/* 오른쪽 영역 (헤더 + 콘텐츠 + 모바일 네비) */}
-          <div className="flex-1 flex flex-col bg-[#FAF9F6]">
-            
-            {/* 헤더 영역 */}
-            <header className="sticky top-0 z-20 bg-[#FAF9F6]">
-              {/* 모바일 헤더 */}
-              <div className="md:hidden">
-                <MobileHeader />
-              </div>
-
-              {/* 데스크탑 헤더 */}
-              <div className="hidden md:block">
-                <DesktopHeader />
-              </div>
-            </header>
-
-            {/* 메인 콘텐츠 */}
-            <main className="flex-1 p-3 pb-20 md:pt-16 md:px-4 md:py-4">
-              {children}
-            </main>
-
-            {/* 모바일 하단 네비게이션 */}
-            <div className="block md:hidden">
-              <BottomNav />
-            </div>
-          </div>
+          <ClientWrapper>{children}</ClientWrapper>
         </div>
       </body>
     </html>
