@@ -23,7 +23,7 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
       </header>
 
       {/* 콘텐츠 */}
-      <main className="flex-1 bg-[#FAF9F6] p-3 pb-20 md:pt-16 md:px-4 md:py-4">
+      <main className="flex-1 p-3 pb-20  bg-[#FAF9F6] md:pt-16 md:px-4 md:py-4 md:bg-[#FAF9F6]">
         {children}
       </main>
 

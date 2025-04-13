@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body className={`${notoSansKr.className} min-h-screen bg-[#FAF9F6]`} cz-shortcut-listen="true">
+      <body className={`${notoSansKr.className} min-h-screen `} cz-shortcut-listen="true">
         <div className="flex flex-col md:flex-row min-h-screen">
           <div className="hidden md:block">
             <SideNav />

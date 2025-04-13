@@ -13,7 +13,7 @@ export default function SectionTabs({ tabs }: { tabs: TabItem[] }) {
   const pathname = usePathname();
 
   return (
-    <div className="flex justify-around bg-[rgb(247,245,242)] rounded-xl px-2 py-1 mb-3 shadow-sm">
+    <div className="flex justify-around bg-white rounded-xl px-2 py-1 mb-3 shadow-sm">
       {tabs.map((tab) => {
         const isActive = pathname === tab.href;
 
