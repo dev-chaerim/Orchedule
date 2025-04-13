@@ -1,15 +1,15 @@
 'use client';
 
 import Image from 'next/image';
-import { vibur } from '../app/fonts';
 import SeasonDropdown from './SeasonDropdown';
+import Logo from './Logo';
 
 export default function MobileHeader() {
   return (
     <div className="flex flex-col pt-4 pb-2 md:hidden relative">
       {/* 로고 + 아이콘 */}
       <div className="flex justify-between items-center w-full px-4">
-        <h1 className={`${vibur.className} text-[#3E3232] text-3xl font-bold mb-0`}>Orchedule</h1>
+        <Logo />
         <div className="flex items-center gap-4">
           <Image
             src="/icons/search.svg"

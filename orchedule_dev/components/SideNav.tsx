@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { vibur } from '../app/fonts';
 import { UserCircle } from 'lucide-react';
+import Logo from './Logo';
 
 const navItems = [
   { href: '/', label: '홈', icon: 'home' },
@@ -25,8 +25,8 @@ export default function SideNav() {
   return (
     <aside className="hidden md:flex flex-col w-64 h-screen border-r border-gray-200 px-6 py-6 bg-white text-sm">
       {/* 홈로고 */}
-      <h1 className={`${vibur.className} text-[#3E3232] text-3xl font-bold mb-4`}>Orchedule</h1>
-      <hr className="border-t border-dashed border-[#C3C3C3] mb-6" />
+      <Logo/>
+      <hr className="border-t border-dashed border-[#C3C3C3] mb-6 mt-4" />
       {/* 메뉴탭 */}
       <div className="space-y-4">
         {navItems.map(({ href, label, icon }) => {
