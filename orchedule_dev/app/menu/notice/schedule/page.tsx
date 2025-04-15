@@ -1,3 +1,9 @@
-export default function Schedule() {
-    return <div>Schedule</div>
-  }
+import CalendarSelect from '@/components/CalendarSelect';
+
+export default function SchedulePage() {
+  return (
+    <div>
+      <CalendarSelect />
+    </div>
+  );
+}

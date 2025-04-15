@@ -1,0 +1,84 @@
+/* 캘린더 전체 */
+.react-calendar {
+  background-color: white !important;
+  border: none !important;
+  width: 100% !important;
+  padding: 12px !important;
+  border-radius: 12px !important;
+  font-size: 14px !important;
+  color: #3E3232 !important;
+}
+
+/* 상단 네비게이션 (월 이동 버튼) */
+.react-calendar__navigation {
+  display: flex !important;
+  justify-content: space-between !important;
+  margin-bottom: 8px !important;
+  border: none !important;
+}
+.react-calendar__navigation button {
+  background: none !important;
+  color: #6f675f  !important;
+  font-weight: 600 !important;
+  border: none !important;
+  cursor: pointer !important;
+}
+
+/* 요일 헤더 */
+.react-calendar__month-view__weekdays {
+  text-align: center !important;
+  font-size: 12px !important;
+  color: #A5796E !important;
+  margin-bottom: 4px !important;
+}
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none !important;
+  font-weight: 500 !important;
+  font-size: 0.75rem !important;
+  display: inline-block !important;
+  color: #a5796e !important;
+}
+
+/* 날짜 타일 */
+.react-calendar__tile {
+  padding: 8px !important;
+  border-radius: 9999px !important;
+  background-color: transparent !important;
+  color: #3E3232 !important;
+  font-weight: 500 !important;
+  transition: background-color 0.2s ease !important;
+}
+.react-calendar__tile:hover {
+  background-color: #eee6dd !important;
+}
+
+/* 오늘 날짜 강조 */
+.react-calendar__tile--now {
+  background-color: #FCE8E0 !important;
+  color: #A5796E !important;
+  font-weight: bold !important;
+}
+
+/* 선택된 날짜 */
+.react-calendar__tile--active {
+  background-color: #A5796E !important;
+  color: white !important;
+  font-weight: bold !important;
+}
+
+/* 이웃한 달(비활성) 날짜 흐리게 */
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: #cccccc !important;
+}
+
+/* 날짜 숫자만 보이게 (abbr 제거) */
+.react-calendar__tile abbr {
+  text-decoration: none !important;
+  font-size: 0.875rem !important;
+  display: flex !important;               
+  justify-content: center !important;    
+  align-items: center !important;      
+  width: 100% !important;
+  height: 100% !important;
+}
+

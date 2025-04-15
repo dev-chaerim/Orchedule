@@ -1,6 +1,7 @@
 // app/layout.tsx
 import type { Metadata } from "next";
-import "./globals.css";
+import '@/styles/globals.css';
+
 import SideNav from "../components/SideNav";
 import { notoSansKr } from "./fonts";
 import ClientWrapper from "./ClientWrapper";// 👈 클라이언트 전용 영역 감싸는 컴포넌트

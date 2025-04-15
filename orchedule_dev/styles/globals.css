@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import './react-calendar.pcss';
+
 
 * {
   box-sizing: border-box;
@@ -14,3 +16,4 @@ html, body {
 ::-webkit-scrollbar {
   display: none;
 }
+

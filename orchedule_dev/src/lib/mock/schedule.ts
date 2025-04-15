@@ -2,8 +2,8 @@
 export const mockSchedules = [
     {
       id: 1,
-      date: '2024-05-05', // 날짜
-      displayDate: 'May 5', // UI에 표시용
+      date: '2025-04-05', // 날짜
+      displayDate: 'Apr 5', // UI에 표시용
       pieces: [
         {
           time: '3:40~4:05',
@@ -18,7 +18,7 @@ export const mockSchedules = [
     },
     {
       id: 2,
-      date: '2024-04-28',
+      date: '2025-04-28',
       displayDate: 'Apr 28',
       pieces: [
         {

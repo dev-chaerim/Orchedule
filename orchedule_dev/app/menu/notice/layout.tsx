@@ -11,22 +11,22 @@ const noticeTabs = [
 ];
 
 export default function NoticeLayout({ children }: { children: React.ReactNode }) {
-
   const pathname = usePathname();
 
-  // 상세 페이지(`/menu/notice/announcement/[id]`)일 때 탭 숨김
-  const hideTabs = pathname?.startsWith('/menu/notice/announcement/') && pathname.split('/').length > 4;
-  
+  const hideTabs =
+    pathname?.startsWith('/menu/notice/announcement/') && pathname.split('/').length > 4;
+
   return (
     <div>
+      {/* ✅ 데스크탑에서만 탭 보이게 */}
       {!hideTabs && (
-        <div className="px-4 pt-4">
+        <div className="hidden md:block px-4 pt-4">
           <SectionTabs tabs={noticeTabs} />
         </div>
       )}
 
       <div
-        className={`px-4 ${hideTabs ? 'pt-2' : 'mt-4 pt-6'} min-h-[calc(100vh-200px)]`}
+        className={`px-4 ${hideTabs ? 'pt-2' : 'mt-4 pt-1'} min-h-[calc(100vh-200px)]`}
       >
         {children}
       </div>
