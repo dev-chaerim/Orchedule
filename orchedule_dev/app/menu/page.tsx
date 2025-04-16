@@ -31,6 +31,7 @@ export default function MenuPage() {
       title: '출석',
       items: [
         { label: '출석부', href: '/menu/attendance/check' },
+        { label: '나의출석', href: '/menu/attendance/my-atd' },
         { label: '출석현황', href: '/menu/attendance/status' },
       ],
     },

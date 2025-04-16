@@ -6,13 +6,7 @@ import MobileHeader from '../components/MobileHeader';
 import DesktopHeader from '../components/DesktopHeader';
 import SectionTabs from '../components/SectionTabs';
 import { ReactNode, useEffect, useState } from 'react';
-
-const noticeTabs = [
-  { name: '공지사항', href: '/menu/notice/announcement' },
-  { name: '연습 일정', href: '/menu/notice/schedule' },
-  // { name: '자리 배치', href: '/menu/notice/seatNoti' },
-  { name: '단원 명단', href: '/menu/notice/member' },
-];
+import { noticeTabs, attendanceTabs, scoreTabs } from '@/constants/sectionTabs';
 
 export default function ClientWrapper({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -26,10 +20,22 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
   }, []);
 
   const isMainPage = pathname === '/' || pathname === '/menu';
-  const showNoticeTabs =
-    pathname.startsWith('/menu/notice') &&
-    !pathname.startsWith('/menu/notice/announcement/') &&
-    pathname.split('/').length <= 4;
+
+  // 어떤 섹션인지 판단
+  let tabsToShow = null;
+
+  if (pathname.startsWith('/menu/notice')) {
+    const isDetail = pathname.startsWith('/menu/notice/announcement/') && pathname.split('/').length > 4;
+    if (!isDetail) tabsToShow = noticeTabs;
+  }
+
+  if (pathname.startsWith('/menu/attendance')) {
+    tabsToShow = attendanceTabs;
+  }
+
+  if (pathname.startsWith('/menu/sheetmusic')) {
+    tabsToShow = scoreTabs;
+  }
 
   return (
     <div className="flex-1 flex flex-col">
@@ -42,10 +48,10 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
           <DesktopHeader />
         </div>
 
-        {/* ✅ 모바일일 때만 탭 보여줌 */}
-        {isMobile && showNoticeTabs && (
+        {/* ✅ 모바일에서만 탭 노출 */}
+        {isMobile && tabsToShow && (
           <div className="bg-[#FAF9F6] px-6 pt-6 pb-1">
-            <SectionTabs tabs={noticeTabs} />
+            <SectionTabs tabs={tabsToShow} />
           </div>
         )}
       </header>

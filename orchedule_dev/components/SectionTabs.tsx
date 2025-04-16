@@ -15,7 +15,7 @@ export default function SectionTabs({ tabs }: { tabs: TabItem[] }) {
   return (
     <div className="flex justify-around bg-white rounded-xl px-2 py-1 mb-3 shadow-sm">
       {tabs.map((tab) => {
-        const isActive = pathname === tab.href;
+        const isActive = pathname.startsWith(tab.href);
 
         return (
           <Link
@@ -24,7 +24,7 @@ export default function SectionTabs({ tabs }: { tabs: TabItem[] }) {
             className={clsx(
               'text-sm font-medium px-3 py-1 rounded-lg transition-colors',
               isActive
-                ? ' text-[#3E3232] font-semibold'
+                ? 'text-[#3E3232] font-semibold'
                 : 'text-[#B0A7A0] hover:text-[#3E3232] hover:font-semibold'
             )}
           >
