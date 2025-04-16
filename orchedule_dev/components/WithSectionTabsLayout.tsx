@@ -25,7 +25,7 @@ export default function WithSectionTabsLayout({
         </div>
       )}
       <div
-        className={`px-4 ${hideTabs ? 'pt-2' : 'mt-4 pt-1'} min-h-[calc(100vh-200px)]`}
+        className={`px-4 ${hideTabs ? 'pt-2' : 'mt-4 pt-1'} md:mt-8 min-h-[calc(100vh-200px)]`}
       >
         {children}
       </div>
