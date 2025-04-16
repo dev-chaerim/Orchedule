@@ -22,7 +22,7 @@ export default function MenuPage() {
       items: [
         { label: '공지사항', href: 'menu/notice/announcement' },
         { label: '연습일정', href: 'menu/notice/schedule' },
-        { label: '자리배치', href: 'menu/notice/seatNoti' },
+        // { label: '자리배치', href: 'menu/notice/seatNoti' },
         { label: '단원명단', href: 'menu/notice/member' },
       ],
     },

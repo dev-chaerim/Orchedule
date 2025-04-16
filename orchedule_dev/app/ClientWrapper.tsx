@@ -10,7 +10,7 @@ import { ReactNode, useEffect, useState } from 'react';
 const noticeTabs = [
   { name: '공지사항', href: '/menu/notice/announcement' },
   { name: '연습 일정', href: '/menu/notice/schedule' },
-  { name: '자리 배치', href: '/menu/notice/seatNoti' },
+  // { name: '자리 배치', href: '/menu/notice/seatNoti' },
   { name: '단원 명단', href: '/menu/notice/member' },
 ];
 
@@ -44,7 +44,7 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
 
         {/* ✅ 모바일일 때만 탭 보여줌 */}
         {isMobile && showNoticeTabs && (
-          <div className="bg-[#FAF9F6] px-4 pt-6 pb-1">
+          <div className="bg-[#FAF9F6] px-6 pt-6 pb-1">
             <SectionTabs tabs={noticeTabs} />
           </div>
         )}
