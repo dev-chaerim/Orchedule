@@ -15,11 +15,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <body className={`${notoSansKr.className} min-h-screen `} cz-shortcut-listen="true">
-        <div className="flex flex-col md:flex-row min-h-screen">
-          <div className="hidden md:block">
+        <div className="flex flex-col md:flex-row">
+          <div className="hidden md:block fixed left-0 top-0 w-64 h-screen z-50">
             <SideNav />
           </div>
-          <ClientWrapper>{children}</ClientWrapper>
+          <div className="md:ml-64 w-full">
+            <ClientWrapper>{children}</ClientWrapper>
+          </div>
         </div>
       </body>
     </html>

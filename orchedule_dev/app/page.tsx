@@ -12,7 +12,7 @@ export default function Page() {
       </div>
 
       {/* 본문 콘텐츠 */}
-      <div className="p-5 pt-7 md:pt-3">
+      <div className="p-5 pt-7 pb-20 md:pt-3">
         <ScheduleList />
         <NoticeList />
         <SheetPreviewList />

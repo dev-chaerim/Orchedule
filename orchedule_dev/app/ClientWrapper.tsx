@@ -1,70 +1,81 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { ReactNode } from 'react';
 import BottomNav from '../components/BottomNav';
 import MobileHeader from '../components/MobileHeader';
 import DesktopHeader from '../components/DesktopHeader';
 import SectionTabs from '../components/SectionTabs';
-import { ReactNode, useEffect, useState } from 'react';
 import { noticeTabs, attendanceTabs, scoreTabs } from '@/constants/sectionTabs';
+import { AttendanceProvider, useAttendance } from '@/context/AttendanceContext';
+import { FilterChips } from '@/components/attendance/FilterChips';
 
 export default function ClientWrapper({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const update = () => setIsMobile(window.innerWidth < 768);
-    update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
+  const isMain = pathname === '/' || pathname === '/menu';
 
-  const isMainPage = pathname === '/' || pathname === '/menu';
-
-  // 어떤 섹션인지 판단
-  let tabsToShow = null;
-
+  let tabsToShow: { name: string; href: string }[] | null = null;
   if (pathname.startsWith('/menu/notice')) {
     const isDetail = pathname.startsWith('/menu/notice/announcement/') && pathname.split('/').length > 4;
     if (!isDetail) tabsToShow = noticeTabs;
-  }
-
-  if (pathname.startsWith('/menu/attendance')) {
+  } else if (pathname.startsWith('/menu/attendance')) {
     tabsToShow = attendanceTabs;
-  }
-
-  if (pathname.startsWith('/menu/sheetmusic')) {
+  } else if (pathname.startsWith('/menu/sheetmusic')) {
     tabsToShow = scoreTabs;
   }
 
-  return (
+  function StickyFilter() {
+    const { families, selectedFamily, setSelectedFamily } = useAttendance();
+    return (
+      <div className="bg-[#FAF9F6] px-6 pt-4 pb-2">
+        <div className="flex justify-center">
+          <FilterChips
+            families={families}
+            selected={selectedFamily}
+            onSelect={setSelectedFamily}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  const layout = (
     <div className="flex-1 flex flex-col">
-      {/* 헤더 */}
-      <header className={`sticky top-0 z-20 ${isMainPage ? 'bg-[#FAF9F6]' : 'bg-white'}`}>
+      {/* 1) 헤더 */}
+      <header className={`sticky top-0 z-30 ${isMain ? 'bg-[#FAF9F6]' : 'bg-white'}`}>
         <div className="md:hidden">
           <MobileHeader />
         </div>
-        <div className="hidden md:block">
+        <div className="hidden md:block md:bg-[#FAF9F6] md:pb-10">
           <DesktopHeader />
         </div>
 
-        {/* ✅ 모바일에서만 탭 노출 */}
-        {isMobile && tabsToShow && (
-          <div className="bg-[#FAF9F6] px-6 pt-6 pb-1">
+        {/* 2) 섹션탭 */}
+        {tabsToShow && (
+          <div className="bg-[#FAF9F6] px-6 pt-4 pb-1 md:pt-9">
             <SectionTabs tabs={tabsToShow} />
           </div>
         )}
+
+        {/* 3) 출석현황 전용 필터칩 */}
+        {pathname === '/menu/attendance/status' && <StickyFilter />}
       </header>
 
-      {/* 콘텐츠 */}
-      <main className="flex-1 p-3 pb-20 bg-[#FAF9F6] md:pt-16 md:px-4 md:py-4 md:bg-[#FAF9F6] overflow-visible">
+      {/* 4) 본문 */}
+      <main className="flex-1 overflow-visible bg-[#FAF9F6] p-3 md:pt-4 md:px-4">
         {children}
+        <div className="h-20" /> {/* 하단 여백 확보 */}
       </main>
 
-      {/* 모바일 하단 네비 */}
+      {/* 5) 모바일 하단 네비 */}
       <div className="block md:hidden bg-white border-t border-gray-200">
         <BottomNav />
       </div>
     </div>
   );
+
+  return pathname.startsWith('/menu/attendance')
+    ? <AttendanceProvider>{layout}</AttendanceProvider>
+    : layout;
 }
