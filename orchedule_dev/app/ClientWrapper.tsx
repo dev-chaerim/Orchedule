@@ -47,7 +47,7 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
         <div className="md:hidden">
           <MobileHeader />
         </div>
-        <div className="hidden md:block md:bg-[#FAF9F6] md:pb-10">
+        <div className="hidden md:block md:bg-[#FAF9F6] md:pb-15">
           <DesktopHeader />
         </div>
 
