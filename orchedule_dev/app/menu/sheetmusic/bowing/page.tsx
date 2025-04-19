@@ -5,7 +5,7 @@ import { mockScoreChecks } from "@/lib/mock/scoreChecks";
 
 export default function SheetScoreCheckList() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6  space-y-3">
+    <div className="max-w-4xl mx-auto px-4 py-4  space-y-3">
       {mockScoreChecks.map((sheet) => (
         <Link
           key={`${sheet.id}-${sheet.title}`}

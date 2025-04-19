@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import Image from 'next/image';
+import Link from "next/link";
+import Image from "next/image";
 
 interface MenuItem {
   label: string;
@@ -14,11 +14,15 @@ interface MenuCategoryCardProps {
   items: MenuItem[];
 }
 
-export default function MenuCategoryCard({ icon, title, items }: MenuCategoryCardProps) {
+export default function MenuCategoryCard({
+  icon,
+  title,
+  items,
+}: MenuCategoryCardProps) {
   return (
     <div className=" rounded-xl p-4">
       {/* 상단 제목 + 아이콘 */}
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-4">
         <Image src={icon} alt={title} width={20} height={20} />
         <h2 className="text-sm font-semibold text-[#3E3232]">{title}</h2>
       </div>
