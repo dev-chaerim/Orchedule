@@ -12,7 +12,7 @@ const partLabels: Record<PartKey, string> = {
   Vn2: '2nd Violin',
   Va:  'Viola',
   Vc:  'Cello',
-  Ba:  'Base',
+  Ba:  'Bass',
   Fl:  'Flute',
   Ob:  'Oboe',
   Cl:  'Clarinet',

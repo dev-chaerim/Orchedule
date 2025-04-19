@@ -69,7 +69,7 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
       </main>
 
       {/* 5) 모바일 하단 네비 */}
-      <div className="block md:hidden bg-white border-t border-gray-200">
+      <div className="block md:hidden">
         <BottomNav />
       </div>
     </div>

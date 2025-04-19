@@ -1,22 +1,30 @@
 'use client';
 
 import Image from 'next/image';
-import { mockSheets } from '@/lib/mock/sheets';
+import Link from 'next/link';
+import { mockScoreChecks } from '@/src/lib/mock/scoreChecks';
+import MoreLink from './MoreLink';
 
 export default function SheetPreviewList() {
   return (
-    <section className="px-4 py-2">
+    <section className="px-4 py-4">
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-base font-semibold">악보</h2>
-        <span className="text-xs text-gray-400">더 보기 &gt;</span>
+        <MoreLink href="/menu/sheetmusic/sheet" />
       </div>
-      <div className="bg-white rounded-xl shadow p-3">
-        {mockSheets.map((sheet) => (
-          <div key={sheet.id} className="text-sm mb-1">
+
+      {/* 여러 개의 카드 형태로 렌더링 */}
+      <div className="space-y-3">
+        {mockScoreChecks.map((sheet) => (
+          <Link
+            key={sheet.id}
+            href={`/menu/sheetmusic/bowing/${sheet.id}`}
+            className="block bg-white rounded-xl shadow p-3 hover:bg-gray-50 transition"
+          >
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <Image src="/icons/music-file.svg" alt="악보" width={14} height={14} />
-                <span>{sheet.title}</span>
+                <span className="text-sm">{sheet.title}</span>
                 {sheet.isNew && (
                   <span className="text-xs text-red-500 ml-1">N</span>
                 )}
@@ -43,7 +51,7 @@ export default function SheetPreviewList() {
             </div>
 
             <p className="text-xs text-[#3E3232] mt-3">{sheet.author}</p>
-          </div>
+          </Link>
         ))}
       </div>
     </section>

@@ -12,6 +12,6 @@ export const noticeTabs = [
   
   export const scoreTabs = [
     { name: '시즌 악보', href: '/menu/sheetmusic/sheet' },
-    { name: '보잉 체크', href: '/menu/sheetmusic/bowing' },
+    { name: '악보 체크', href: '/menu/sheetmusic/bowing' },
   ];
   

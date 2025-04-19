@@ -40,7 +40,7 @@ export default function MenuPage() {
       title: '악보',
       items: [
         { label: '시즌 악보', href: '/menu/sheetmusic/sheet' },
-        { label: '보잉 체크', href: '/menu/sheetmusic/bowing' },
+        { label: '악보 체크', href: '/menu/sheetmusic/bowing' },
       ],
     },
   ];
