@@ -16,18 +16,26 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
   const [isUserLoaded, setIsUserLoaded] = useState(false);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("orchedule-user");
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      login(user);
+    async function fetchUser() {
+      try {
+        const res = await fetch("/api/me", { credentials: "include" });
+        const data = await res.json();
+        if (data.success) {
+          login(data.user);
+        }
+      } catch (err) {
+        console.error("사용자 정보 불러오기 실패", err);
+      } finally {
+        setIsUserLoaded(true);
+      }
     }
-    setIsUserLoaded(true); // 복구 완료 표시
-  }, []);
+
+    fetchUser();
+  }, [login]);
 
   const pathname = usePathname();
   const isMain = pathname === "/" || pathname === "/menu";
 
-  // ✅ 로그인 상태 복구 전에는 렌더링 지연
   if (!isUserLoaded) return null;
 
   let tabsToShow: { name: string; href: string }[] | null = null;

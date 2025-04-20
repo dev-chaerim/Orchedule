@@ -1,21 +1,45 @@
+// middleware.ts
 import { NextRequest, NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
 
-export function middleware(request: NextRequest) {
+const SECRET = process.env.JWT_SECRET || 'orchedule-secret-key';
+const encoder = new TextEncoder();
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const isLoggedIn = request.cookies.get('orchedule-auth')?.value === '1';
+  const token = request.cookies.get('orchedule-auth')?.value;
 
-  // 1. 로그인 상태인데 /login 접근 → 홈으로 리디렉션
-  if (pathname.startsWith('/login') && isLoggedIn) {
-    return NextResponse.redirect(new URL('/', request.url));
-  }
+  console.log("✅ middleware 실행됨");
+  console.log("🍪 token:", token);
 
-  // 2. 보호 경로 목록
   const protectedPaths = ['/menu', '/board', '/practice', '/admin'];
   const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
 
-  // 3. 로그인 안 돼있는데 보호 경로 접근 → /login
-  if (isProtected && !isLoggedIn) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  // 1. 로그인 상태에서 /login 접근 시 → 홈으로 리디렉션
+  if (pathname.startsWith('/login')) {
+    if (!token) return NextResponse.next();
+
+    try {
+      await jwtVerify(token, encoder.encode(SECRET));
+      return NextResponse.redirect(new URL('/', request.url));
+    } catch {
+      return NextResponse.next();
+    }
+  }
+
+  // 2. 보호된 경로 접근 시 로그인 검증
+  if (isProtected) {
+    if (!token) {
+      console.warn("❗ 보호 경로 접근 → 토큰 없음 → /login");
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    try {
+      await jwtVerify(token, encoder.encode(SECRET));
+    } catch (err) {
+      console.error("❌ 토큰 검증 실패:", err);
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
   }
 
   return NextResponse.next();

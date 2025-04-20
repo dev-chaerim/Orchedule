@@ -18,10 +18,10 @@ export default function SettingDropdown({
   const logout = useUserStore((state) => state.logout);
   const router = useRouter();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await fetch("/api/logout", { method: "DELETE" });
     localStorage.removeItem("orchedule-user");
-    document.cookie = "orchedule-auth=; Max-Age=0; path=/";
+    logout();
     router.replace("/login");
   };
 
