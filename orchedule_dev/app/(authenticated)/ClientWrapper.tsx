@@ -1,27 +1,29 @@
-'use client';
+"use client";
 
-import { usePathname } from 'next/navigation';
-import { ReactNode } from 'react';
-import BottomNav from '../components/BottomNav';
-import MobileHeader from '../components/MobileHeader';
-import DesktopHeader from '../components/DesktopHeader';
-import SectionTabs from '../components/SectionTabs';
-import { noticeTabs, attendanceTabs, scoreTabs } from '@/constants/sectionTabs';
-import { AttendanceProvider, useAttendance } from '@/context/AttendanceContext';
-import { FilterChips } from '@/components/attendance/FilterChips';
+import { usePathname } from "next/navigation";
+import { ReactNode } from "react";
+import BottomNav from "../../components/BottomNav";
+import MobileHeader from "../../components/MobileHeader";
+import DesktopHeader from "../../components/DesktopHeader";
+import SectionTabs from "../../components/SectionTabs";
+import { noticeTabs, attendanceTabs, scoreTabs } from "@/constants/sectionTabs";
+import { AttendanceProvider, useAttendance } from "@/context/AttendanceContext";
+import { FilterChips } from "@/components/attendance/FilterChips";
 
 export default function ClientWrapper({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
-  const isMain = pathname === '/' || pathname === '/menu';
+  const isMain = pathname === "/" || pathname === "/menu";
 
   let tabsToShow: { name: string; href: string }[] | null = null;
-  if (pathname.startsWith('/menu/notice')) {
-    const isDetail = pathname.startsWith('/menu/notice/announcement/') && pathname.split('/').length > 4;
+  if (pathname.startsWith("/menu/notice")) {
+    const isDetail =
+      pathname.startsWith("/menu/notice/announcement/") &&
+      pathname.split("/").length > 4;
     if (!isDetail) tabsToShow = noticeTabs;
-  } else if (pathname.startsWith('/menu/attendance')) {
+  } else if (pathname.startsWith("/menu/attendance")) {
     tabsToShow = attendanceTabs;
-  } else if (pathname.startsWith('/menu/sheetmusic')) {
+  } else if (pathname.startsWith("/menu/sheetmusic")) {
     tabsToShow = scoreTabs;
   }
 
@@ -43,7 +45,9 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
   const layout = (
     <div className="flex-1 flex flex-col">
       {/* 1) 헤더 */}
-      <header className={`sticky top-0 z-30 ${isMain ? 'bg-[#FAF9F6]' : 'bg-white'}`}>
+      <header
+        className={`sticky top-0 z-30 ${isMain ? "bg-[#FAF9F6]" : "bg-white"}`}
+      >
         <div className="md:hidden">
           <MobileHeader />
         </div>
@@ -59,7 +63,7 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
         )}
 
         {/* 3) 출석현황 전용 필터칩 */}
-        {pathname === '/menu/attendance/status' && <StickyFilter />}
+        {pathname === "/menu/attendance/status" && <StickyFilter />}
       </header>
 
       {/* 4) 본문 */}
@@ -75,7 +79,9 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
     </div>
   );
 
-  return pathname.startsWith('/menu/attendance')
-    ? <AttendanceProvider>{layout}</AttendanceProvider>
-    : layout;
+  return pathname.startsWith("/menu/attendance") ? (
+    <AttendanceProvider>{layout}</AttendanceProvider>
+  ) : (
+    layout
+  );
 }
