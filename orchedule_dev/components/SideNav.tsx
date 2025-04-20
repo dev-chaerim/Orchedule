@@ -4,7 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { UserCircle } from "lucide-react";
+import { useUserStore } from "@/lib/store/user";
 import Logo from "./Logo";
+import { useState } from "react";
+import SettingDropdown from "./dropdown/SettingDropdown";
 
 const navItems = [
   { href: "/", label: "홈", icon: "home", match: "^/$" },
@@ -41,10 +44,11 @@ const otherItems = [
 
 export default function SideNav() {
   const pathname = usePathname();
+  const user = useUserStore((state) => state.user);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   return (
     <aside className="hidden md:flex flex-col w-64 h-screen border-r border-gray-200 px-6 py-6 bg-white text-sm">
-      {/* 홈 로고 */}
       <Logo />
 
       <hr className="border-t border-dashed border-[#C3C3C3] mb-6 mt-4" />
@@ -100,14 +104,22 @@ export default function SideNav() {
         })}
       </div>
 
-      {/* recent */}
       <p className="mt-10 mb-2 text-gray-400 text-xs">recent</p>
-      <div className="mt-auto w-full">
-        {/* 설정 메뉴 */}
-        <div className="flex items-center gap-2 px-1 text-[#C3C3C3] hover:text-[#7E6363] cursor-pointer">
+
+      <div className="mt-auto w-full relative">
+        {/* 설정 버튼 */}
+        <div
+          onClick={() => setShowDropdown(!showDropdown)}
+          className="flex items-center gap-2 px-1 text-[#C3C3C3] hover:text-[#7E6363] cursor-pointer relative"
+        >
           <Image src="/icons/setting.svg" alt="설정" width={16} height={16} />
           <span className="text-sm">설정</span>
         </div>
+
+        {/* 위로 뜨는 드롭다운 메뉴 */}
+        {showDropdown && (
+          <SettingDropdown onClose={() => setShowDropdown(false)} />
+        )}
 
         <hr className="border-t border-dashed border-[#C3C3C3] my-4" />
 
@@ -117,8 +129,10 @@ export default function SideNav() {
             <UserCircle size={36} />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-[#4C4C4C]">김단원</span>
-            <span className="text-xs text-[#C3C3C3]">바이올린 1</span>
+            <span className="text-sm font-semibold text-[#4C4C4C]">
+              <span>{user?.name ?? ""}</span>
+            </span>
+            <span className="text-xs text-[#C3C3C3]">{user?.part ?? ""}</span>
           </div>
         </div>
       </div>

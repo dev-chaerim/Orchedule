@@ -3,9 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
+import { useUserStore } from "@/lib/store/user";
 
 export default function LoginPage() {
   const router = useRouter();
+  const login = useUserStore((state) => state.login);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
@@ -14,13 +17,29 @@ export default function LoginPage() {
 
   const handleLogin = () => {
     if (!isFormValid) return;
-    localStorage.setItem(
-      "orchedule-user",
-      JSON.stringify({ name: "김단원", part: "Vn1" })
-    );
+
+    const user = {
+      name: "김단원",
+      part: "Vn1",
+      email,
+    };
+
+    login(user);
+    localStorage.setItem("orchedule-user", JSON.stringify(user));
+
+    // ✅ 로그인 유지 체크 여부에 따라 쿠키 설정
+    if (remember) {
+      // 7일 유지 쿠키
+      const expires = new Date();
+      expires.setDate(expires.getDate() + 7);
+      document.cookie = `orchedule-auth=1; expires=${expires.toUTCString()}; path=/`;
+    } else {
+      // 세션 쿠키 (브라우저 종료 시 사라짐)
+      document.cookie = `orchedule-auth=1; path=/`;
+    }
+
     router.push("/");
   };
-
   return (
     <main className="min-h-screen bg-[#FAF7F3] flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl shadow-sm w-full max-w-sm px-6 py-10">
@@ -34,26 +53,22 @@ export default function LoginPage() {
 
         <div className="space-y-4">
           {/* 이메일 입력 */}
-          <div className="flex items-center bg-[#f5f5f5] rounded-full px-4 py-2">
-            <input
-              type="email"
-              value={email}
-              placeholder="이메일"
-              onChange={(e) => setEmail(e.target.value)}
-              className="bg-transparent focus:outline-none text-sm w-full placeholder:text-[#C3B4A3]"
-            />
-          </div>
+          <input
+            type="email"
+            value={email}
+            placeholder="이메일"
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-2 bg-[#f5f5f5] rounded-full text-sm placeholder:text-[#C3B4A3] focus:outline-none"
+          />
 
           {/* 비밀번호 입력 */}
-          <div className="flex items-center bg-[#f5f5f5] rounded-full px-4 py-2">
-            <input
-              type="password"
-              value={password}
-              placeholder="비밀번호"
-              onChange={(e) => setPassword(e.target.value)}
-              className="bg-transparent focus:outline-none text-sm w-full placeholder:text-[#C3B4A3]"
-            />
-          </div>
+          <input
+            type="password"
+            value={password}
+            placeholder="비밀번호"
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-2 bg-[#f5f5f5] rounded-full text-sm placeholder:text-[#C3B4A3] focus:outline-none"
+          />
 
           {/* 로그인 유지 체크 */}
           <label className="flex items-center text-xs text-[#3E3232] select-none ml-1">
@@ -80,7 +95,7 @@ export default function LoginPage() {
             시작하기
           </button>
 
-          {/* 회원가입 */}
+          {/* 회원가입 링크 */}
           <div className="text-center">
             <button className="text-xs text-[#7E6363] underline">
               회원가입

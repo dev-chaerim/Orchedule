@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import BottomNav from "../../components/BottomNav";
 import MobileHeader from "../../components/MobileHeader";
 import DesktopHeader from "../../components/DesktopHeader";
@@ -9,11 +9,26 @@ import SectionTabs from "../../components/SectionTabs";
 import { noticeTabs, attendanceTabs, scoreTabs } from "@/constants/sectionTabs";
 import { AttendanceProvider, useAttendance } from "@/context/AttendanceContext";
 import { FilterChips } from "@/components/attendance/FilterChips";
+import { useUserStore } from "@/lib/store/user";
 
 export default function ClientWrapper({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
+  const login = useUserStore((state) => state.login);
+  const [isUserLoaded, setIsUserLoaded] = useState(false);
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem("orchedule-user");
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      login(user);
+    }
+    setIsUserLoaded(true); // 복구 완료 표시
+  }, []);
+
+  const pathname = usePathname();
   const isMain = pathname === "/" || pathname === "/menu";
+
+  // ✅ 로그인 상태 복구 전에는 렌더링 지연
+  if (!isUserLoaded) return null;
 
   let tabsToShow: { name: string; href: string }[] | null = null;
   if (pathname.startsWith("/menu/notice")) {
