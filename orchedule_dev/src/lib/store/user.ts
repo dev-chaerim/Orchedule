@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 
-interface User {
+export type User = {
   name: string;
   part: string;
   email: string;
-}
+  role?: 'user' | 'admin'; // ✅ 선택적 role 추가
+};
 
 interface UserStore {
   user: User | null;

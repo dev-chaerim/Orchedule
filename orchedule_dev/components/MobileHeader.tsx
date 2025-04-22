@@ -2,7 +2,7 @@
 "use client";
 
 import Image from "next/image";
-import SeasonDropdown from "./SeasonDropdown";
+import SeasonDropdown from "./dropdown/SeasonDropdown";
 import Logo from "./Logo";
 import { useState } from "react";
 import SettingDropdown from "./dropdown/SettingDropdown";

@@ -8,6 +8,7 @@ import { useUserStore } from "@/lib/store/user";
 import Logo from "./Logo";
 import { useState } from "react";
 import SettingDropdown from "./dropdown/SettingDropdown";
+import { ShieldCheck } from "lucide-react";
 
 const navItems = [
   { href: "/", label: "홈", icon: "home", match: "^/$" },
@@ -103,6 +104,25 @@ export default function SideNav() {
           );
         })}
       </div>
+
+      {/* 관리자 섹션 - admin 권한일 때만 노출 */}
+
+      {user?.role === "admin" && (
+        <>
+          <p className="mt-10 mb-2 text-gray-400 text-xs">admin</p>
+          <Link
+            href="/admin"
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
+              pathname.startsWith("/admin")
+                ? "bg-[#f3f3f3] text-[#7E6363] font-bold"
+                : "text-[#a3a3a3] hover:bg-gray-100"
+            }`}
+          >
+            <ShieldCheck size={17} />
+            <span>관리자 페이지</span>
+          </Link>
+        </>
+      )}
 
       <p className="mt-10 mb-2 text-gray-400 text-xs">recent</p>
 

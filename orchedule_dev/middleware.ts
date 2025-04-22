@@ -35,7 +35,16 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      await jwtVerify(token, encoder.encode(SECRET));
+      const { payload } = await jwtVerify(token, encoder.encode(SECRET));
+      const user = payload as { role?: string };
+
+      console.log("🎯 사용자 역할:", user.role);
+
+      // 3. 일반 사용자의 /admin 접근 차단
+      if (pathname.startsWith('/admin') && user.role !== 'admin') {
+        console.warn("🔒 일반 사용자의 /admin 접근 차단");
+        return NextResponse.redirect(new URL('/', request.url));
+      }
     } catch (err) {
       console.error("❌ 토큰 검증 실패:", err);
       return NextResponse.redirect(new URL('/login', request.url));

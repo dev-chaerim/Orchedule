@@ -28,21 +28,12 @@ export default function LoginPage() {
 
     if (res.ok) {
       const data = await res.json();
-      console.log("data", data);
+      const user = data.user;
 
-      // 유저 정보는 localStorage와 Zustand에 저장
-      const user = {
-        name: "김단원",
-        part: "Vn1",
-        email,
-      };
-
-      login(user);
-      localStorage.setItem("orchedule-user", JSON.stringify(user));
+      login(user); // Zustand 저장
+      localStorage.setItem("orchedule-user", JSON.stringify(user)); // localStorage 저장
 
       router.push("/");
-    } else {
-      alert("로그인 실패: 이메일 또는 비밀번호가 올바르지 않습니다.");
     }
   };
 
