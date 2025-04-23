@@ -4,12 +4,10 @@
 import Image from "next/image";
 import Logo from "./Logo";
 import SeasonDropdown from "./dropdown/SeasonDropdown";
-import { useState } from "react";
-import { mockSeasons } from "@/lib/mock/seasons";
 import SettingDropdown from "./dropdown/SettingDropdown";
+import { useState } from "react";
 
 export default function MobileHeader() {
-  const [selectedSeason, setSelectedSeason] = useState(mockSeasons[0].name);
   const [showDropdown, setShowDropdown] = useState(false);
 
   return (
@@ -56,11 +54,7 @@ export default function MobileHeader() {
       {/* 시즌 선택 */}
       <div className="mt-2 px-4 py-3 flex items-center gap-2 text-sm text-[#3E3232] font-semibold">
         <span className="text-base">아람 필하모닉</span>
-        <SeasonDropdown
-          seasons={mockSeasons}
-          selectedSeason={selectedSeason}
-          onSelect={setSelectedSeason}
-        />
+        <SeasonDropdown /> {/* props 제거 */}
       </div>
     </div>
   );

@@ -1,14 +1,18 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
 interface ScheduleCardProps {
   time: string;
   description: string;
-  color?: string; 
+  color?: string;
 }
 
-export default function ScheduleCard({ time, description, color = '#A5796E' }: ScheduleCardProps) {
+export default function ScheduleCard({
+  time,
+  description,
+  color = "#A5796E",
+}: ScheduleCardProps) {
   return (
     <div className="flex items-center gap-2 mb-2">
       <div

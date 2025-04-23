@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react"; // 삭제 아이콘
+import { X } from "lucide-react";
+import SimpleSongDropdown from "@/components/admin/SimpleSongDropdown";
 
 interface Piece {
   time: string;
@@ -94,12 +95,14 @@ export default function ScheduleForm({
             />
 
             {/* 곡명 */}
-            <input
-              placeholder="곡명을 입력하세요"
+            <SimpleSongDropdown
+              options={[
+                "Beethoven Symphony No.5",
+                "Mozart Symphony No. 40",
+                "Brahms Symphony No.1",
+              ]}
               value={piece.title}
-              onChange={(e) => handlePieceChange(idx, "title", e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-[#A5796E] focus:ring-1"
-              required
+              onChange={(val) => handlePieceChange(idx, "title", val)}
             />
 
             {/* 비고 */}
