@@ -32,7 +32,7 @@ export default function AdminHome() {
 
         <Link href="/admin/attendance">
           <button className="w-full bg-[#F4ECE7] text-[#3E3232] text-sm font-semibold py-2 px-4 rounded-xl hover:bg-[#e3dcd7] transition">
-            ✅ 출석 현황 수정
+            ✅ 출석 현황 관리
           </button>
         </Link>
 
