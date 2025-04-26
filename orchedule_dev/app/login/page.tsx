@@ -87,8 +87,12 @@ export default function LoginPage() {
             시작하기
           </button>
 
-          <div className="text-center">
-            <button className="text-xs text-[#7E6363] underline">
+          <div className="text-center mt-2">
+            <button
+              type="button"
+              onClick={() => router.push("/join")}
+              className="text-sm text-[#7E6363] underline hover:text-[#3E3232] transition"
+            >
               회원가입
             </button>
           </div>
