@@ -9,7 +9,7 @@ export interface Member {
 }
 
 // 모든 단원을 id + 파트키 + 이름 형태로 한 줄씩 정의
-export const members: Member[] = [
+export const mockMembers: Member[] = [
   { id: 'Vn1-01', part: 'Vn1', name: '정혜림' },
   { id: 'Vn1-02', part: 'Vn1', name: '허주희' },
   { id: 'Vn1-03', part: 'Vn1', name: '이시원' },

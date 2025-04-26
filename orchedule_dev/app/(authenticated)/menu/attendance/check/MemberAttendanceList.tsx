@@ -1,32 +1,32 @@
-'use client';
+"use client";
 
-import { members, PartKey } from '@/src/lib/mock/members';
-import { todayAttendance, AttendanceStatus } from '@/src/lib/mock/attendance';
+import { mockMembers, PartKey } from "@/src/lib/mock/members";
+import { todayAttendance, AttendanceStatus } from "@/src/lib/mock/attendance";
 
 const getStatusColor = (status: AttendanceStatus) => {
   switch (status) {
-    case '출석':
-      return 'bg-[#e2d8ce] text-[#3e3232]';
-    case '지각':
-      return 'bg-[#d3c9e7] text-[#453c5c]';
-    case '불참':
-      return 'bg-[#f3c5c5] text-[#5c3c3c]';
+    case "출석":
+      return "bg-[#e2d8ce] text-[#3e3232]";
+    case "지각":
+      return "bg-[#d3c9e7] text-[#453c5c]";
+    case "불참":
+      return "bg-[#f3c5c5] text-[#5c3c3c]";
     default:
-      return 'bg-gray-200 text-gray-600';
+      return "bg-gray-200 text-gray-600";
   }
 };
 
 const getPartBgColor = (part: PartKey) => {
   switch (part) {
-    case 'Vn1':
-      return 'bg-[#C3C3C3]';
-    case 'Vn2':
-      return 'bg-[#BBB3AA]';
-    case 'Va':
-      return 'bg-[#C3C3C3]';
+    case "Vn1":
+      return "bg-[#C3C3C3]";
+    case "Vn2":
+      return "bg-[#BBB3AA]";
+    case "Va":
+      return "bg-[#C3C3C3]";
     // …다른 파트도 추가…
     default:
-      return 'bg-gray-200';
+      return "bg-gray-200";
   }
 };
 
@@ -37,17 +37,15 @@ const MemberAttendanceList = () => {
   );
 
   // 출석(기본)인 경우를 제외하고 지각/불참인 멤버만 추려냅니다.
-  const absentOrLate = members.filter((member) => {
-    const status = statusMap.get(member.id) ?? '출석';
-    return status !== '출석';
+  const absentOrLate = mockMembers.filter((member) => {
+    const status = statusMap.get(member.id) ?? "출석";
+    return status !== "출석";
   });
 
   return (
     <div className="w-full flex justify-center">
       <div className="w-full max-w-[640px] p-4">
-        <div className="text-sm font-semibold text-[#7e6a5c] mb-4">
-          결원
-        </div>
+        <div className="text-sm font-semibold text-[#7e6a5c] mb-4">결원</div>
 
         <div className="space-y-3">
           {absentOrLate.map((member) => {

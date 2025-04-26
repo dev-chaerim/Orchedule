@@ -1,9 +1,9 @@
 // src/components/attendance/SectionChart.tsx
-'use client';
+"use client";
 
-import React from 'react';
-import { members, Member, PartKey } from '@/lib/mock/members';
-import { partLabels } from '@/constants/parts';
+import React from "react";
+import { mockMembers, Member, PartKey } from "@/lib/mock/members";
+import { partLabels } from "@/constants/parts";
 
 interface Props {
   part: PartKey;
@@ -11,7 +11,7 @@ interface Props {
 
 const SectionChart: React.FC<Props> = ({ part }) => {
   // 해당 파트의 모든 단원
-  const partMembers = members.filter((m) => m.part === part);
+  const partMembers = mockMembers.filter((m) => m.part === part);
 
   // 2명씩 한 줄이므로, 총 줄 수는 올림(partMembers.length / 2)
   const rows = Math.ceil(partMembers.length / 2);
@@ -32,14 +32,12 @@ const SectionChart: React.FC<Props> = ({ part }) => {
       <div className="space-y-3">
         {Array.from({ length: rows }, (_, rowIdx) => {
           // 왼쪽 멤버, 오른쪽 멤버
-          const left  = partMembers[rowIdx * 2];
+          const left = partMembers[rowIdx * 2];
           const right = partMembers[rowIdx * 2 + 1];
           return (
             <div key={rowIdx} className="flex justify-center">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-[#7e6a5c]">
-                  {rowIdx + 1}
-                </span>
+                <span className="text-xs text-[#7e6a5c]">{rowIdx + 1}</span>
                 <SeatCell member={left} />
                 <SeatCell member={right} />
               </div>
@@ -53,7 +51,7 @@ const SectionChart: React.FC<Props> = ({ part }) => {
 
 const SeatCell: React.FC<{ member?: Member }> = ({ member }) => (
   <div className="w-12 h-12 bg-[#FAF9F6] rounded-lg shadow-sm flex items-center justify-center text-sm text-[#3e3232]">
-    {member?.name ?? ''}
+    {member?.name ?? ""}
   </div>
 );
 

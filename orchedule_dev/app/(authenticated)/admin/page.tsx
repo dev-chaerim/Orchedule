@@ -24,7 +24,7 @@ export default function AdminHome() {
           </button>
         </Link>
 
-        <Link href="/admin/members">
+        <Link href="/admin/member">
           <button className="w-full bg-[#F4ECE7] text-[#3E3232] text-sm font-semibold py-2 px-4 rounded-xl hover:bg-[#e3dcd7] transition">
             👥 단원 관리
           </button>

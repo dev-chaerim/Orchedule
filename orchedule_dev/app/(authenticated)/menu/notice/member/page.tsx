@@ -1,36 +1,43 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { members, PartKey } from '@/src/lib/mock/members';
+import React from "react";
+import { mockMembers, PartKey } from "@/src/lib/mock/members";
 
 const orderedParts: PartKey[] = [
-  'Vn1', 'Vn2', 'Va', 'Vc', 'Ba', 'Fl', 'Ob', 'Cl', 'Bs', 'Hr'
+  "Vn1",
+  "Vn2",
+  "Va",
+  "Vc",
+  "Ba",
+  "Fl",
+  "Ob",
+  "Cl",
+  "Bs",
+  "Hr",
 ];
 
 const partLabels: Record<PartKey, string> = {
-  Vn1: '1st Violin',
-  Vn2: '2nd Violin',
-  Va:  'Viola',
-  Vc:  'Cello',
-  Ba:  'Bass',
-  Fl:  'Flute',
-  Ob:  'Oboe',
-  Cl:  'Clarinet',
-  Bs:  'Bassoon',
-  Hr:  'Horn',
-  Perc: 'Perc'
+  Vn1: "1st Violin",
+  Vn2: "2nd Violin",
+  Va: "Viola",
+  Vc: "Cello",
+  Ba: "Bass",
+  Fl: "Flute",
+  Ob: "Oboe",
+  Cl: "Clarinet",
+  Bs: "Bassoon",
+  Hr: "Horn",
+  Perc: "Perc",
 };
 
 const MemberListPage = () => {
   return (
     <div className="px-4 pb-24 bg-[#FAF9F6]">
-      <h1 className="text-lg font-bold text-[#3E3232] mb-4 px-1">
-        단원 명단
-      </h1>
+      <h1 className="text-lg font-bold text-[#3E3232] mb-4 px-1">단원 명단</h1>
 
       <div className="space-y-6">
         {orderedParts.map((part) => {
-          const partMembers = members.filter((m) => m.part === part);
+          const partMembers = mockMembers.filter((m) => m.part === part);
 
           return (
             <div
@@ -53,9 +60,7 @@ const MemberListPage = () => {
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-gray-400">
-                  등록된 단원이 없습니다.
-                </p>
+                <p className="text-sm text-gray-400">등록된 단원이 없습니다.</p>
               )}
             </div>
           );
