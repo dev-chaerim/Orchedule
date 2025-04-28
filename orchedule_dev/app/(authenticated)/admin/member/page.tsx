@@ -90,7 +90,25 @@ export default function AdminMembersPage() {
       )}
 
       {/* 단원 목록 테이블 */}
-      <MemberListTable members={members} />
+      <MemberListTable
+        members={members}
+        onUpdate={(id, updatedData) => {
+          setMembers((prev) =>
+            prev.map((m) =>
+              m.id === id
+                ? {
+                    ...m,
+                    name: updatedData.name,
+                    part: updatedData.part as PartKey,
+                  }
+                : m
+            )
+          );
+        }}
+        onDelete={(id) => {
+          setMembers((prev) => prev.filter((m) => m.id !== id));
+        }}
+      />
     </div>
   );
 }

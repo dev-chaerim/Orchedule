@@ -33,23 +33,19 @@ export default function JoinRequestsTable({
           <table className="w-full text-sm border border-[#e0dada] rounded-md overflow-hidden">
             <thead className="bg-[#f5f4f2]">
               <tr>
-                <th className="px-4 py-2 text-left">이름</th>
-                <th className="px-4 py-2 text-left">파트</th>
-                <th className="px-4 py-2 text-left hidden md:table-cell">
-                  단체
-                </th>
-                <th className="px-4 py-2 text-left hidden md:table-cell">
+                <th className="px-4 py-2 text-center">이름</th>
+                <th className="px-4 py-2 text-center">파트</th>
+                <th className="px-4 py-2 text-center hidden md:table-cell">
                   이메일
                 </th>
-                <th className="px-4 py-2 text-left">조치</th>
+                <th className="px-4 py-2 text-center">조치</th>
               </tr>
             </thead>
-            <tbody className="bg-white">
+            <tbody className="bg-white text-center">
               {requests.map((r) => (
                 <tr key={r.id} className="border-t border-[#f0eeeb]">
                   <td className="px-4 py-2">{r.name}</td>
                   <td className="px-4 py-2">{r.part}</td>
-                  <td className="px-4 py-2 hidden md:table-cell">{r.group}</td>
                   <td className="px-4 py-2 hidden md:table-cell">{r.email}</td>
                   <td className="px-4 py-2 space-x-2 whitespace-nowrap">
                     <button

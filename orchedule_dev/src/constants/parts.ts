@@ -1,4 +1,3 @@
-// src/constants/parts.ts
 import type { PartKey } from '@/src/lib/mock/members';
 
 export const orderedParts: PartKey[] = [
@@ -19,7 +18,11 @@ export const partLabels: Record<PartKey, string> = {
   Perc : 'Perc'
 };
 
-// 악기군별 파트 키 배열
+export const parts = orderedParts.map((key) => ({
+  key,
+  label: partLabels[key],
+}));
+
 export const partFamilies: Record<string, PartKey[]> = {
   현악: ['Vn1', 'Vn2', 'Va', 'Vc', 'Ba'],
   목관: ['Fl', 'Ob', 'Cl', 'Bs'],
