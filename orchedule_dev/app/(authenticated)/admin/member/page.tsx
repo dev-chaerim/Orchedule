@@ -2,14 +2,18 @@
 
 import { useState } from "react";
 import { mockMembers } from "@/lib/mock/members";
+import { mockJoinRequests } from "@/lib/mock/joinRequest";
 import JoinRequestsTable from "@/components/admin/JoinRequestsTable";
 import MemberListTable from "@/components/admin/MemberListTable";
 import AddMemberForm from "@/components/admin/AddMemberForm";
+import { useToastStore } from "@/lib/store/toast"; // ✅ 전역 토스트 스토어 import
 import type { PartKey } from "@/lib/mock/members";
 
 export default function AdminMembersPage() {
   const [members, setMembers] = useState(mockMembers);
+  const [joinRequests, setJoinRequests] = useState(mockJoinRequests);
   const [showAddForm, setShowAddForm] = useState(false);
+  const { showToast } = useToastStore(); // ✅ 전역 토스트 함수 가져오기
 
   const handleAddMember = (newMember: {
     name: string;
@@ -29,12 +33,43 @@ export default function AdminMembersPage() {
     setShowAddForm(false);
   };
 
+  const handleApproveRequest = (id: number) => {
+    const approvedRequest = joinRequests.find((r) => r.id === id);
+    if (!approvedRequest) return;
+
+    const newId = `${approvedRequest.part}-${String(
+      members.length + 1
+    ).padStart(2, "0")}`;
+    const newMember = {
+      id: newId,
+      name: approvedRequest.name,
+      part: approvedRequest.part as PartKey,
+    };
+
+    setMembers((prev) => [...prev, newMember]);
+    setJoinRequests((prev) => prev.filter((r) => r.id !== id));
+
+    showToast("승인 완료!", "success"); // ✅ 승인 완료 토스트
+  };
+
+  const handleRejectRequest = (id: number) => {
+    setJoinRequests((prev) => prev.filter((r) => r.id !== id));
+
+    showToast("거절 처리되었습니다.", "error"); // ✅ 거절 완료 토스트
+  };
+
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="relative p-6 max-w-5xl mx-auto">
+      {/* ✅ Toast는 이제 layout.tsx 최상단에 고정되어있음 */}
+
       <h1 className="text-lg font-bold text-[#3E3232] mb-6">단원 관리</h1>
 
       {/* 가입 요청 테이블 */}
-      <JoinRequestsTable />
+      <JoinRequestsTable
+        requests={joinRequests}
+        onApprove={handleApproveRequest}
+        onReject={handleRejectRequest}
+      />
 
       {/* 현재 단원 제목 */}
       <div className="flex justify-between items-center mt-10 mb-3">

@@ -1,10 +1,10 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 
 import SideNav from "../../components/SideNav";
 import { notoSansKr } from "./fonts";
 import ClientWrapper from "./ClientWrapper"; // 👈 클라이언트 전용 영역 감싸는 컴포넌트
+import Toast from "@/components/Toast";
 
 export const metadata: Metadata = {
   title: "Orchedule",
@@ -27,6 +27,7 @@ export default function RootLayout({
             <SideNav />
           </div>
           <div className="md:ml-64 w-full">
+            <Toast />
             <ClientWrapper>{children}</ClientWrapper>
           </div>
         </div>
