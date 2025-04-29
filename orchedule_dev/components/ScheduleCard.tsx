@@ -11,17 +11,20 @@ interface ScheduleCardProps {
 export default function ScheduleCard({
   time,
   description,
-  color = "#A5796E",
+  color = "#a5796e",
 }: ScheduleCardProps) {
   return (
-    <div className="flex items-center gap-2 mb-2">
+    <div className="flex flex-col items-start mb-4">
+      {/* 시간 박스 (독립) */}
       <div
-        className="text-white text-xs font-medium px-2 py-1 rounded-md w-[70px] text-center"
+        className="text-white text-xs font-semibold px-3 py-1 rounded-md mb-2"
         style={{ backgroundColor: color }}
       >
         {time}
       </div>
-      <div className="bg-white text-sm text-[#3E3232] rounded-md px-3 py-2 shadow-sm flex-1">
+
+      {/* 곡 제목 박스 (하얀색) */}
+      <div className="bg-white w-full text-sm text-[#3E3232] rounded-md px-4 py-3 shadow-sm">
         {description}
       </div>
     </div>
