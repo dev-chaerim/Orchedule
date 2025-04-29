@@ -1,36 +1,71 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongoose';
 import { Schedule } from '@/models/Schedule';
 
-interface Params {
-  params: { id: string };
-}
+// 무조건 추가
+export const dynamic = "force-dynamic";
 
-export async function GET(req: Request, { params }: Params) {
+// ✅ 일정 조회
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> } // params가 Promise 형태로
+) {
   await connectDB();
 
-  const schedule = await Schedule.findById(params.id);
-  if (!schedule) return NextResponse.json({ message: 'Not found' }, { status: 404 });
+  const { id } = await context.params; // ✅ 여기서 await 해줘야 해!
 
-  return NextResponse.json(schedule);
+  try {
+    const schedule = await Schedule.findById(id);
+    if (!schedule) {
+      return NextResponse.json({ message: 'Not found' }, { status: 404 });
+    }
+    return NextResponse.json(schedule);
+  } catch (err) {
+    console.error('Failed to fetch schedule:', err);
+    return NextResponse.json({ message: 'Failed to fetch schedule' }, { status: 500 });
+  }
 }
 
-export async function PATCH(req: Request, { params }: Params) {
+// ✅ 일정 수정
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   await connectDB();
 
-  const updateData = await req.json();
-  const updated = await Schedule.findByIdAndUpdate(params.id, updateData, { new: true });
+  const { id } = await context.params; // ✅
 
-  if (!updated) return NextResponse.json({ message: 'Not found' }, { status: 404 });
+  try {
+    const updateData = await req.json();
+    const updated = await Schedule.findByIdAndUpdate(id, updateData, { new: true });
 
-  return NextResponse.json(updated);
+    if (!updated) {
+      return NextResponse.json({ message: 'Not found' }, { status: 404 });
+    }
+    return NextResponse.json(updated);
+  } catch (err) {
+    console.error('Failed to update schedule:', err);
+    return NextResponse.json({ message: 'Failed to update schedule' }, { status: 500 });
+  }
 }
 
-export async function DELETE(req: Request, { params }: Params) {
+// ✅ 일정 삭제
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   await connectDB();
 
-  const deleted = await Schedule.findByIdAndDelete(params.id);
-  if (!deleted) return NextResponse.json({ message: 'Not found' }, { status: 404 });
+  const { id } = await context.params; // ✅
 
-  return NextResponse.json({ message: 'Deleted successfully' });
+  try {
+    const deleted = await Schedule.findByIdAndDelete(id);
+    if (!deleted) {
+      return NextResponse.json({ message: 'Not found' }, { status: 404 });
+    }
+    return NextResponse.json({ message: 'Deleted successfully' });
+  } catch (err) {
+    console.error('Failed to delete schedule:', err);
+    return NextResponse.json({ message: 'Failed to delete schedule' }, { status: 500 });
+  }
 }

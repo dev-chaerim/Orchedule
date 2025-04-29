@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongoose';
 import { Schedule } from '@/models/Schedule';
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   await connectDB();
 
   const { searchParams } = new URL(req.url);
@@ -14,17 +14,21 @@ export async function GET(req: Request) {
   return NextResponse.json(schedules);
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   await connectDB();
 
-  const body = await req.json();
-  const { seasonId, date, pieces } = body;
+  try {
+    const body = await req.json();
+    const { seasonId, date, pieces } = body;
 
-  if (!seasonId || !date || !pieces || !Array.isArray(pieces)) {
-    return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
+    if (!seasonId || !date || !pieces || !Array.isArray(pieces)) {
+      return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
+    }
+
+    const newSchedule = await Schedule.create({ seasonId, date, pieces });
+    return NextResponse.json(newSchedule, { status: 201 });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ message: 'Server error' }, { status: 500 });
   }
-
-  const newSchedule = await Schedule.create({ seasonId, date, pieces });
-
-  return NextResponse.json(newSchedule, { status: 201 });
 }

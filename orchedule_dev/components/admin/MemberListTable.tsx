@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Member } from "@/lib/mock/members";
 import { parts } from "@/src/constants/parts";
-import DeleteConfirmModal from "@/components/admin/DeleteConfirmModal";
+import ConfirmModal from "../modals/ConfirmModal";
 
 interface MemberListTableProps {
   members: Member[];
@@ -139,8 +139,12 @@ export default function MemberListTable({
       </table>
 
       {/* ✅ 삭제 모달 */}
-      <DeleteConfirmModal
+      <ConfirmModal
         open={!!deleteTargetId}
+        message="정말 삭제하시겠습니까?"
+        confirmLabel="삭제하기"
+        cancelLabel="취소"
+        confirmColor="red"
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
       />

@@ -66,13 +66,12 @@ export default function SeasonDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {showConfirm && (
-        <ConfirmModal
-          message="정말 이 시즌을 삭제하시겠습니까?"
-          onConfirm={handleDelete}
-          onCancel={() => setShowConfirm(false)}
-        />
-      )}
+      <ConfirmModal
+        open={showConfirm}
+        message="정말 이 시즌을 삭제하시겠습니까?"
+        onConfirm={handleDelete}
+        onCancel={() => setShowConfirm(false)}
+      />
     </main>
   );
 }

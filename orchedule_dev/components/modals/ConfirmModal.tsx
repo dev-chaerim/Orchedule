@@ -4,14 +4,22 @@ import { useEffect, useRef } from "react";
 
 interface ConfirmModalProps {
   message: string;
+  open: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  confirmColor?: string; // ex) 'red' | 'default'
 }
 
 export default function ConfirmModal({
   message,
+  open,
   onConfirm,
   onCancel,
+  confirmLabel = "확인",
+  cancelLabel = "취소",
+  confirmColor = "default",
 }: ConfirmModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -21,9 +29,19 @@ export default function ConfirmModal({
         onCancel();
       }
     };
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
-  }, [onCancel]);
+    if (open) {
+      document.addEventListener("mousedown", handleOutsideClick);
+      return () =>
+        document.removeEventListener("mousedown", handleOutsideClick);
+    }
+  }, [open, onCancel]);
+
+  if (!open) return null;
+
+  const confirmClass =
+    confirmColor === "red"
+      ? "bg-[#b14040] hover:bg-[#942e2e]"
+      : "bg-[#7E6363] hover:bg-[#5c4f4f]";
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
@@ -37,13 +55,13 @@ export default function ConfirmModal({
             onClick={onCancel}
             className="text-sm px-4 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600 transition"
           >
-            취소
+            {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
-            className="text-sm px-4 py-1 rounded-md bg-[#7E6363] text-white hover:bg-[#5c4f4f] transition"
+            className={`text-sm px-4 py-1 rounded-md text-white transition ${confirmClass}`}
           >
-            확인
+            {confirmLabel}
           </button>
         </div>
       </div>

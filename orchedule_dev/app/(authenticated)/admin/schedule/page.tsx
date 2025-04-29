@@ -1,20 +1,56 @@
-// ✅ components/admin/SchedulePage.tsx (zustand 버전 + 디자인 개선 + 높이 맞춤)
-
 "use client";
 
-import { useState } from "react";
-import { mockSchedules } from "@/lib/mock/schedule";
-import ScheduleCard from "@/components/admin/ScheduleCard";
+import { useEffect, useState } from "react";
 import { useSeasonStore } from "@/lib/store/season";
 import { useRouter } from "next/navigation";
+import ScheduleCard from "@/components/admin/ScheduleCard";
+
+interface Piece {
+  time: string;
+  title: string;
+  note?: string;
+}
+
+interface Schedule {
+  _id: string;
+  seasonId: string;
+  date: string;
+  pieces: Piece[];
+}
 
 export default function SchedulePage() {
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
-  const [schedules, setSchedules] = useState(mockSchedules);
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
   const router = useRouter();
 
-  const handleDelete = (id: number) => {
-    setSchedules((prev) => prev.filter((s) => s.id !== id));
+  console.log("✅ 현재 선택된 시즌 ID:", selectedSeason?.id);
+
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      try {
+        const res = await fetch(
+          `/api/schedules?seasonId=${selectedSeason?.id}`
+        );
+        const data = await res.json();
+        setSchedules(data);
+      } catch (err) {
+        console.error("일정 불러오기 실패:", err);
+      }
+    };
+
+    if (selectedSeason) fetchSchedules();
+  }, [selectedSeason]);
+
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(`/api/schedules/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("삭제 실패");
+
+      setSchedules((prev) => prev.filter((s) => s._id !== id));
+    } catch (err) {
+      console.error("삭제 오류:", err);
+      alert("삭제에 실패했습니다.");
+    }
   };
 
   return (
@@ -35,13 +71,19 @@ export default function SchedulePage() {
       </div>
 
       <div className="space-y-4">
-        {schedules.map((schedule) => (
-          <ScheduleCard
-            key={schedule.id}
-            schedule={schedule}
-            onDelete={handleDelete}
-          />
-        ))}
+        {schedules.length > 0 ? (
+          schedules.map((schedule) => (
+            <ScheduleCard
+              key={schedule._id}
+              schedule={schedule}
+              onDelete={() => handleDelete(schedule._id)}
+            />
+          ))
+        ) : (
+          <div className="text-sm text-[#7e6a5c] text-center py-10 border border-dashed border-[#e0dada] rounded-md bg-[#fcfaf9]">
+            등록된 연습일정이 없습니다.
+          </div>
+        )}
       </div>
     </div>
   );
