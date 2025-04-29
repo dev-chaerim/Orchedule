@@ -1,7 +1,7 @@
-import connectToDatabase from "@/lib/mongodb";
+import {connectDB} from "@/src/lib/mongoose";
 export async function GET() {
   try {
-    await connectToDatabase();
+    await connectDB();
     return Response.json({ message: "Connected to MongoDB!" });
   } catch (error) {
     console.error(error)
