@@ -1,6 +1,7 @@
 // import DesktopHeader from "../components/DesktopHeader";
 import HomeQuickButtons from "../../components/HomeQuickButtons";
-import { NoticeList, ScheduleList } from "../../components/NoticeScheduleList";
+import { NoticeList } from "../../components/NoticeScheduleList";
+import ScheduleList from "@/components/home/ScheduleList";
 import SheetPreviewList from "../../components/SheetPreviewList";
 
 export default function Page() {
