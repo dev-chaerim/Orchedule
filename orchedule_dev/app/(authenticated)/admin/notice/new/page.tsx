@@ -7,6 +7,9 @@ export default function CreateNoticePage() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [season, setSeason] = useState("2024"); // 기본값 설정
+  const [isGlobal, setIsGlobal] = useState(false);
+  const [pinned, setPinned] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,10 +19,32 @@ export default function CreateNoticePage() {
       return;
     }
 
-    // 임시 저장 처리 (나중에 API로 대체)
-    console.log("[공지 등록]", { title, content });
-    alert("공지 등록 완료!");
-    router.push("/menu/notice/announcement");
+    try {
+      const res = await fetch("/api/notices", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title,
+          content,
+          season,
+          isGlobal,
+          pinned,
+          date: new Date().toISOString().split("T")[0],
+          author: "관리자",
+          isNew: true,
+        }),
+      });
+
+      if (!res.ok) throw new Error("등록 실패");
+
+      alert("공지 등록 완료!");
+      router.push("/admin/notice");
+    } catch (err) {
+      alert("공지 등록 중 오류가 발생했습니다.");
+      console.error(err);
+    }
   };
 
   return (
@@ -41,6 +66,40 @@ export default function CreateNoticePage() {
           rows={10}
           className="w-full border border-[#D5CAC3] rounded-md px-4 py-2 text-sm focus:outline-[#7E6363]"
         />
+
+        {/* ✅ 추가 옵션 */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-[#3E3232] font-medium">시즌</label>
+            <select
+              value={season}
+              onChange={(e) => setSeason(e.target.value)}
+              className="border border-[#D5CAC3] rounded-md px-2 py-1 text-sm"
+            >
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="all">전체</option>
+            </select>
+          </div>
+
+          <label className="flex items-center gap-2 text-sm text-[#3E3232]">
+            <input
+              type="checkbox"
+              checked={isGlobal}
+              onChange={(e) => setIsGlobal(e.target.checked)}
+            />
+            모든 시즌에 표시
+          </label>
+
+          <label className="flex items-center gap-2 text-sm text-[#3E3232]">
+            <input
+              type="checkbox"
+              checked={pinned}
+              onChange={(e) => setPinned(e.target.checked)}
+            />
+            상단 고정
+          </label>
+        </div>
 
         <div className="text-right">
           <button

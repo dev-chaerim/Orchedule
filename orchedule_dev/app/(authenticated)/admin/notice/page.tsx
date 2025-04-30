@@ -1,28 +1,65 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { mockNotices } from "@/lib/mock/notices";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+interface Notice {
+  _id: string;
+  title: string;
+  content: string;
+  date: string;
+  pinned: boolean;
+  author: string;
+  isNew: boolean;
+  season: string;
+  isGlobal: boolean;
+}
+
 export default function AdminNoticePage() {
-  const [notices, setNotices] = useState(mockNotices);
+  const [notices, setNotices] = useState<Notice[]>([]);
+  const [selectedSeason, setSelectedSeason] = useState("2024"); // 선택 시즌 상태
   const router = useRouter();
 
-  const handleDelete = (id: number, e: React.MouseEvent) => {
-    e.stopPropagation(); // 클릭 버블링 방지
-    if (confirm("정말 삭제하시겠습니까?")) {
-      setNotices(notices.filter((n) => n.id !== id));
+  useEffect(() => {
+    const fetchNotices = async () => {
+      const res = await fetch("/api/notices");
+      const data = await res.json();
+      setNotices(data);
+    };
+    fetchNotices();
+  }, []);
+
+  const filteredNotices = [
+    ...notices.filter(
+      (n) => n.pinned && (n.isGlobal || n.season === selectedSeason)
+    ),
+    ...notices.filter(
+      (n) => !n.pinned && (n.isGlobal || n.season === selectedSeason)
+    ),
+  ];
+
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm("정말 삭제하시겠습니까?")) return;
+
+    try {
+      const res = await fetch(`/api/notices/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("삭제 실패");
+      setNotices(notices.filter((n) => n._id !== id));
+    } catch (err) {
+      alert("삭제 중 오류가 발생했습니다.");
+      console.error(err);
     }
   };
 
-  const handleEdit = (id: number, e: React.MouseEvent) => {
-    e.stopPropagation(); // 클릭 버블링 방지
+  const handleEdit = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     router.push(`/admin/notice/${id}/edit`);
   };
 
-  const handleItemClick = (id: number) => {
-    router.push(`/menu/notice/announcement/${id}`);
+  const handleItemClick = (id: string) => {
+    router.push(`/menu/notice/announcement/${id}?from=admin`);
   };
 
   return (
@@ -36,11 +73,26 @@ export default function AdminNoticePage() {
         </Link>
       </div>
 
+      {/* ✅ 시즌 선택 */}
+      <div className="mb-4">
+        <label className="text-sm font-medium mr-2 text-[#3E3232]">
+          시즌 선택:
+        </label>
+        <select
+          value={selectedSeason}
+          onChange={(e) => setSelectedSeason(e.target.value)}
+          className="border border-[#D5CAC3] rounded-md px-2 py-1 text-sm"
+        >
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+        </select>
+      </div>
+
       <ul className="space-y-3">
-        {notices.map((notice) => (
+        {filteredNotices.map((notice) => (
           <li
-            key={notice.id}
-            onClick={() => handleItemClick(notice.id)}
+            key={notice._id}
+            onClick={() => handleItemClick(notice._id)}
             className="bg-white border border-[#E0D6CD] rounded-lg p-4 flex justify-between items-center cursor-pointer hover:bg-[#faf7f3]"
           >
             <div>
@@ -55,13 +107,13 @@ export default function AdminNoticePage() {
 
             <div className="flex gap-2">
               <button
-                onClick={(e) => handleEdit(notice.id, e)}
+                onClick={(e) => handleEdit(notice._id, e)}
                 className="text-xs font-semibold bg-[#F4ECE7] text-[#3E3232] px-3 py-1 rounded-md hover:bg-[#e3dcd7] transition"
               >
                 수정
               </button>
               <button
-                onClick={(e) => handleDelete(notice.id, e)}
+                onClick={(e) => handleDelete(notice._id, e)}
                 className="text-xs font-semibold bg-red-50 text-red-400 px-3 py-1 rounded-md hover:bg-red-100 transition"
               >
                 삭제
