@@ -1,15 +1,18 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useToastStore } from "@/lib/store/toast";
 
 interface ConfirmModalProps {
   message: string;
   open: boolean;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void> | void;
   onCancel: () => void;
   confirmLabel?: string;
   cancelLabel?: string;
   confirmColor?: string; // ex) 'red' | 'default'
+  successMessage?: string;
+  errorMessage?: string;
 }
 
 export default function ConfirmModal({
@@ -20,8 +23,11 @@ export default function ConfirmModal({
   confirmLabel = "확인",
   cancelLabel = "취소",
   confirmColor = "default",
+  successMessage = "처리되었습니다.",
+  errorMessage = "오류가 발생했습니다.",
 }: ConfirmModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const { showToast } = useToastStore();
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
@@ -35,6 +41,17 @@ export default function ConfirmModal({
         document.removeEventListener("mousedown", handleOutsideClick);
     }
   }, [open, onCancel]);
+
+  const handleClick = async () => {
+    try {
+      await onConfirm();
+      showToast({ message: successMessage, type: "success" });
+    } catch {
+      showToast({ message: errorMessage, type: "error" });
+    } finally {
+      onCancel();
+    }
+  };
 
   if (!open) return null;
 
@@ -58,7 +75,7 @@ export default function ConfirmModal({
             {cancelLabel}
           </button>
           <button
-            onClick={onConfirm}
+            onClick={handleClick}
             className={`text-sm px-4 py-1 rounded-md text-white transition ${confirmClass}`}
           >
             {confirmLabel}

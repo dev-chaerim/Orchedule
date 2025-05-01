@@ -15,14 +15,14 @@ export default function Toast() {
 
   if (!isVisible) return null;
 
+  const backgroundColor = type === "success" ? "bg-[#e7f1ea]" : "bg-[#fbeaea]";
+  const textColor = type === "success" ? "text-[#2b473e]" : "text-[#5e3c3c]";
+  const borderColor =
+    type === "success" ? "border-[#c9e5d3]" : "border-[#f0cfcf]";
+
   return (
     <div
-      className={`fixed top-6 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-md text-sm font-medium z-50
-        ${
-          type === "success"
-            ? "bg-[#b4dbff] text-[#3E3232]"
-            : "bg-[#f3c6c6] text-[#3E3232]"
-        }`}
+      className={`fixed top-6 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-md text-sm font-medium z-50 border ${backgroundColor} ${textColor} ${borderColor}`}
     >
       {message}
     </div>

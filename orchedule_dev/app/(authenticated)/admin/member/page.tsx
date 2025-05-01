@@ -6,14 +6,14 @@ import { mockJoinRequests } from "@/lib/mock/joinRequest";
 import JoinRequestsTable from "@/components/admin/JoinRequestsTable";
 import MemberListTable from "@/components/admin/MemberListTable";
 import AddMemberForm from "@/components/admin/AddMemberForm";
-import { useToastStore } from "@/lib/store/toast"; // ✅ 전역 토스트 스토어 import
+import { useToastStore } from "@/lib/store/toast";
 import type { PartKey } from "@/lib/mock/members";
 
 export default function AdminMembersPage() {
   const [members, setMembers] = useState(mockMembers);
   const [joinRequests, setJoinRequests] = useState(mockJoinRequests);
   const [showAddForm, setShowAddForm] = useState(false);
-  const { showToast } = useToastStore(); // ✅ 전역 토스트 함수 가져오기
+  const { showToast } = useToastStore();
 
   const handleAddMember = (newMember: {
     name: string;
@@ -49,19 +49,16 @@ export default function AdminMembersPage() {
     setMembers((prev) => [...prev, newMember]);
     setJoinRequests((prev) => prev.filter((r) => r.id !== id));
 
-    showToast("승인 완료!", "success"); // ✅ 승인 완료 토스트
+    showToast({ message: "승인 완료!", type: "success" });
   };
 
   const handleRejectRequest = (id: number) => {
     setJoinRequests((prev) => prev.filter((r) => r.id !== id));
-
-    showToast("거절 처리되었습니다.", "error"); // ✅ 거절 완료 토스트
+    showToast({ message: "거절 처리되었습니다.", type: "error" });
   };
 
   return (
     <div className="relative p-6 max-w-5xl mx-auto">
-      {/* ✅ Toast는 이제 layout.tsx 최상단에 고정되어있음 */}
-
       <h1 className="text-lg font-bold text-[#3E3232] mb-6">단원 관리</h1>
 
       {/* 가입 요청 테이블 */}

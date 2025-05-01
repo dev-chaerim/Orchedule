@@ -1,10 +1,15 @@
 import { create } from "zustand";
 
+interface ToastPayload {
+  message: string;
+  type: "success" | "error";
+}
+
 interface ToastState {
   message: string;
   type: "success" | "error";
   isVisible: boolean;
-  showToast: (message: string, type?: "success" | "error") => void;
+  showToast: (payload: ToastPayload) => void;
   hideToast: () => void;
 }
 
@@ -12,7 +17,7 @@ export const useToastStore = create<ToastState>((set) => ({
   message: "",
   type: "success",
   isVisible: false,
-  showToast: (message, type = "success") =>
+  showToast: ({ message, type }) =>
     set({ message, type, isVisible: true }),
   hideToast: () => set({ isVisible: false }),
 }));
