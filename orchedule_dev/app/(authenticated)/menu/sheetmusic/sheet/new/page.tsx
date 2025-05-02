@@ -35,28 +35,39 @@ export default function SheetCreatePage() {
   };
 
   const handleConfirmSubmit = async () => {
-    const res = await fetch("/api/scores", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title,
-        content,
-        fileUrl,
-        youtubeUrl,
-        tags,
-        author: user?.name,
-      }),
-    });
+    try {
+      const res = await fetch("/api/scores", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          content,
+          fileUrl,
+          youtubeUrl,
+          tags,
+          author: user?.name,
+          date: new Date().toISOString(),
+          type: "season", // ✅ 반드시 필요!
+        }),
+      });
 
-    if (!res.ok) throw new Error("등록 실패");
+      if (!res.ok) {
+        const error = await res.json();
+        console.error("서버 응답:", error);
+        throw new Error("등록 실패");
+      }
 
-    router.push("/menu/sheetmusic/sheet");
+      router.push("/menu/sheetmusic/sheet");
+    } catch (err) {
+      console.error("악보 등록 실패:", err);
+      alert("등록 중 오류가 발생했습니다.");
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !fileUrl || !content) {
-      alert("필수 항목을 모두 입력해주세요."); // 혹은 별도 토스트
+      alert("필수 항목을 모두 입력해주세요.");
       return;
     }
     setShowConfirm(true);

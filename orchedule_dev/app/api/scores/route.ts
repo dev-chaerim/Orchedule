@@ -24,30 +24,33 @@ export async function GET(req: NextRequest) {
 
 // ✅ POST: 새 악보 등록
 export async function POST(req: NextRequest) {
-    await connectDB();
-  
-    try {
-      const { title, content, fileUrl, youtubeUrl, tags, author } = await req.json();
-  
-      // 필수 필드를 title, fileUrl만 남기기
-      if (!title || !fileUrl) {
-        return NextResponse.json({ message: "제목과 파일 링크는 필수입니다." }, { status: 400 });
-      }
-  
-      const newScore = await Score.create({
-        title,
-        content: content || "",
-        fileUrl,
-        youtubeUrl,
-        tags: tags || [],
-        author: author || "익명",
-        isNew: true,
-        date: new Date().toISOString().split("T")[0],
-      });
-  
-      return NextResponse.json(newScore, { status: 201 });
-    } catch (err) {
-      console.error("악보 등록 실패:", err);
-      return NextResponse.json({ message: "서버 오류" }, { status: 500 });
+  await connectDB();
+
+  try {
+    const { title, content, fileUrl, youtubeUrl, tags, author, type } = await req.json();
+
+    // 필수 필드 검증
+    if (!title || !fileUrl || !type) {
+      return NextResponse.json(
+        { message: "제목, 파일 링크, 타입은 필수입니다." },
+        { status: 400 }
+      );
     }
+
+    const newScore = await Score.create({
+      title,
+      content: content || "",
+      fileUrl,
+      youtubeUrl,
+      tags: tags || [],
+      author: author || "익명",
+      date: new Date().toISOString(),
+      type, // ✅ 추가됨
+    });
+
+    return NextResponse.json(newScore, { status: 201 });
+  } catch (err) {
+    console.error("악보 등록 실패:", err);
+    return NextResponse.json({ message: "서버 오류" }, { status: 500 });
   }
+}

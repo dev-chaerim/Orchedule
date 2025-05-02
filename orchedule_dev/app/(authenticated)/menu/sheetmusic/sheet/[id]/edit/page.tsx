@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useUserStore } from "@/lib/store/user";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 
 const allParts = [
@@ -17,38 +18,34 @@ const allParts = [
 ];
 
 export default function SheetEditPage() {
-  const { id } = useParams();
   const router = useRouter();
+  const { id } = useParams();
+  const user = useUserStore((state) => state.user);
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [fileUrl, setFileUrl] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [tags, setTags] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [date, setDate] = useState(""); // 유지용
   const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const res = await fetch(`/api/scores/${id}`);
-        if (!res.ok) throw new Error("데이터를 불러오지 못했습니다.");
-        const data = await res.json();
-        setTitle(data.title);
-        setContent(data.content);
-        setFileUrl(data.fileUrl);
-        setYoutubeUrl(data.youtubeUrl || "");
-        setTags(data.tags || []);
-      } catch (err) {
-        console.error(err);
-        router.back();
-      } finally {
-        setLoading(false);
-      }
+      const res = await fetch(`/api/scores/${id}`);
+      if (!res.ok) return alert("악보를 불러올 수 없습니다.");
+      const data = await res.json();
+
+      setTitle(data.title);
+      setContent(data.content);
+      setFileUrl(data.fileUrl);
+      setYoutubeUrl(data.youtubeUrl || "");
+      setTags(data.tags || []);
+      setDate(data.date); // 유지
     };
 
     if (id) fetchData();
-  }, [id, router]);
+  }, [id]);
 
   const toggleTag = (tag: string) => {
     setTags((prev) =>
@@ -56,18 +53,9 @@ export default function SheetEditPage() {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title || !fileUrl) {
-      alert("필수 항목을 입력해주세요.");
-      return;
-    }
-    setShowConfirm(true);
-  };
-
   const handleConfirmSubmit = async () => {
     const res = await fetch(`/api/scores/${id}`, {
-      method: "PATCH",
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title,
@@ -75,16 +63,30 @@ export default function SheetEditPage() {
         fileUrl,
         youtubeUrl,
         tags,
+        author: user?.name,
+        date, // 그대로 유지
       }),
     });
 
     if (!res.ok) throw new Error("수정 실패");
 
-    router.push(`/menu/sheetmusic/sheet/${id}`);
+    router.push("/menu/sheetmusic/sheet");
   };
 
-  if (loading)
-    return <div className="p-6 text-sm text-gray-500">불러오는 중...</div>;
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title || !fileUrl || !content) {
+      alert("필수 항목을 모두 입력해주세요.");
+      return;
+    }
+    setShowConfirm(true);
+  };
+
+  if (user?.role !== "admin") {
+    return (
+      <div className="p-6 text-sm text-gray-500">접근 권한이 없습니다.</div>
+    );
+  }
 
   return (
     <main className="max-w-2xl mx-auto p-6 space-y-4">
@@ -154,7 +156,7 @@ export default function SheetEditPage() {
         open={showConfirm}
         onCancel={() => setShowConfirm(false)}
         onConfirm={handleConfirmSubmit}
-        message="정말 수정하시겠습니까?"
+        message="이 악보를 수정하시겠습니까?"
         confirmLabel="수정"
         successMessage="악보가 수정되었습니다."
         errorMessage="수정 중 오류가 발생했습니다."

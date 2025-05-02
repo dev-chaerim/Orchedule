@@ -6,13 +6,14 @@ import { useToastStore } from "@/lib/store/toast";
 interface ConfirmModalProps {
   message: string;
   open: boolean;
-  onConfirm: () => Promise<void> | void;
+  onConfirm?: () => Promise<void> | void; // confirm 없을 수도 있음
   onCancel: () => void;
   confirmLabel?: string;
   cancelLabel?: string;
   confirmColor?: string; // ex) 'red' | 'default'
   successMessage?: string;
   errorMessage?: string;
+  mode?: "confirm" | "alert"; // ✅ 추가
 }
 
 export default function ConfirmModal({
@@ -44,7 +45,9 @@ export default function ConfirmModal({
 
   const handleClick = async () => {
     try {
-      await onConfirm();
+      if (onConfirm) {
+        await onConfirm();
+      }
       showToast({ message: successMessage, type: "success" });
     } catch {
       showToast({ message: errorMessage, type: "error" });

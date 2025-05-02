@@ -1,15 +1,17 @@
-import { Schema, model, models } from 'mongoose';
+import mongoose from "mongoose";
 
-const scoreSchema = new Schema({
-  title: { type: String, required: true },
-  date: { type: String, required: true }, // 'YYYY-MM-DD'
-  isNew: { type: Boolean, default: false },
-  author: { type: String, required: true },
-  content: { type: String, required: true },
-  fileUrl: { type: String, required: true },
-  youtubeUrl: { type: String }, // optional
-  tags: [{ type: String }], // e.g., ['바이올린', '플룻']
+const ScoreSchema = new mongoose.Schema({
+  title: String,
+  author: String,
+  fileUrl: String,
+  parts: [String],
+  isNewScore: Boolean, // ← 이름 변경
+  tag: String,
+  date: String,
+  type: {
+    type: String,
+    required: true,
+  },
 });
 
-const Score = models.Score || model('Score', scoreSchema);
-export default Score;
+export default mongoose.models.Score || mongoose.model("Score", ScoreSchema);

@@ -7,8 +7,7 @@ import { useUserStore } from "@/lib/store/user";
 interface Sheet {
   _id: string;
   title: string;
-  date: string;
-  isNew: boolean;
+  date: string; // ISO 문자열
   author: string;
 }
 
@@ -18,7 +17,7 @@ export default function SeasonSheetListPage() {
 
   useEffect(() => {
     const fetchSheets = async () => {
-      const res = await fetch("/api/scores"); // 👈 GET 요청
+      const res = await fetch("/api/scores");
       const data = await res.json();
       setSheets(data);
     };
@@ -28,7 +27,7 @@ export default function SeasonSheetListPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 space-y-4">
-      {/* ✅ 관리자일 경우만 글쓰기 버튼 노출 */}
+      {/* 관리자 전용 등록 버튼 */}
       {user?.role === "admin" && (
         <div className="text-right mb-3">
           <Link href="/menu/sheetmusic/sheet/new">
@@ -39,29 +38,28 @@ export default function SeasonSheetListPage() {
         </div>
       )}
 
-      {sheets.map((sheet) => (
-        <Link
-          key={sheet._id}
-          href={`/menu/sheetmusic/sheet/${sheet._id}`}
-          className="block bg-white p-4 rounded-lg shadow-sm hover:bg-gray-50 transition"
-        >
-          <div className="flex justify-between items-start mb-1">
-            <h3 className="font-semibold text-sm">
-              {sheet.title}
-              {sheet.isNew && (
-                <span className="ml-2 relative -top-[1px] inline-flex items-center justify-center bg-red-500 text-white text-[9px] px-2 py-[2px] rounded-full leading-none h-[16px] min-w-[30px]">
-                  NEW
-                </span>
-              )}
-            </h3>
-            <span className="text-xs text-gray-400 whitespace-nowrap">
-              {sheet.date}
-            </span>
-          </div>
-          <div className="text-xs text-gray-500">{sheet.author}</div>
-        </Link>
-      ))}
+      {/* 악보 리스트 */}
+      {sheets.map((sheet) => {
+        const createdAt = new Date(sheet.date);
 
+        return (
+          <Link
+            key={sheet._id}
+            href={`/menu/sheetmusic/sheet/${sheet._id}`}
+            className="block bg-white p-4 rounded-lg shadow-sm hover:bg-gray-50 transition"
+          >
+            <div className="flex justify-between items-start mb-1">
+              <h3 className="font-semibold text-sm">{sheet.title}</h3>
+              <span className="text-xs text-gray-400 whitespace-nowrap">
+                {createdAt.toLocaleDateString("ko-KR")}
+              </span>
+            </div>
+            <div className="text-xs text-gray-500">{sheet.author}</div>
+          </Link>
+        );
+      })}
+
+      {/* 데이터 없을 때 메시지 */}
       {sheets.length === 0 && (
         <div className="bg-[#fdfbf9] border border-[#e8e0d9] rounded-xl p-6 text-center w-full">
           <p className="text-sm text-[#7e6a5c] font-semibold">

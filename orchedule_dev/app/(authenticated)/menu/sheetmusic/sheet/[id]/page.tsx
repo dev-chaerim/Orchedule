@@ -9,8 +9,7 @@ import ConfirmModal from "@/components/modals/ConfirmModal";
 interface Sheet {
   _id: string;
   title: string;
-  date: string;
-  isNew: boolean;
+  date: string; // ISO 형식
   author: string;
   content: string;
   fileUrl: string;
@@ -67,6 +66,8 @@ export default function SeasonSheetDetailPage() {
     );
   }
 
+  const formattedDate = new Date(sheet.date).toLocaleString("ko-KR");
+
   return (
     <div className="space-y-6 px-4 max-w-3xl mx-auto py-4">
       <BackButton fallbackHref="/menu/sheetmusic/sheet" label="목록" />
@@ -96,7 +97,7 @@ export default function SeasonSheetDetailPage() {
         </div>
 
         <div className="text-xs text-gray-400">
-          {sheet.date} · {sheet.author}
+          {formattedDate} · {sheet.author}
         </div>
       </div>
 

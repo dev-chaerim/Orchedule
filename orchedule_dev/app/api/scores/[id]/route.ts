@@ -31,7 +31,7 @@ export async function GET(
 ) {
   await connectDB();
 
-  const { id } = params;
+  const { id } = await params;
 
   try {
     const sheet = await Score.findById(id);
@@ -52,7 +52,7 @@ export async function PATCH(
 ) {
   await connectDB();
 
-  const { id } = params;
+  const { id } = await params;
 
   try {
     const updateData = await req.json();
