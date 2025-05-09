@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { mockMembers, PartKey } from "@/lib/mock/members";
+import { useToastStore } from "@/lib/store/toast";
 
 type AttendanceStatus = "출석" | "지각" | "불참";
 
@@ -29,6 +30,8 @@ export default function AttendanceDashboardPage() {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingStatus, setEditingStatus] = useState<AttendanceStatus>("출석");
+
+  const { showToast } = useToastStore();
 
   const filteredMembers =
     selectedPart === "전체"
@@ -119,11 +122,9 @@ export default function AttendanceDashboardPage() {
     if (!editingId || !selectedDate) return;
 
     try {
-      // PATCH 요청 전에 출석 데이터 존재 여부 확인
       const checkRes = await fetch(`/api/attendances?date=${selectedDate}`);
       const checkData = await checkRes.json();
 
-      // 데이터가 없으면 POST로 기본 출석 데이터 생성
       if (!checkData.records || checkData.records.length === 0) {
         await fetch(`/api/attendances`, {
           method: "POST",
@@ -135,7 +136,6 @@ export default function AttendanceDashboardPage() {
         });
       }
 
-      // PATCH 요청으로 출석 상태 수정
       const res = await fetch(`/api/attendances?date=${selectedDate}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -148,11 +148,15 @@ export default function AttendanceDashboardPage() {
 
       if (!res.ok) throw new Error("저장 실패");
 
+      // ✅ 저장 성공 시 토스트 표시
+      showToast({ message: "출석 상태가 저장되었습니다.", type: "success" });
+
       setAttendance((prev) => new Map(prev).set(editingId, editingStatus));
       setEditingId(null);
     } catch (error) {
       console.error("출석 저장 오류:", error);
-      alert("출석 상태 저장에 실패했습니다.");
+      // ✅ 저장 실패 시 토스트 표시
+      showToast({ message: "출석 상태 저장에 실패했습니다.", type: "error" });
     }
   };
 
