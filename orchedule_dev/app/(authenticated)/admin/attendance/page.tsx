@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { mockMembers, PartKey } from "@/lib/mock/members";
 import { useToastStore } from "@/lib/store/toast";
+import { getNearestDate } from "@/lib/utils/getNearestDate";
 
 type AttendanceStatus = "출석" | "지각" | "불참";
 
@@ -51,11 +52,11 @@ export default function AttendanceDashboardPage() {
       try {
         const res = await fetch("/api/schedules/dates");
         const data = await res.json();
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
+          // ✅ 오늘 기준 가장 가까운 날짜를 기본값으로 설정
+          const nearestDate = getNearestDate(data);
           setScheduleDates(data);
-          if (data.length > 0) {
-            setSelectedDate(data[data.length - 1]); // 가장 최신 날짜
-          }
+          setSelectedDate(nearestDate);
         }
       } catch (error) {
         console.error("스케줄 날짜 불러오기 실패:", error);
