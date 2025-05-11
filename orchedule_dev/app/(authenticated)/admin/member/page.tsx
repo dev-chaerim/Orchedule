@@ -1,61 +1,129 @@
 "use client";
 
-import { useState } from "react";
-import { mockMembers } from "@/lib/mock/members";
-import { mockJoinRequests } from "@/lib/mock/joinRequest";
+import { useState, useEffect } from "react";
 import JoinRequestsTable from "@/components/admin/JoinRequestsTable";
 import MemberListTable from "@/components/admin/MemberListTable";
 import AddMemberForm from "@/components/admin/AddMemberForm";
 import { useToastStore } from "@/lib/store/toast";
-import type { PartKey } from "@/lib/mock/members";
+
+interface Member {
+  _id: string;
+  name: string;
+  part: string;
+}
+
+interface JoinRequest {
+  _id: string;
+  name: string;
+  part: string;
+  email: string;
+  status: string; // ✅ 추가됨
+}
 
 export default function AdminMembersPage() {
-  const [members, setMembers] = useState(mockMembers);
-  const [joinRequests, setJoinRequests] = useState(mockJoinRequests);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const { showToast } = useToastStore();
 
-  const handleAddMember = (newMember: {
-    name: string;
-    part: string;
-    email?: string;
-  }) => {
-    const newId = `${newMember.part}-${String(members.length + 1).padStart(
-      2,
-      "0"
-    )}`;
-    const memberData = {
-      id: newId,
-      name: newMember.name,
-      part: newMember.part as PartKey,
-    };
-    setMembers((prev) => [...prev, memberData]);
-    setShowAddForm(false);
+  // ✅ 단원 목록 불러오기
+  const fetchMembers = async () => {
+    try {
+      const res = await fetch("/api/members");
+      if (!res.ok) throw new Error("단원 목록 불러오기 실패");
+      const data = await res.json();
+      setMembers(data);
+    } catch (error) {
+      console.error("단원 목록 불러오기 오류:", error);
+      showToast({ message: "단원 목록 불러오기 실패", type: "error" });
+    }
   };
 
-  const handleApproveRequest = (id: number) => {
-    const approvedRequest = joinRequests.find((r) => r.id === id);
-    if (!approvedRequest) return;
-
-    const newId = `${approvedRequest.part}-${String(
-      members.length + 1
-    ).padStart(2, "0")}`;
-    const newMember = {
-      id: newId,
-      name: approvedRequest.name,
-      part: approvedRequest.part as PartKey,
-    };
-
-    setMembers((prev) => [...prev, newMember]);
-    setJoinRequests((prev) => prev.filter((r) => r.id !== id));
-
-    showToast({ message: "승인 완료!", type: "success" });
+  // ✅ 가입 요청 목록 불러오기
+  const fetchJoinRequests = async () => {
+    try {
+      const res = await fetch("/api/join-requests");
+      if (!res.ok) throw new Error("가입 요청 목록 불러오기 실패");
+      const data = await res.json();
+      // ✅ status 필드 추가
+      const processedData = data.map((req: JoinRequest) => ({
+        ...req,
+        status: req.status || "pending",
+      }));
+      setJoinRequests(processedData);
+    } catch (error) {
+      console.error("가입 요청 목록 불러오기 오류:", error);
+      showToast({ message: "가입 요청 목록 불러오기 실패", type: "error" });
+    }
   };
 
-  const handleRejectRequest = (id: number) => {
-    setJoinRequests((prev) => prev.filter((r) => r.id !== id));
-    showToast({ message: "거절 처리되었습니다.", type: "error" });
+  // ✅ 단원 추가
+  const handleAddMember = async (newMember: { name: string; part: string }) => {
+    try {
+      const res = await fetch("/api/members", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newMember),
+      });
+      if (!res.ok) throw new Error("단원 추가 실패");
+      await fetchMembers();
+      setShowAddForm(false);
+      showToast({ message: "단원이 추가되었습니다.", type: "success" });
+    } catch (error) {
+      console.error("단원 추가 오류:", error);
+      showToast({ message: "단원 추가 실패", type: "error" });
+    }
   };
+
+  // ✅ 단원 삭제
+  const handleDeleteMember = async (id: string) => {
+    try {
+      const res = await fetch(`/api/members/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("단원 삭제 실패");
+      await fetchMembers();
+      showToast({ message: "단원이 삭제되었습니다.", type: "success" });
+    } catch (error) {
+      console.error("단원 삭제 오류:", error);
+      showToast({ message: "단원 삭제 실패", type: "error" });
+    }
+  };
+
+  // ✅ 가입 요청 승인
+  const handleApproveRequest = async (id: string) => {
+    try {
+      const res = await fetch(`/api/join-requests/${id}`, {
+        method: "PATCH",
+      });
+      if (!res.ok) throw new Error("가입 요청 승인 실패");
+      await fetchJoinRequests();
+      showToast({ message: "가입 요청이 승인되었습니다.", type: "success" });
+    } catch (error) {
+      console.error("가입 요청 승인 오류:", error);
+      showToast({ message: "가입 요청 승인 실패", type: "error" });
+    }
+  };
+
+  // ✅ 가입 요청 거절
+  const handleRejectRequest = async (id: string) => {
+    try {
+      const res = await fetch(`/api/join-requests/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("가입 요청 거절 실패");
+      await fetchJoinRequests();
+      showToast({ message: "가입 요청이 거절되었습니다.", type: "error" });
+    } catch (error) {
+      console.error("가입 요청 거절 오류:", error);
+      showToast({ message: "가입 요청 거절 실패", type: "error" });
+    }
+  };
+
+  useEffect(() => {
+    fetchMembers();
+    fetchJoinRequests();
+  }, []);
 
   return (
     <div className="relative p-6 max-w-5xl mx-auto">
@@ -92,19 +160,13 @@ export default function AdminMembersPage() {
         onUpdate={(id, updatedData) => {
           setMembers((prev) =>
             prev.map((m) =>
-              m.id === id
-                ? {
-                    ...m,
-                    name: updatedData.name,
-                    part: updatedData.part as PartKey,
-                  }
+              m._id === id
+                ? { ...m, name: updatedData.name, part: updatedData.part }
                 : m
             )
           );
         }}
-        onDelete={(id) => {
-          setMembers((prev) => prev.filter((m) => m.id !== id));
-        }}
+        onDelete={handleDeleteMember}
       />
     </div>
   );

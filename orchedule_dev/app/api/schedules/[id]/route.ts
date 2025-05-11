@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongoose';
-import { Schedule } from '@/models/Schedule';
+import { Schedule } from '@/src/models/schedule';
 
 // 무조건 추가
 export const dynamic = "force-dynamic";

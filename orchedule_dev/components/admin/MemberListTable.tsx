@@ -1,9 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import type { Member } from "@/lib/mock/members";
 import { parts } from "@/src/constants/parts";
 import ConfirmModal from "../modals/ConfirmModal";
+
+interface Member {
+  _id: string;
+  name: string;
+  part: string;
+}
 
 interface MemberListTableProps {
   members: Member[];
@@ -24,13 +29,8 @@ export default function MemberListTable({
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   const startEdit = (member: Member) => {
-    setEditingMemberId(member.id);
+    setEditingMemberId(member._id);
     setEditForm({ name: member.name, part: member.part });
-  };
-
-  const cancelEdit = () => {
-    setEditingMemberId(null);
-    setEditForm({ name: "", part: "" });
   };
 
   const saveEdit = (id: string) => {
@@ -61,11 +61,11 @@ export default function MemberListTable({
         </thead>
         <tbody className="bg-[#fdfcfa]">
           {members.map((member) => {
-            const isEditing = editingMemberId === member.id;
+            const isEditing = editingMemberId === member._id;
             return (
               <tr
-                key={member.id}
-                className="border-t border-[#eceae7] last:border-0 hover:bg-[#f7f6f4] transition"
+                key={member._id}
+                className="border-t border-[#eceae7] hover:bg-[#f7f6f4] transition"
               >
                 <td className="px-4 py-3 text-[#3E3232] whitespace-nowrap">
                   {isEditing ? (
@@ -103,13 +103,13 @@ export default function MemberListTable({
                   {isEditing ? (
                     <>
                       <button
-                        onClick={() => saveEdit(member.id)}
+                        onClick={() => saveEdit(member._id)}
                         className="text-xs text-[#7E6363] hover:text-[#3E3232]"
                       >
                         저장
                       </button>
                       <button
-                        onClick={cancelEdit}
+                        onClick={() => setEditingMemberId(null)}
                         className="text-xs text-[#b14040] hover:underline"
                       >
                         취소
@@ -124,7 +124,7 @@ export default function MemberListTable({
                         수정
                       </button>
                       <button
-                        onClick={() => setDeleteTargetId(member.id)}
+                        onClick={() => setDeleteTargetId(member._id)}
                         className="text-xs text-[#b14040] hover:underline"
                       >
                         삭제
@@ -138,7 +138,6 @@ export default function MemberListTable({
         </tbody>
       </table>
 
-      {/* ✅ 삭제 모달 */}
       <ConfirmModal
         open={!!deleteTargetId}
         message="정말 삭제하시겠습니까?"

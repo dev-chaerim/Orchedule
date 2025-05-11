@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongoose";
-import { Schedule } from "@/models/Schedule";
+import { Schedule } from "@/src/models/schedule";
 
 export async function GET() {
   try {

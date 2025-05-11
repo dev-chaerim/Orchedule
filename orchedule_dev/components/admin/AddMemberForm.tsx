@@ -23,7 +23,7 @@ interface AddMemberFormProps {
 
 export default function AddMemberForm({ onAdd }: AddMemberFormProps) {
   const [name, setName] = useState("");
-  const [part, setPart] = useState("");
+  const [part, setPart] = useState<string>(""); // ✅ 타입 명시
   const [email, setEmail] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -34,7 +34,7 @@ export default function AddMemberForm({ onAdd }: AddMemberFormProps) {
     }
     onAdd({ name, part, email });
     setName("");
-    setPart("");
+    setPart(""); // ✅ 상태 초기화
     setEmail("");
   };
 
@@ -59,8 +59,8 @@ export default function AddMemberForm({ onAdd }: AddMemberFormProps) {
         </label>
         <SimpleDropdown
           options={partOptions}
-          value={part}
-          onChange={setPart}
+          value={part} // ✅ 선택된 값 표시
+          onChange={(value) => setPart(value)} // ✅ 값 업데이트
           placeholder="파트를 선택하세요"
         />
       </div>
