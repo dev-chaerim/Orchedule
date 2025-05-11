@@ -1,10 +1,13 @@
-// app/(unauthenticated)/join/page.tsx
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation"; // ✅ router 사용 추가
 import SimpleDropdown from "@/components/dropdown/SimpleDropdown";
+import { useToastStore } from "@/lib/store/toast"; // ✅ 토스트 사용
 
 export default function JoinPage() {
+  const router = useRouter();
+  const { showToast } = useToastStore(); // ✅ 토스트 사용
   const [form, setForm] = useState({
     name: "",
     part: "",
@@ -18,11 +21,24 @@ export default function JoinPage() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("가입 신청 내용:", form);
-    alert("가입 신청이 완료되었습니다!");
-    // TODO: 서버로 form 데이터 보내기
+
+    try {
+      const res = await fetch("/api/join-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) throw new Error("가입 신청 실패");
+
+      showToast({ message: "가입 신청이 완료되었습니다.", type: "success" });
+      router.push("/join-success"); // ✅ 가입 성공 페이지로 이동
+    } catch (error) {
+      console.error("가입 신청 오류:", error);
+      showToast({ message: "가입 신청에 실패했습니다.", type: "error" });
+    }
   };
 
   return (
@@ -50,7 +66,7 @@ export default function JoinPage() {
           />
         </div>
 
-        {/* 파트 선택 (✅ SimpleDropdown 적용) */}
+        {/* 파트 선택 */}
         <div>
           <label className="block text-sm font-medium text-[#7E6363] mb-1">
             파트
@@ -120,7 +136,7 @@ export default function JoinPage() {
             required
             placeholder="6자 이상 입력"
             minLength={6}
-            className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-[#A5796E] focus:border-[#A5796E]"
+            className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-[#A5796E] focus:border-[#A5796F]"
           />
         </div>
 

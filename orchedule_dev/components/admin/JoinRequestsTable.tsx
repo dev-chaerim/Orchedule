@@ -53,7 +53,7 @@ export default function JoinRequestsTable({
   };
 
   return (
-    <section className="mb-10">
+    <section className="mb-10 ">
       <h2 className="text-base font-semibold text-[#3E3232] mb-3">가입 요청</h2>
 
       {requests.length === 0 ? (
@@ -61,7 +61,7 @@ export default function JoinRequestsTable({
           가입 요청이 없습니다.
         </div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto border border-[#e4e0dc] rounded-xl">
           <table className="w-full text-sm border border-[#e0dada] rounded-md overflow-hidden">
             <thead className="bg-[#f5f4f2]">
               <tr>
