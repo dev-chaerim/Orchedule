@@ -7,13 +7,11 @@ export default function JoinLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
-      <body
-        className={`bg-blue-50 ${notoSansKr.className}`}
-        cz-shortcut-listen="true"
-      >
-        {children}
-      </body>
-    </html>
+    <div
+      className={`bg-[#FAF9F6] ${notoSansKr.className}`}
+      cz-shortcut-listen="true"
+    >
+      {children}
+    </div>
   );
 }

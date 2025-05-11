@@ -6,5 +6,5 @@ export default function LoginLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className={`bg-blue-50 ${notoSansKr.className}`}>{children}</div>;
+  return <div className={` ${notoSansKr.className}`}>{children}</div>;
 }
