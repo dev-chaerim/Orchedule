@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { mockMembers, PartKey } from "@/lib/mock/members";
+import { PartKey } from "@/lib/mock/members";
 import { useToastStore } from "@/lib/store/toast";
 import { getNearestDate } from "@/lib/utils/getNearestDate";
 
