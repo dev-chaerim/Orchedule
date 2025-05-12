@@ -60,11 +60,11 @@ export default function MemberListTable({
           </tr>
         </thead>
         <tbody className="bg-[#fdfcfa]">
-          {members.map((member) => {
+          {members.map((member, index) => {
             const isEditing = editingMemberId === member._id;
             return (
               <tr
-                key={member._id}
+                key={`${member._id}-${index}`}
                 className="border-t border-[#eceae7] hover:bg-[#f7f6f4] transition"
               >
                 <td className="px-4 py-3 text-[#3E3232] whitespace-nowrap">

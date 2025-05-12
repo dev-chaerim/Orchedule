@@ -33,9 +33,14 @@ export default function AdminMembersPage() {
       if (!res.ok) throw new Error("단원 목록 불러오기 실패");
       const data = await res.json();
       setMembers(data);
-    } catch (error) {
-      console.error("단원 목록 불러오기 오류:", error);
-      showToast({ message: "단원 목록 불러오기 실패", type: "error" });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("단원 목록 불러오기 오류:", error.message);
+        showToast({ message: error.message, type: "error" });
+      } else {
+        console.error("단원 목록 불러오기 오류:", error);
+        showToast({ message: "단원 목록 불러오기 실패", type: "error" });
+      }
     }
   };
 
@@ -95,13 +100,39 @@ export default function AdminMembersPage() {
     try {
       const res = await fetch(`/api/join-requests/${id}`, {
         method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "approved" }),
       });
+
       if (!res.ok) throw new Error("가입 요청 승인 실패");
-      await fetchJoinRequests();
+
+      // ✅ 응답 데이터 파싱
+      const approvedMember = await res.json();
+      console.log("✅ 승인된 단원 데이터:", approvedMember);
+
+      // ✅ 승인된 단원을 현재 단원 목록에 추가
+      setMembers((prev) => [
+        ...prev,
+        {
+          _id: approvedMember._id,
+          name: approvedMember.name,
+          part: approvedMember.part,
+          email: approvedMember.email,
+        },
+      ]);
+
+      // ✅ 가입 요청 목록 갱신
+      setJoinRequests((prev) => prev.filter((req) => req._id !== id));
+
       showToast({ message: "가입 요청이 승인되었습니다.", type: "success" });
-    } catch (error) {
-      console.error("가입 요청 승인 오류:", error);
-      showToast({ message: "가입 요청 승인 실패", type: "error" });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("가입 요청 승인 오류:", error.message);
+        showToast({ message: error.message, type: "error" });
+      } else {
+        console.error("가입 요청 승인 오류:", error);
+        showToast({ message: "가입 요청 승인 실패", type: "error" });
+      }
     }
   };
 

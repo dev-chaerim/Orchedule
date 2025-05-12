@@ -1,8 +1,5 @@
 "use client";
 
-// import { useState } from "react";
-import { useToastStore } from "@/lib/store/toast";
-
 interface Request {
   _id: string;
   name: string;
@@ -22,36 +19,6 @@ export default function JoinRequestsTable({
   onApprove,
   onReject,
 }: JoinRequestsTableProps) {
-  const { showToast } = useToastStore();
-
-  const handleApprove = async (id: string) => {
-    try {
-      const res = await fetch(`/api/join-requests/${id}/approve`, {
-        method: "PATCH",
-      });
-      if (!res.ok) throw new Error("승인 실패");
-      onApprove(id);
-      showToast({ message: "가입 요청 승인 완료!", type: "success" });
-    } catch (error) {
-      console.error("가입 요청 승인 오류:", error);
-      showToast({ message: "가입 요청 승인 실패", type: "error" });
-    }
-  };
-
-  const handleReject = async (id: string) => {
-    try {
-      const res = await fetch(`/api/join-requests/${id}/reject`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("거절 실패");
-      onReject(id);
-      showToast({ message: "가입 요청 거절 완료!", type: "success" });
-    } catch (error) {
-      console.error("가입 요청 거절 오류:", error);
-      showToast({ message: "가입 요청 거절 실패", type: "error" });
-    }
-  };
-
   return (
     <section className="mb-10 ">
       <h2 className="text-base font-semibold text-[#3E3232] mb-3">가입 요청</h2>
@@ -81,13 +48,13 @@ export default function JoinRequestsTable({
                   <td className="px-4 py-2 hidden md:table-cell">{r.email}</td>
                   <td className="px-4 py-2 space-x-2 whitespace-nowrap">
                     <button
-                      onClick={() => handleApprove(r._id)}
+                      onClick={() => onApprove(r._id)}
                       className="px-3 py-1 text-xs rounded bg-[#C6DCBA] hover:bg-[#b7d1ac] text-[#3E3232]"
                     >
                       승인
                     </button>
                     <button
-                      onClick={() => handleReject(r._id)}
+                      onClick={() => onReject(r._id)}
                       className="px-3 py-1 text-xs rounded bg-[#f3c6c6] hover:bg-[#eaaaaa] text-[#3E3232]"
                     >
                       거절
