@@ -32,12 +32,16 @@ export default function AttendanceDashboardPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingStatus, setEditingStatus] = useState<AttendanceStatus>("출석");
 
+  const [members, setMembers] = useState<
+    { _id: string; name: string; part: PartKey }[]
+  >([]);
+
   const { showToast } = useToastStore();
 
   const filteredMembers =
     selectedPart === "전체"
-      ? mockMembers
-      : mockMembers.filter((m) => m.part === selectedPart);
+      ? members
+      : members.filter((m) => m.part === selectedPart);
 
   const counts = Array.from(attendance.values()).reduce(
     (acc, status) => {
@@ -46,6 +50,25 @@ export default function AttendanceDashboardPage() {
     },
     { 출석: 0, 지각: 0, 불참: 0 }
   );
+
+  // ✅ 멤버 데이터를 불러오는 함수
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const res = await fetch("/api/members");
+        if (!res.ok) throw new Error("멤버 데이터를 불러오는데 실패했습니다.");
+        const data = await res.json();
+        setMembers(data); // ✅ API로부터 받은 멤버 데이터 상태 업데이트
+      } catch (error) {
+        console.error("멤버 데이터 로딩 오류:", error);
+        showToast({
+          message: "멤버 데이터를 불러오는데 실패했습니다.",
+          type: "error",
+        });
+      }
+    };
+    fetchMembers();
+  }, []);
 
   useEffect(() => {
     const fetchDates = async () => {
@@ -73,22 +96,23 @@ export default function AttendanceDashboardPage() {
         const res = await fetch(`/api/attendances?date=${selectedDate}`);
         const data = await res.json();
         const map = new Map<string, AttendanceStatus>();
-        (data.records || []).forEach(
-          (r: { memberId: string; status: AttendanceStatus }) => {
-            map.set(r.memberId, r.status);
-          }
-        );
 
-        mockMembers.forEach((m) => {
-          if (!map.has(m.id)) map.set(m.id, "출석");
+        // ✅ 멤버 데이터와 출석 데이터를 매칭하여 출석 상태를 설정
+        members.forEach((m) => {
+          const found = data.records?.find(
+            (r: { memberId: string; status: AttendanceStatus }) =>
+              r.memberId === m._id
+          );
+          map.set(m._id, found?.status || "출석");
         });
 
         setAttendance(map);
       } catch (error) {
         console.error("출석 데이터 로딩 실패:", error);
-        const fallback = new Map<string, AttendanceStatus>();
-        mockMembers.forEach((m) => fallback.set(m.id, "출석"));
-        setAttendance(fallback);
+        showToast({
+          message: "출석 데이터 로딩에 실패했습니다.",
+          type: "error",
+        });
       }
     };
 
@@ -266,12 +290,12 @@ export default function AttendanceDashboardPage() {
           </thead>
           <tbody className="bg-[#fdfcfa]">
             {filteredMembers.map((member) => {
-              const isEditing = editingId === member.id;
-              const currentStatus = attendance.get(member.id) ?? "출석";
+              const isEditing = editingId === member._id;
+              const currentStatus = attendance.get(member._id) ?? "출석";
 
               return (
                 <tr
-                  key={member.id}
+                  key={member._id}
                   className="border-t border-[#eceae7] last:border-0 hover:bg-[#f7f6f4] transition"
                 >
                   <td className="px-4 py-3 text-[#3E3232] whitespace-nowrap">
@@ -315,7 +339,7 @@ export default function AttendanceDashboardPage() {
                       </>
                     ) : (
                       <button
-                        onClick={() => startEdit(member.id)}
+                        onClick={() => startEdit(member._id)}
                         className="text-xs text-[#7E6363] hover:text-[#3E3232]"
                       >
                         수정
