@@ -1,10 +1,13 @@
 // lib/store/season.ts
 import { create } from "zustand";
-
 export interface Season {
-  id: number;
+  _id: string;  // ✅ 수정: number -> string
   name: string;
+  startDate: string;
+  endDate?: string;
+  pieces: string[];
 }
+
 
 interface SeasonState {
   selectedSeason: Season | null;
