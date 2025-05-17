@@ -1,31 +1,76 @@
+// /app/(authenticated)/admin/season/[id]/page.tsx
+
 "use client";
 
-import { use } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { notFound } from "next/navigation";
-import { mockSeasons } from "@/lib/mock/seasons";
 import BackButton from "@/components/BackButton";
 import ConfirmModal from "@/components/modals/ConfirmModal";
-import { useState } from "react";
 import Link from "next/link";
 
-interface Props {
-  params: Promise<{ id: string }>;
+interface Season {
+  _id: string;
+  name: string;
+  startDate: string;
+  endDate?: string;
+  pieces: string[];
 }
 
-export default function SeasonDetailPage({ params }: Props) {
-  const { id } = use(params);
+export default function SeasonDetailPage() {
+  // ✅ useParams로 URL 파라미터 가져오기
+  const { id } = useParams();
   const router = useRouter();
-  const season = mockSeasons.find((s) => s.id.toString() === id);
+  const [season, setSeason] = useState<Season | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  if (!season) return notFound();
+  // ✅ 시즌 상세 데이터 가져오기
+  useEffect(() => {
+    if (!id) return;
 
-  const handleDelete = () => {
-    // 삭제 로직은 여기에 실제 API로 연결 예정
-    console.log("삭제된 시즌 ID:", season.id);
-    router.push("/admin/season");
+    const fetchSeason = async () => {
+      try {
+        const res = await fetch(`/api/seasons/${id}`);
+        if (!res.ok) throw new Error("시즌 정보를 불러오지 못했습니다.");
+        const data = await res.json();
+        setSeason(data);
+      } catch (error) {
+        console.error("시즌 상세 정보 불러오기 실패:", error);
+        notFound();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSeason();
+  }, [id]);
+
+  // ✅ 삭제 요청 처리
+  const handleDelete = async () => {
+    try {
+      const res = await fetch(`/api/seasons/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("시즌 삭제 실패");
+      router.push("/admin/season");
+    } catch (error) {
+      console.error("시즌 삭제 오류:", error);
+      alert("시즌 삭제에 실패했습니다.");
+    }
   };
+
+  // ✅ 로딩 중 표시
+  if (isLoading) {
+    return (
+      <main className="max-w-3xl mx-auto p-6">
+        <p className="text-gray-500">로딩 중...</p>
+      </main>
+    );
+  }
+
+  // ✅ 시즌이 없을 때 처리
+  if (!season) return notFound();
 
   return (
     <main className="max-w-3xl mx-auto p-6 space-y-4">
@@ -36,11 +81,11 @@ export default function SeasonDetailPage({ params }: Props) {
           <div>
             <h1 className="text-lg font-bold text-[#3E3232]">{season.name}</h1>
             <p className="text-sm text-gray-500">
-              기간: {season.startDate} ~ {season.endDate}
+              기간: {season.startDate} ~ {season.endDate || "미정"}
             </p>
           </div>
           <div className="flex gap-2">
-            <Link href={`/admin/season/${season.id}/edit`}>
+            <Link href={`/admin/season/${season._id}/edit`}>
               <button className="text-xs font-semibold bg-[#F4ECE7] text-[#3E3232] px-3 py-1 rounded-md hover:bg-[#e3dcd7] transition">
                 수정
               </button>

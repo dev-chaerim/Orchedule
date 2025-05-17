@@ -1,50 +1,102 @@
 "use client";
 
-import { use } from "react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { mockSeasons } from "@/lib/mock/seasons";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 
-interface Props {
-  params: Promise<{ id: string }>;
-}
-
-export default function EditSeasonPage({ params }: Props) {
-  const { id } = use(params);
+export default function EditSeasonPage() {
+  const { id } = useParams();
   const router = useRouter();
 
-  const season = mockSeasons.find((s) => s.id.toString() === id);
+  const [name, setName] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [pieces, setPieces] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const [name, setName] = useState(season?.name ?? "");
-  const [startDate, setStartDate] = useState(season?.startDate ?? "");
-  const [endDate, setEndDate] = useState(season?.endDate ?? "");
-  const [pieces, setPieces] = useState<string[]>(season?.pieces ?? []);
+  // ✅ 시즌 데이터 가져오기
+  useEffect(() => {
+    if (!id) return;
 
-  if (!season) return <div>시즌 정보를 찾을 수 없습니다.</div>;
+    const fetchSeason = async () => {
+      try {
+        const res = await fetch(`/api/seasons/${id}`);
+        if (!res.ok) throw new Error("시즌 정보를 불러오지 못했습니다.");
+        const data = await res.json();
+        setName(data.name);
+        setStartDate(data.startDate);
+        setEndDate(data.endDate || "");
+        setPieces(data.pieces || []);
+      } catch (error) {
+        console.error("시즌 데이터 불러오기 실패:", error);
+        setErrorMessage("시즌 데이터를 불러오는데 실패했습니다.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSeason();
+  }, [id]);
 
+  // ✅ 곡 추가
   const handleAddPiece = () => {
     setPieces([...pieces, ""]);
   };
 
+  // ✅ 곡 삭제
   const handleRemovePiece = (index: number) => {
     setPieces(pieces.filter((_, i) => i !== index));
   };
 
+  // ✅ 곡 수정
   const handleChangePiece = (index: number, value: string) => {
     const updated = [...pieces];
     updated[index] = value;
     setPieces(updated);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // ✅ 수정 요청 처리
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("🛠 수정 완료", { name, startDate, endDate, pieces });
-    router.push(`/admin/season/${season.id}`);
+    setErrorMessage(null);
+
+    const updatedSeason = {
+      name,
+      startDate,
+      endDate,
+      pieces,
+    };
+
+    try {
+      const res = await fetch(`/api/seasons/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedSeason),
+      });
+
+      if (!res.ok) throw new Error("시즌 수정 실패");
+      router.push(`/admin/season/${id}`);
+    } catch (error) {
+      console.error("수정 오류:", error);
+      setErrorMessage("수정에 실패했습니다. 다시 시도해주세요.");
+    }
   };
+
+  // ✅ 로딩 처리
+  if (isLoading) {
+    return (
+      <main className="max-w-2xl mx-auto p-6">
+        <p className="text-gray-500">로딩 중...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="max-w-2xl mx-auto p-6">
       <h1 className="text-xl font-bold mb-4 text-[#3E3232]">시즌 수정</h1>
+
+      {errorMessage && (
+        <p className="text-sm text-red-600 mb-2">{errorMessage}</p>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
@@ -70,7 +122,7 @@ export default function EditSeasonPage({ params }: Props) {
           />
         </div>
 
-        {/* 🎵 곡 섹션 */}
+        {/* 🎵 곡 목록 */}
         <div className="space-y-2 pt-2">
           <h2 className="text-sm font-semibold text-[#3E3232]">곡 목록</h2>
           {pieces.map((piece, index) => (
