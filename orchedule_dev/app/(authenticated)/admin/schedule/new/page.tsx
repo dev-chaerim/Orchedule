@@ -31,7 +31,7 @@ export default function NewSchedulePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          seasonId: selectedSeason.id,
+          seasonId: selectedSeason._id,
           ...data,
         }),
       });
@@ -51,7 +51,7 @@ export default function NewSchedulePage() {
   };
 
   const handleGoToList = () => {
-    router.push("/admin/schedules");
+    router.push("/admin/schedule");
   };
 
   return (

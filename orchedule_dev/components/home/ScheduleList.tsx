@@ -28,7 +28,9 @@ export default function ScheduleList() {
 
       try {
         setLoading(true);
-        const res = await fetch(`/api/schedules?seasonId=${selectedSeason.id}`);
+        const res = await fetch(
+          `/api/schedules?seasonId=${selectedSeason._id}`
+        );
         if (!res.ok) throw new Error("Failed to fetch schedules");
         const data: Schedule[] = await res.json();
 
@@ -93,7 +95,9 @@ export default function ScheduleList() {
       </div>
 
       {filteredSchedules.length === 0 ? (
-        <p className="text-sm text-gray-400">등록된 연습 일정이 없습니다.</p>
+        <p className="text-sm text-[#7e6a5c] text-center py-10 border border-dashed border-[#e0dada] rounded-md bg-white">
+          등록된 연습 일정이 없습니다.
+        </p>
       ) : (
         filteredSchedules.map((schedule) => {
           const [month, day] = format(new Date(schedule.date), "MMM d").split(
@@ -111,7 +115,7 @@ export default function ScheduleList() {
               <div className="flex-1 p-3 text-sm text-[#3E3232]">
                 {schedule.pieces.map((piece, idx) => (
                   <div key={idx} className="mb-1">
-                    <p className="text-xs text-gray-500">{piece.time}</p>
+                    <p className="text-xs text-gray-500 mb-1">{piece.time}</p>
                     <p className="text-sm text-[#3E3232]">{piece.title}</p>
                     {piece.note && (
                       <p className="text-xs text-gray-400 mt-1">{piece.note}</p>

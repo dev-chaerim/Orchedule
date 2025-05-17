@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import SimpleSongDropdown from "@/components/admin/SimpleSongDropdown";
+import { useSeasonStore } from "@/src/lib/store/season";
 
 interface Piece {
   time: string;
@@ -25,6 +26,7 @@ export default function ScheduleForm({
 }: ScheduleFormProps) {
   const [date, setDate] = useState(defaultDate);
   const [pieces, setPieces] = useState<Piece[]>(defaultPieces);
+  const selectedSeason = useSeasonStore((state) => state.selectedSeason);
 
   const handlePieceChange = (
     index: number,
@@ -96,11 +98,7 @@ export default function ScheduleForm({
 
             {/* 곡명 */}
             <SimpleSongDropdown
-              options={[
-                "Beethoven Symphony No.5",
-                "Mozart Symphony No. 40",
-                "Brahms Symphony No.1",
-              ]}
+              options={selectedSeason?.pieces || []}
               value={piece.title}
               onChange={(val) => handlePieceChange(idx, "title", val)}
             />
@@ -121,7 +119,7 @@ export default function ScheduleForm({
           onClick={handleAddPiece}
           className="text-sm text-[#5c4f4f] hover:underline"
         >
-          + 곡 추가
+          + 시간 추가
         </button>
       </div>
 

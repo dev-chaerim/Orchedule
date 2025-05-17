@@ -23,13 +23,13 @@ export default function SchedulePage() {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const router = useRouter();
 
-  console.log("✅ 현재 선택된 시즌 ID:", selectedSeason?.id);
+  console.log("✅ 현재 선택된 시즌 ID:", selectedSeason?._id);
 
   useEffect(() => {
     const fetchSchedules = async () => {
       try {
         const res = await fetch(
-          `/api/schedules?seasonId=${selectedSeason?.id}`
+          `/api/schedules?seasonId=${selectedSeason?._id}`
         );
         const data = await res.json();
         setSchedules(data);
