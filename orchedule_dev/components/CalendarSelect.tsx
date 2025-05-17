@@ -36,6 +36,7 @@ const CalendarSelect = () => {
         const res = await fetch("/api/schedules");
         if (!res.ok) throw new Error("서버 오류 발생");
         const data = await res.json();
+        console.log("연습일정 data", data);
         setSchedules(data);
       } catch (err) {
         console.log("err", err);

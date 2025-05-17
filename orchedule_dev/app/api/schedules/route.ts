@@ -6,13 +6,18 @@ export async function GET(req: NextRequest) {
   await connectDB();
 
   const { searchParams } = new URL(req.url);
-  const seasonId = searchParams.get('seasonId');
+  const seasonId = searchParams.get("seasonId");
 
-  const query = seasonId ? { seasonId } : {};
-  const schedules = await Schedule.find(query).sort({ date: 1 });
-
-  return NextResponse.json(schedules);
+  try {
+    const query = seasonId ? { seasonId } : {};
+    const schedules = await Schedule.find(query).sort({ date: 1 });
+    return NextResponse.json(schedules);
+  } catch (error) {
+    console.log(error)
+    return NextResponse.json({ error: "일정 불러오기 실패" }, { status: 500 });
+  }
 }
+
 
 export async function POST(req: NextRequest) {
   await connectDB();

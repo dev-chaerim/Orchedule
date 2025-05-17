@@ -15,7 +15,7 @@ interface Season {
 
 export default function SeasonDropdown() {
   const [open, setOpen] = useState(false);
-  const [seasons, setSeasons] = useState<{ _id: string; name: string }[]>([]);
+  const [seasons, setSeasons] = useState<Season[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
@@ -63,20 +63,14 @@ export default function SeasonDropdown() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSelectSeason = (selected: { _id: string; name: string }) => {
-    const formattedSeason: Season = {
-      _id: selected._id,
-      name: selected.name,
-      startDate: "", // 필요한 필드 추가
-      endDate: "",
-      pieces: [],
-    };
-    setSelectedSeason(formattedSeason);
+  // ✅ 시즌 선택 핸들러
+  const handleSelectSeason = (selected: Season | null) => {
+    setSelectedSeason(selected);
     setOpen(false);
   };
 
-  // ✅ 기본값이 없으면 "시즌 선택" 표시
-  const displayedSeason = selectedSeason ? selectedSeason.name : "시즌 선택";
+  // ✅ 기본값이 없으면 "전체"로 표시
+  const displayedSeason = selectedSeason ? selectedSeason.name : "전체";
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -90,12 +84,19 @@ export default function SeasonDropdown() {
 
       {open && (
         <div className="absolute left-0 mt-1 w-28 bg-white border border-gray-300 rounded shadow text-xs z-10">
+          {/* ✅ 전체 옵션 */}
+          <button
+            key="all"
+            onClick={() => handleSelectSeason(null)}
+            className="block w-full px-3 py-1 text-left hover:bg-gray-100"
+          >
+            전체
+          </button>
+
           {seasons.map((season) => (
             <button
               key={season._id}
-              onClick={() => {
-                handleSelectSeason(season);
-              }}
+              onClick={() => handleSelectSeason(season)}
               className="block w-full px-3 py-1 text-left hover:bg-gray-100"
             >
               {season.name}

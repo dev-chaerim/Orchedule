@@ -23,22 +23,25 @@ export default function SchedulePage() {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const router = useRouter();
 
-  console.log("✅ 현재 선택된 시즌 ID:", selectedSeason?._id);
-
   useEffect(() => {
     const fetchSchedules = async () => {
       try {
-        const res = await fetch(
-          `/api/schedules?seasonId=${selectedSeason?._id}`
-        );
+        // ✅ 전체 시즌일 경우 seasonId 파라미터를 제거
+        const url = selectedSeason
+          ? `/api/schedules?seasonId=${selectedSeason._id}`
+          : `/api/schedules`;
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("일정 불러오기 실패");
         const data = await res.json();
         setSchedules(data);
+        console.log("관리자 연습일정 data", data);
       } catch (err) {
         console.error("일정 불러오기 실패:", err);
       }
     };
 
-    if (selectedSeason) fetchSchedules();
+    fetchSchedules();
   }, [selectedSeason]);
 
   const handleDelete = async (id: string) => {

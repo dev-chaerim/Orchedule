@@ -11,7 +11,7 @@ export interface Season {
 
 interface SeasonState {
   selectedSeason: Season | null;
-  setSelectedSeason: (season: Season) => void;
+  setSelectedSeason: (season:  Season | null) => void;
 }
 
 export const useSeasonStore = create<SeasonState>((set) => ({
