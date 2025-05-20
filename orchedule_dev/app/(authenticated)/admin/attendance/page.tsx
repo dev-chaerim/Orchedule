@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { PartKey } from "@/lib/mock/members";
 import { useToastStore } from "@/lib/store/toast";
 import { getNearestDate } from "@/lib/utils/getNearestDate";
+import { useSeasonStore } from "@/lib/store/season";
 
 type AttendanceStatus = "출석" | "지각" | "불참";
 
@@ -37,6 +38,9 @@ export default function AttendanceDashboardPage() {
   >([]);
 
   const { showToast } = useToastStore();
+
+  const selectedSeason = useSeasonStore((state) => state.selectedSeason);
+  const seasonId = selectedSeason?._id;
 
   const filteredMembers =
     selectedPart === "전체"
@@ -89,11 +93,14 @@ export default function AttendanceDashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (!selectedDate) return;
+    if (!selectedDate || !selectedSeason) return;
 
+    console.log("seasonId, selectedDate", seasonId, selectedDate);
     const fetchAttendance = async () => {
       try {
-        const res = await fetch(`/api/attendances?date=${selectedDate}`);
+        const res = await fetch(
+          `/api/attendances?date=${selectedDate}&seasonId=${seasonId}`
+        );
         const data = await res.json();
         const map = new Map<string, AttendanceStatus>();
 
@@ -130,7 +137,7 @@ export default function AttendanceDashboardPage() {
 
     fetchAttendance();
     fetchSchedule();
-  }, [selectedDate]);
+  }, [selectedDate, selectedSeason]);
 
   const startEdit = (memberId: string) => {
     const current = attendance.get(memberId) ?? "출석";
@@ -144,43 +151,49 @@ export default function AttendanceDashboardPage() {
   };
 
   const saveEdit = async () => {
-    if (!editingId || !selectedDate) return;
+    if (!editingId || !selectedDate || !seasonId) return;
 
     try {
-      const checkRes = await fetch(`/api/attendances?date=${selectedDate}`);
+      // ✅ 기존 출석 데이터 있는지 확인
+      const checkRes = await fetch(
+        `/api/attendances?date=${selectedDate}&seasonId=${seasonId}`
+      );
       const checkData = await checkRes.json();
 
+      // ✅ 없으면 먼저 생성 (기본 출석값으로 빈 records라도 생성)
       if (!checkData.records || checkData.records.length === 0) {
         await fetch(`/api/attendances`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             date: selectedDate,
-            records: [],
+            seasonId,
+            memberId: editingId,
+            status: editingStatus,
           }),
         });
+      } else {
+        // ✅ 있으면 PATCH로 수정
+        await fetch(
+          `/api/attendances?date=${selectedDate}&seasonId=${seasonId}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              date: selectedDate,
+              seasonId,
+              memberId: editingId,
+              status: editingStatus,
+            }),
+          }
+        );
       }
 
-      const res = await fetch(`/api/attendances?date=${selectedDate}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          date: selectedDate,
-          memberId: editingId,
-          status: editingStatus,
-        }),
-      });
-
-      if (!res.ok) throw new Error("저장 실패");
-
-      // ✅ 저장 성공 시 토스트 표시
       showToast({ message: "출석 상태가 저장되었습니다.", type: "success" });
-
       setAttendance((prev) => new Map(prev).set(editingId, editingStatus));
       setEditingId(null);
     } catch (error) {
       console.error("출석 저장 오류:", error);
-      // ✅ 저장 실패 시 토스트 표시
       showToast({ message: "출석 상태 저장에 실패했습니다.", type: "error" });
     }
   };
