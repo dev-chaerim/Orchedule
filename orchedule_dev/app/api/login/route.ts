@@ -1,3 +1,4 @@
+// orchedule_dev/app/api/login/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 
@@ -9,6 +10,7 @@ export async function POST(req: NextRequest) {
   // ✅ 관리자 계정
   if (email === 'admin@naver.com' && password === '1234') {
     const user = {
+      id: 'admin123',  // ✅ ID 추가
       name: '관리자',
       part: '지휘자',
       role: 'admin',
@@ -29,6 +31,7 @@ export async function POST(req: NextRequest) {
   // ✅ 일반 사용자 계정
   if (email === 'user@naver.com' && password === '1234') {
     const user = {
+      id: 'user123',  // ✅ ID 추가
       name: '김단원',
       part: 'Vn1',
       role: 'user',

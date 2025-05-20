@@ -3,6 +3,7 @@ import { Schema, model, models } from "mongoose";
 
 const AttendanceSchema = new Schema({
   date: { type: String, required: true }, // 예: "2025-04-29"
+  seasonId: { type: String, required: true },
   records: [
     {
       memberId: { type: String, required: true },

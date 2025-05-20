@@ -6,8 +6,8 @@ export const noticeTabs = [
   
   export const attendanceTabs = [
     { name: '출석부', href: '/menu/attendance/check' },
-    { name: '나의 출석', href: '/menu/attendance/my-atd' },
     { name: '출석 현황', href: '/menu/attendance/status' },
+    { name: '나의 출석', href: '/menu/attendance/my-atd' },
   ];
   
   export const scoreTabs = [
