@@ -25,7 +25,8 @@ interface Season {
 }
 
 export default function AttendanceForm() {
-  const { showToast } = useToastStore();
+  const showToast = useToastStore((state) => state.showToast);
+
   const { user } = useUserStore();
   // const [date] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState("");

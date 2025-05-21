@@ -7,7 +7,7 @@ import { useToastStore } from "@/lib/store/toast"; // ✅ 토스트 사용
 
 export default function JoinPage() {
   const router = useRouter();
-  const { showToast } = useToastStore(); // ✅ 토스트 사용
+  const showToast = useToastStore((state) => state.showToast); // ✅ 토스트 사용
   const [form, setForm] = useState({
     name: "",
     part: "",

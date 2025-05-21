@@ -37,7 +37,7 @@ export default function AttendanceDashboardPage() {
     { _id: string; name: string; part: PartKey }[]
   >([]);
 
-  const { showToast } = useToastStore();
+  const showToast = useToastStore((state) => state.showToast);
 
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
   const seasonId = selectedSeason?._id;

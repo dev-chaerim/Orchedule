@@ -28,7 +28,7 @@ export default function ConfirmModal({
   errorMessage = "오류가 발생했습니다.",
 }: ConfirmModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
-  const { showToast } = useToastStore();
+  const showToast = useToastStore((state) => state.showToast);
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {

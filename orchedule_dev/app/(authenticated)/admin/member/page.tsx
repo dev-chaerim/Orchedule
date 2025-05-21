@@ -24,7 +24,7 @@ export default function AdminMembersPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const { showToast } = useToastStore();
+  const showToast = useToastStore((state) => state.showToast);
 
   // ✅ 단원 목록 불러오기
   const fetchMembers = async () => {
