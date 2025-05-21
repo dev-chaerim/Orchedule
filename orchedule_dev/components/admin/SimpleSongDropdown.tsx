@@ -1,8 +1,6 @@
-// ✅ components/admin/SimpleSongDropdown.tsx
-
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface SimpleSongDropdownProps {
   options: string[];
@@ -19,6 +17,11 @@ export default function SimpleSongDropdown({
 }: SimpleSongDropdownProps) {
   const [showList, setShowList] = useState(false);
   const [inputValue, setInputValue] = useState(value);
+
+  // ✅ 외부에서 value가 바뀌면 inputValue도 같이 바꿔주기
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
 
   const filtered = options.filter((option) =>
     option.toLowerCase().includes(inputValue.toLowerCase())
@@ -51,7 +54,10 @@ export default function SimpleSongDropdown({
           {filtered.map((item) => (
             <li
               key={item}
-              onClick={() => handleSelect(item)}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                handleSelect(item);
+              }}
               className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
             >
               {item}
