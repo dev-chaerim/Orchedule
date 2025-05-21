@@ -27,7 +27,7 @@ interface Season {
 export default function AttendanceForm() {
   const { showToast } = useToastStore();
   const { user } = useUserStore();
-  const [date] = useState(new Date());
+  // const [date] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>(statuses[0]);
   const [loading, setLoading] = useState(false);
@@ -45,14 +45,13 @@ export default function AttendanceForm() {
 
   const fetchAttendance = async () => {
     try {
-      if (!seasonId) {
-        console.error("시즌 ID가 설정되지 않았습니다.");
+      if (!seasonId || !selectedDate) {
+        console.error("시즌 ID 혹은 날짜가가 설정되지 않았습니다.");
         return;
       }
-      console.log("date, seasonID", date, seasonId);
       const response = await fetch(
         `/api/attendances?date=${format(
-          date,
+          selectedDate,
           "yyyy-MM-dd"
         )}&seasonId=${seasonId}`
       );
@@ -144,7 +143,7 @@ export default function AttendanceForm() {
 
       // ✅ 전송 데이터 확인
       const requestData = {
-        date: format(date, "yyyy-MM-dd"),
+        date: format(selectedDate, "yyyy-MM-dd"),
         seasonId,
         memberId: user.id,
         status: selectedStatus,
