@@ -91,20 +91,17 @@ export default function AttendanceDashboardPage() {
     };
     fetchDates();
   }, []);
-
+  // ✅ 출석 상태 - 실시간 polling
   useEffect(() => {
     if (!selectedDate || !selectedSeason) return;
 
-    console.log("seasonId, selectedDate", seasonId, selectedDate);
     const fetchAttendance = async () => {
       try {
         const res = await fetch(
-          `/api/attendances?date=${selectedDate}&seasonId=${seasonId}`
+          `/api/attendances?date=${selectedDate}&seasonId=${selectedSeason._id}`
         );
         const data = await res.json();
         const map = new Map<string, AttendanceStatus>();
-
-        // ✅ 멤버 데이터와 출석 데이터를 매칭하여 출석 상태를 설정
         members.forEach((m) => {
           const found = data.records?.find(
             (r: { memberId: string; status: AttendanceStatus }) =>
@@ -112,32 +109,35 @@ export default function AttendanceDashboardPage() {
           );
           map.set(m._id, found?.status || "출석");
         });
-
         setAttendance(map);
-      } catch (error) {
-        console.error("출석 데이터 로딩 실패:", error);
-        showToast({
-          message: "출석 데이터 로딩에 실패했습니다.",
-          type: "error",
-        });
+      } catch (err) {
+        console.error("출석 로딩 실패:", err);
+        showToast({ message: "출석 데이터 로딩 실패", type: "error" });
       }
     };
 
+    fetchAttendance();
+    const interval = setInterval(fetchAttendance, 5000); // ⏱️ 5초마다
+    return () => clearInterval(interval);
+  }, [selectedDate, selectedSeason, members, showToast]);
+
+  // ✅ 연습 일정 - 최초 1회만 실행
+  useEffect(() => {
     const fetchSchedule = async () => {
       try {
         const res = await fetch("/api/schedules");
         const all = await res.json();
         const matched = all.find((s: ScheduleData) => s.date === selectedDate);
         setScheduleDetail(matched || null);
-      } catch (error) {
-        console.error("스케줄 상세 정보 불러오기 실패:", error);
-        setScheduleDetail(null);
+      } catch (err) {
+        console.error("스케줄 로딩 실패:", err);
       }
     };
 
-    fetchAttendance();
-    fetchSchedule();
-  }, [selectedDate, selectedSeason]);
+    if (selectedDate) {
+      fetchSchedule();
+    }
+  }, [selectedDate]);
 
   const startEdit = (memberId: string) => {
     const current = attendance.get(memberId) ?? "출석";

@@ -43,53 +43,33 @@ export default function AttendanceForm() {
     fetchDates();
   }, []);
 
-  const fetchAttendance = async () => {
-    try {
-      if (!seasonId || !selectedDate) {
-        console.error("시즌 ID 혹은 날짜가가 설정되지 않았습니다.");
-        return;
-      }
-      const response = await fetch(
-        `/api/attendances?date=${format(
-          selectedDate,
-          "yyyy-MM-dd"
-        )}&seasonId=${seasonId}`
-      );
-
-      if (!response.ok) throw new Error("출석 상태 불러오기 실패");
-
-      const data = await response.json();
-      console.log("불러온 출석 데이터:", data); // ✅ 데이터 구조 확인
-
-      if (!data || !data.records) {
-        console.warn("출석 데이터 없음 또는 잘못된 형식");
-        return;
-      }
-
-      console.log("user?.id", user?.id);
-      console.log("전체 records:", data.records);
-
-      // ✅ 사용자 출석 상태 확인
-      const userRecord = data.records.find(
-        (record: AttendanceRecord) => record.memberId === user?.id
-      );
-      console.log("userRecord", userRecord);
-      if (userRecord) {
-        setSelectedStatus(userRecord.status);
-        console.log("기존 출석 상태 불러옴:", userRecord.status);
-      } else {
-        console.log("기존 출석 데이터 없음");
-      }
-    } catch (error) {
-      console.error("출석 상태 불러오기 오류:", error);
-      showToast({ message: "출석 상태 불러오기 실패", type: "error" });
-    }
-  };
-
-  // ✅ useEffect로 페이지 로드 시 출석 상태 가져오기
   useEffect(() => {
-    if (user && seasonId) fetchAttendance();
-  }, [user, seasonId]);
+    if (!user || !seasonId || !selectedDate) return;
+
+    const fetchAttendance = async () => {
+      try {
+        const response = await fetch(
+          `/api/attendances?date=${format(
+            selectedDate,
+            "yyyy-MM-dd"
+          )}&seasonId=${seasonId}`
+        );
+        const data = await response.json();
+
+        const userRecord = data.records.find(
+          (r: AttendanceRecord) => r.memberId === user.id
+        );
+        setSelectedStatus(userRecord?.status || "출석");
+      } catch (err) {
+        console.error("출석 상태 불러오기 오류:", err);
+        showToast({ message: "출석 상태 불러오기 실패", type: "error" });
+      }
+    };
+
+    fetchAttendance();
+    const interval = setInterval(fetchAttendance, 5000);
+    return () => clearInterval(interval);
+  }, [user, seasonId, selectedDate, showToast]);
 
   // ✅ 최근 시즌 가져오기
   useEffect(() => {
