@@ -1,7 +1,25 @@
 "use client";
 
-import { mockMembers, PartKey } from "@/src/lib/mock/members";
-import { todayAttendance, AttendanceStatus } from "@/src/lib/mock/attendance";
+import { useEffect, useState } from "react";
+import { AttendanceStatus } from "@/src/lib/mock/attendance"; // 또는 실제 enum/type
+import { useSeasonStore } from "@/lib/store/season";
+import { getNearestDate } from "@/lib/utils/getNearestDate";
+
+interface Member {
+  _id: string;
+  name: string;
+  part: string;
+}
+
+interface AttendanceRecord {
+  memberId: string;
+  status: AttendanceStatus;
+}
+
+interface AttendanceData {
+  date: string;
+  records: AttendanceRecord[];
+}
 
 const getStatusColor = (status: AttendanceStatus) => {
   switch (status) {
@@ -16,7 +34,7 @@ const getStatusColor = (status: AttendanceStatus) => {
   }
 };
 
-const getPartBgColor = (part: PartKey) => {
+const getPartBgColor = (part: string) => {
   switch (part) {
     case "Vn1":
       return "bg-[#C3C3C3]";
@@ -24,21 +42,65 @@ const getPartBgColor = (part: PartKey) => {
       return "bg-[#BBB3AA]";
     case "Va":
       return "bg-[#C3C3C3]";
-    // …다른 파트도 추가…
     default:
       return "bg-gray-200";
   }
 };
 
-const MemberAttendanceList = () => {
-  // 오늘 출석 기록을 Map<memberId, status> 로 만듭니다.
-  const statusMap = new Map<string, AttendanceStatus>(
-    todayAttendance.records.map((r) => [r.memberId, r.status])
-  );
+export default function MemberAttendanceList() {
+  const { selectedSeason } = useSeasonStore();
+  const [members, setMembers] = useState<Member[]>([]);
+  const [attendanceMap, setAttendanceMap] = useState<
+    Map<string, AttendanceStatus>
+  >(new Map());
 
-  // 출석(기본)인 경우를 제외하고 지각/불참인 멤버만 추려냅니다.
-  const absentOrLate = mockMembers.filter((member) => {
-    const status = statusMap.get(member.id) ?? "출석";
+  const [date, setDate] = useState(""); // 가장 가까운 연습일
+
+  // ✅ 날짜 계산
+  useEffect(() => {
+    const fetchDates = async () => {
+      const res = await fetch("/api/schedules/dates");
+      const data: string[] = await res.json();
+      const nearest = getNearestDate(data);
+      setDate(nearest);
+    };
+    fetchDates();
+  }, []);
+
+  // ✅ 멤버 불러오기
+  useEffect(() => {
+    const fetchMembers = async () => {
+      const res = await fetch("/api/members");
+      const data: Member[] = await res.json();
+      setMembers(data);
+    };
+    fetchMembers();
+  }, []);
+
+  // ✅ 출석 상태 불러오기
+  useEffect(() => {
+    if (!date || !selectedSeason?._id) return;
+
+    const fetchAttendance = async () => {
+      const res = await fetch(
+        `/api/attendances?date=${date}&seasonId=${selectedSeason._id}`
+      );
+      const data: AttendanceData = await res.json();
+
+      const map = new Map<string, AttendanceStatus>();
+      members.forEach((m) => {
+        const found = data.records?.find((r) => r.memberId === m._id);
+        map.set(m._id, found?.status || "출석");
+      });
+      setAttendanceMap(map);
+    };
+
+    fetchAttendance();
+  }, [date, selectedSeason, members]);
+
+  // ✅ 결원 (지각/불참만)
+  const absentOrLate = members.filter((m) => {
+    const status = attendanceMap.get(m._id) ?? "출석";
     return status !== "출석";
   });
 
@@ -49,35 +111,26 @@ const MemberAttendanceList = () => {
 
         <div className="space-y-3">
           {absentOrLate.map((member) => {
-            const status = statusMap.get(member.id)!; // 필터로 인해 '출석'이 아닌 값만 남음
-
+            const status = attendanceMap.get(member._id)!;
             return (
               <div
-                key={member.id}
+                key={member._id}
                 className="flex items-center justify-between bg-white shadow-sm rounded-xl overflow-hidden"
               >
-                {/* 파트 라벨 */}
                 <div
-                  className={`
-                    px-3 py-2 text-sm font-semibold text-white 
-                    min-w-[48px] text-center
-                    ${getPartBgColor(member.part)}
-                  `}
+                  className={`px-3 py-2 text-sm font-semibold text-white min-w-[48px] text-center ${getPartBgColor(
+                    member.part
+                  )}`}
                 >
                   {member.part}
                 </div>
-
-                {/* 이름 */}
                 <div className="flex-1 text-sm text-[#3e3232] px-4">
                   {member.name}
                 </div>
-
-                {/* 출석 상태 */}
                 <div
-                  className={`
-                    px-3 py-1 text-xs font-semibold rounded-full mr-3
-                    ${getStatusColor(status)}
-                  `}
+                  className={`px-3 py-1 text-xs font-semibold rounded-full mr-3 ${getStatusColor(
+                    status
+                  )}`}
                 >
                   {status}
                 </div>
@@ -94,6 +147,4 @@ const MemberAttendanceList = () => {
       </div>
     </div>
   );
-};
-
-export default MemberAttendanceList;
+}

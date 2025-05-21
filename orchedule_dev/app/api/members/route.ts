@@ -14,18 +14,21 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  try {
-    await connectDB();
-    const { name, part } = await req.json();
+  await connectDB();
 
-    if (!name || !part) {
-      return NextResponse.json({ message: "이름과 파트를 모두 입력해주세요." }, { status: 400 });
+  try {
+    const { _id, name, part } = await req.json();
+
+    if (!_id || !name || !part) {
+      return NextResponse.json({ message: "모든 필드가 필요합니다." }, { status: 400 });
     }
 
-    const newMember = await Member.create({ name, part });
+    const newMember = await Member.create({ _id, name, part });
+
     return NextResponse.json(newMember, { status: 201 });
-  } catch (error) {
-    console.error("멤버 추가 실패:", error);
+  } catch (err) {
+    console.error("멤버 추가 실패:", err);
     return NextResponse.json({ message: "서버 오류" }, { status: 500 });
   }
 }
+
