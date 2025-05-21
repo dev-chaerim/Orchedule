@@ -6,6 +6,7 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { format } from "date-fns";
 import { useToastStore } from "@/lib/store/toast";
 import { useUserStore } from "@/lib/store/user";
+import { getNearestDate } from "@/src/lib/utils/getNearestDate";
 // import LoadingIndicator from "@/components/common/LoadingIndicator";
 
 const statuses = ["출석", "지각", "불참"];
@@ -27,9 +28,20 @@ export default function AttendanceForm() {
   const { showToast } = useToastStore();
   const { user } = useUserStore();
   const [date] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>(statuses[0]);
   const [loading, setLoading] = useState(false);
   const [seasonId, setSeasonId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchDates = async () => {
+      const res = await fetch("/api/schedules/dates");
+      const dates = await res.json();
+      const nearest = getNearestDate(dates);
+      setSelectedDate(nearest);
+    };
+    fetchDates();
+  }, []);
 
   const fetchAttendance = async () => {
     try {
@@ -178,17 +190,19 @@ export default function AttendanceForm() {
   return (
     <div className="w-full flex justify-center">
       <div className="w-full max-w-[640px]">
-        <h2 className="text-m font-bold text-[#3e3232] mb-4 mx-4">출결 등록</h2>
-        <div className="rounded-xl p-4 py-6 mx-4 bg-[#f8f6f2] shadow">
+        <h2 className="text-m font-bold text-[#3e3232] mb-6 mx-4">출결 등록</h2>
+        <div className="p-4 py-6 mx-4">
           <div className="flex justify-center items-center gap-4 flex-wrap w-full">
-            <div className="flex flex-col items-center justify-center w-[100px] h-[90px] bg-white rounded-xl shadow">
-              <div className="text-[13px] text-[#7e6a5c]">
-                {format(date, "MMM")}
+            {selectedDate && (
+              <div className="flex flex-col items-center justify-center w-[100px] h-[90px] bg-white rounded-xl shadow">
+                <div className="text-[13px] text-[#7e6a5c]">
+                  {format(new Date(selectedDate), "MMM")}
+                </div>
+                <div className="text-[20px] font-bold text-[#3e3232e7]">
+                  {format(new Date(selectedDate), "d")}
+                </div>
               </div>
-              <div className="text-[20px] font-bold text-[#3e3232e7]">
-                {format(date, "d")}
-              </div>
-            </div>
+            )}
 
             <div className="w-[100px] h-[90px] flex items-center justify-center bg-[#D7C0AE] text-white text-sm font-semibold rounded-xl shadow">
               {selectedStatus}
