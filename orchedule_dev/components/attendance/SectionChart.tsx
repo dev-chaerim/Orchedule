@@ -1,39 +1,80 @@
-// src/components/attendance/SectionChart.tsx
 "use client";
 
-import React from "react";
-import { mockMembers, Member, PartKey } from "@/lib/mock/members";
+import React, { useEffect, useState } from "react";
 import { partLabels } from "@/constants/parts";
+import { useSeasonStore } from "@/lib/store/season";
 
-interface Props {
-  part: PartKey;
+// 👉 멤버 타입
+export interface MemberType {
+  _id: string;
+  name: string;
+  part: string; // 예: "Vn1", "Vn2", "지휘자" 등
 }
 
-const SectionChart: React.FC<Props> = ({ part }) => {
-  // 해당 파트의 모든 단원
-  const partMembers = mockMembers.filter((m) => m.part === part);
+// 👉 SeatAssignment 타입
+interface SeatAssignment {
+  _id: string;
+  memberId: MemberType;
+  seatNumber: number;
+  seasonId: string;
+}
 
-  // 2명씩 한 줄이므로, 총 줄 수는 올림(partMembers.length / 2)
-  const rows = Math.ceil(partMembers.length / 2);
+interface Props {
+  part: string;
+}
+
+// 👉 part 키 타입 가드
+const isPartKey = (key: string): key is keyof typeof partLabels => {
+  return key in partLabels;
+};
+
+const SectionChart: React.FC<Props> = ({ part }) => {
+  const { selectedSeason } = useSeasonStore();
+  const [members, setMembers] = useState<MemberType[]>([]);
+
+  useEffect(() => {
+    const fetchAssignedMembers = async () => {
+      if (!selectedSeason?._id) return;
+
+      try {
+        // ✅ part 파라미터 제거
+        const res = await fetch(
+          `/api/seat-assignments?seasonId=${selectedSeason._id}`
+        );
+        if (!res.ok) throw new Error("서버 오류");
+
+        const data: SeatAssignment[] = await res.json();
+        console.log("seat assignments", data);
+
+        // ✅ 클라이언트에서 part 기준으로 필터링
+        const assignedMembers: MemberType[] = data
+          .filter((assignment) => assignment.memberId.part === part)
+          .map((assignment) => assignment.memberId);
+
+        setMembers(assignedMembers);
+      } catch (error) {
+        console.error("자리배치 데이터 불러오기 실패", error);
+      }
+    };
+
+    fetchAssignedMembers();
+  }, [selectedSeason?._id, part]);
+
+  const rows = Math.ceil(members.length / 2);
 
   return (
     <div className="w-full max-w-[640px] bg-white rounded-xl p-4 border border-[#ece7e2] mx-auto">
-      {/* 헤더 */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold text-[#3e3232]">
-          {partLabels[part]}
+          {isPartKey(part) ? partLabels[part] : part}
         </h3>
-        <button className="px-3 py-1 text-xs bg-white border border-[#ece7e2] rounded-full text-[#7e6a5c]">
-          배치하기
-        </button>
       </div>
 
-      {/* 동적 줄 수만큼 반복 */}
       <div className="space-y-3">
         {Array.from({ length: rows }, (_, rowIdx) => {
-          // 왼쪽 멤버, 오른쪽 멤버
-          const left = partMembers[rowIdx * 2];
-          const right = partMembers[rowIdx * 2 + 1];
+          const left = members[rowIdx * 2];
+          const right = members[rowIdx * 2 + 1];
+
           return (
             <div key={rowIdx} className="flex justify-center">
               <div className="flex items-center gap-2">
@@ -49,7 +90,7 @@ const SectionChart: React.FC<Props> = ({ part }) => {
   );
 };
 
-const SeatCell: React.FC<{ member?: Member }> = ({ member }) => (
+const SeatCell: React.FC<{ member?: MemberType }> = ({ member }) => (
   <div className="w-12 h-12 bg-[#FAF9F6] rounded-lg shadow-sm flex items-center justify-center text-sm text-[#3e3232]">
     {member?.name ?? ""}
   </div>
