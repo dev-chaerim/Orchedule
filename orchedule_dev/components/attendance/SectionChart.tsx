@@ -4,14 +4,14 @@ import React, { useEffect, useState } from "react";
 import { partLabels } from "@/constants/parts";
 import { useSeasonStore } from "@/lib/store/season";
 
-// 👉 멤버 타입
+// 멤버 타입
 export interface MemberType {
   _id: string;
   name: string;
-  part: string; // 예: "Vn1", "Vn2", "지휘자" 등
+  part: string;
 }
 
-// 👉 SeatAssignment 타입
+// SeatAssignment 타입
 interface SeatAssignment {
   _id: string;
   memberId: MemberType;
@@ -19,46 +19,78 @@ interface SeatAssignment {
   seasonId: string;
 }
 
-interface Props {
-  part: string;
+// AttendanceRecord 타입
+interface AttendanceRecord {
+  memberId: string;
+  status: "출석" | "지각" | "불참";
 }
 
-// 👉 part 키 타입 가드
+// Attendance 응답 타입
+interface AttendanceData {
+  date: string;
+  seasonId: string;
+  records: AttendanceRecord[];
+}
+
+interface Props {
+  part: string;
+  selectedDate: string; // 날짜 props 필요
+}
+
+// partKey 확인 함수
 const isPartKey = (key: string): key is keyof typeof partLabels => {
   return key in partLabels;
 };
 
-const SectionChart: React.FC<Props> = ({ part }) => {
+const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
   const { selectedSeason } = useSeasonStore();
-  const [members, setMembers] = useState<MemberType[]>([]);
+  const [members, setMembers] = useState<
+    (MemberType & { attendanceStatus: string })[]
+  >([]);
 
   useEffect(() => {
-    const fetchAssignedMembers = async () => {
-      if (!selectedSeason?._id) return;
+    const fetchData = async () => {
+      if (!selectedSeason?._id || !selectedDate) return;
 
       try {
-        // ✅ part 파라미터 제거
-        const res = await fetch(
+        const seatRes = await fetch(
           `/api/seat-assignments?seasonId=${selectedSeason._id}`
         );
-        if (!res.ok) throw new Error("서버 오류");
+        const seatData: SeatAssignment[] = await seatRes.json();
 
-        const data: SeatAssignment[] = await res.json();
-        console.log("seat assignments", data);
+        const attendanceRes = await fetch(
+          `/api/attendances?seasonId=${selectedSeason._id}&date=${selectedDate}`
+        );
+        const attendanceData: AttendanceData = await attendanceRes.json();
 
-        // ✅ 클라이언트에서 part 기준으로 필터링
-        const assignedMembers: MemberType[] = data
+        const assignedMembers = seatData
           .filter((assignment) => assignment.memberId.part === part)
-          .map((assignment) => assignment.memberId);
+          .map((assignment) => {
+            const record = attendanceData.records.find(
+              (r) => r.memberId === assignment.memberId._id
+            );
+            return {
+              ...assignment.memberId,
+              attendanceStatus: record?.status || "출석",
+            };
+          });
 
         setMembers(assignedMembers);
       } catch (error) {
-        console.error("자리배치 데이터 불러오기 실패", error);
+        console.error("자리배치 또는 출석 데이터 불러오기 실패", error);
       }
     };
 
-    fetchAssignedMembers();
-  }, [selectedSeason?._id, part]);
+    // 초기 1회 실행
+    fetchData();
+
+    // 5초마다 새로고침
+    const interval = setInterval(() => {
+      fetchData();
+    }, 5000);
+
+    return () => clearInterval(interval); // 언마운트 시 인터벌 제거
+  }, [selectedSeason?._id, selectedDate, part]);
 
   const rows = Math.ceil(members.length / 2);
 
@@ -90,10 +122,48 @@ const SectionChart: React.FC<Props> = ({ part }) => {
   );
 };
 
-const SeatCell: React.FC<{ member?: MemberType }> = ({ member }) => (
-  <div className="w-12 h-12 bg-[#FAF9F6] rounded-lg shadow-sm flex items-center justify-center text-sm text-[#3e3232]">
-    {member?.name ?? ""}
-  </div>
-);
+const SeatCell: React.FC<{
+  member?: MemberType & { attendanceStatus?: string };
+}> = ({ member }) => {
+  const status = member?.attendanceStatus;
+
+  let bgColor = "#FAF9F6";
+  let border = "1px solid #DDD5CC";
+  let color = "#3e3232";
+
+  if (status === "출석") {
+    bgColor = "#F3F9F1"; // 부드러운 민트
+    border = "1.5px solid #BCD9B9";
+    color = "#3B5742";
+  }
+
+  if (status === "지각") {
+    bgColor = "#FFF7ED"; // 연한 크림
+    border = "1.5px dotted #E6AA64";
+    color = "#8B5E2F";
+  }
+
+  if (status === "불참") {
+    bgColor = "#F3F3F3"; // 연회색
+    border = "1.5px dashed #C2C2C2";
+    color = "#999999";
+  }
+
+  return (
+    <div
+      className="w-12 h-12 rounded-lg shadow-sm flex items-center justify-center text-sm text-center"
+      style={{
+        backgroundColor: bgColor,
+        border,
+        color,
+        lineHeight: "1.1",
+        padding: "2px",
+      }}
+      title={status}
+    >
+      {member?.name ?? ""}
+    </div>
+  );
+};
 
 export default SectionChart;
