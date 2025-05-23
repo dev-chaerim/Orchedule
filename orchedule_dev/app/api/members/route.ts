@@ -17,13 +17,13 @@ export async function POST(req: NextRequest) {
   await connectDB();
 
   try {
-    const { _id, name, part } = await req.json();
+    const { _id, name, part, email } = await req.json();
 
-    if (!_id || !name || !part) {
+    if (!_id || !name || !part || !email) {
       return NextResponse.json({ message: "모든 필드가 필요합니다." }, { status: 400 });
     }
 
-    const newMember = await Member.create({ _id, name, part });
+    const newMember = await Member.create({ _id, name, part, email });
 
     return NextResponse.json(newMember, { status: 201 });
   } catch (err) {
@@ -31,4 +31,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "서버 오류" }, { status: 500 });
   }
 }
+
 

@@ -29,7 +29,7 @@ export default function LoginPage() {
     if (res.ok) {
       const data = await res.json();
       const user = data.user;
-
+      console.log("user", user);
       login(user); // Zustand 저장
       localStorage.setItem("orchedule-user", JSON.stringify(user)); // localStorage 저장
 
