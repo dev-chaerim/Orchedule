@@ -5,6 +5,11 @@ export type PartKey = "Vn1" | "Vn2" | "Va" | "Vc" | "Ba" | "Fl" | "Ob" | "Cl" | 
 const MemberSchema = new Schema({
   name: { type: String, required: true },
   part: { type: String, enum: ["Vn1", "Vn2", "Va", "Vc", "Ba", "Fl", "Ob", "Cl", "Bs", "Hr", "Perc", "지휘자"], required: true },
+  role: {
+  type: String,
+  enum: ['admin', 'user'],
+  default: 'user', 
+}
 });
 
 const Member = models.Member || model("Member", MemberSchema);
