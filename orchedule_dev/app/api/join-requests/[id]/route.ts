@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/src/lib/mongoose";
 import JoinRequest from "@/src/models/joinRequest";
-import {Member} from "@/src/models/member";
+import Member from "@/src/models/member";
 
 // ✅ PATCH: 가입 요청 승인
 export async function PATCH(

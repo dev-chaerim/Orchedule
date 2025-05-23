@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/src/lib/mongoose";
-import { Member } from "@/src/models/member";
+import Member from "@/src/models/member";
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
