@@ -64,7 +64,7 @@ const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
         const attendanceData: AttendanceData = await attendanceRes.json();
 
         const assignedMembers = seatData
-          .filter((assignment) => assignment.memberId.part === part)
+          .filter((assignment) => assignment?.memberId?.part === part)
           .map((assignment) => {
             const record = attendanceData.records.find(
               (r) => r.memberId === assignment.memberId._id
