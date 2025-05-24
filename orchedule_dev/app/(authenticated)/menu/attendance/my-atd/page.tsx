@@ -22,6 +22,7 @@ interface AttendanceLog {
 export default function MyAttendancePage() {
   const [summary, setSummary] = useState<MyAttendanceSummary | null>(null);
   const [logs, setLogs] = useState<AttendanceLog[]>([]);
+  const [isExpanded, setIsExpanded] = useState(false);
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
   const seasonId = selectedSeason?._id;
   const { user } = useUserStore();
@@ -61,6 +62,8 @@ export default function MyAttendancePage() {
     fetchSummary();
     fetchLogs();
   }, [seasonId, user]);
+
+  const visibleLogs = isExpanded ? logs : logs.slice(0, 3);
 
   return (
     <div className="w-full flex justify-center">
@@ -165,26 +168,36 @@ export default function MyAttendancePage() {
                 출결 기록이 없습니다
               </div>
             ) : (
-              logs.map((log, idx) => (
-                <div key={idx} className="flex justify-between text-[#3e3232]">
-                  <span>{format(new Date(log.date), "yyyy년 M월 d일")}</span>
-                  <span
-                    className={
-                      log.status === "출석"
-                        ? "text-[#6a94ce]"
-                        : log.status === "지각"
-                        ? "text-[#d2a955]"
-                        : "text-[#cc5c5c]"
-                    }
+              <>
+                {visibleLogs.map((log, idx) => (
+                  <div
+                    key={idx}
+                    className="flex justify-between text-[#3e3232]"
                   >
-                    {log.status}
-                  </span>
-                </div>
-              ))
+                    <span>{format(new Date(log.date), "yyyy년 M월 d일")}</span>
+                    <span
+                      className={
+                        log.status === "출석"
+                          ? "text-[#6a94ce]"
+                          : log.status === "지각"
+                          ? "text-[#d2a955]"
+                          : "text-[#cc5c5c]"
+                      }
+                    >
+                      {log.status}
+                    </span>
+                  </div>
+                ))}
+                {logs.length > 3 && (
+                  <button
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="mt-4 w-full bg-[#D7C0AE] text-white rounded-xl py-2 font-semibold hover:opacity-90 transition"
+                  >
+                    {isExpanded ? "접기" : "전체 출결 확인"}
+                  </button>
+                )}
+              </>
             )}
-            <button className="mt-4 w-full bg-[#D7C0AE] text-white rounded-xl py-2 font-semibold hover:opacity-90 transition">
-              전체 출결 확인
-            </button>
           </div>
         </div>
       </div>
