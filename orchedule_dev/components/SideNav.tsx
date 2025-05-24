@@ -50,109 +50,111 @@ export default function SideNav() {
 
   return (
     <aside className="hidden md:flex flex-col w-64 h-screen border-r border-gray-200 px-6 py-6 bg-white text-sm">
-      <Logo />
+      <div className="flex-1 overflow-y-auto">
+        <Logo />
 
-      <hr className="border-t border-dashed border-[#C3C3C3] mb-6 mt-4" />
+        <hr className="border-t border-dashed border-[#C3C3C3] mb-6 mt-4" />
 
-      {/* 상단 메뉴 */}
-      <div className="space-y-4">
-        {navItems.map(({ href, label, icon, match }) => {
-          const isActive = new RegExp(match).test(pathname);
-          const iconSrc = isActive
-            ? `/icons/${icon}-active.svg`
-            : `/icons/${icon}.svg`;
+        {/* 상단 메뉴 */}
+        <div className="space-y-4">
+          {navItems.map(({ href, label, icon, match }) => {
+            const isActive = new RegExp(match).test(pathname);
+            const iconSrc = isActive
+              ? `/icons/${icon}-active.svg`
+              : `/icons/${icon}.svg`;
 
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
-                isActive
-                  ? "bg-[#f3f3f3] text-[#7E6363] font-bold"
-                  : "text-[#a3a3a3]"
-              }`}
-            >
-              <Image src={iconSrc} alt={label} width={17} height={17} />
-              <span>{label}</span>
-            </Link>
-          );
-        })}
-      </div>
-
-      {/* other things */}
-      <p className="mt-10 mb-2 text-gray-400 text-xs">other things</p>
-      <div className="space-y-2">
-        {otherItems.map(({ href, label, icon, match }) => {
-          const isActive = new RegExp(match).test(pathname);
-          const iconSrc = isActive
-            ? `/icons/${icon}-active.svg`
-            : `/icons/${icon}.svg`;
-
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
-                isActive
-                  ? "bg-[#f3f3f3] text-[#7E6363] font-bold"
-                  : "text-[#a3a3a3]"
-              }`}
-            >
-              <Image src={iconSrc} alt={label} width={17} height={17} />
-              <span>{label}</span>
-            </Link>
-          );
-        })}
-      </div>
-
-      {/* 관리자 섹션 - admin 권한일 때만 노출 */}
-
-      {user?.role === "admin" && (
-        <>
-          <p className="mt-10 mb-2 text-gray-400 text-xs">admin</p>
-          <Link
-            href="/admin"
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
-              pathname.startsWith("/admin")
-                ? "bg-[#f3f3f3] text-[#7E6363] font-bold"
-                : "text-[#a3a3a3] hover:bg-gray-100"
-            }`}
-          >
-            <ShieldCheck size={17} />
-            <span>관리자 페이지</span>
-          </Link>
-        </>
-      )}
-
-      <p className="mt-10 mb-2 text-gray-400 text-xs">recent</p>
-
-      <div className="mt-auto w-full relative">
-        {/* 설정 버튼 */}
-        <div
-          onClick={() => setShowDropdown(!showDropdown)}
-          className="flex items-center gap-2 px-1 text-[#C3C3C3] hover:text-[#7E6363] cursor-pointer relative"
-        >
-          <Image src="/icons/setting.svg" alt="설정" width={16} height={16} />
-          <span className="text-sm">설정</span>
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
+                  isActive
+                    ? "bg-[#f3f3f3] text-[#7E6363] font-bold"
+                    : "text-[#a3a3a3]"
+                }`}
+              >
+                <Image src={iconSrc} alt={label} width={17} height={17} />
+                <span>{label}</span>
+              </Link>
+            );
+          })}
         </div>
 
-        {/* 위로 뜨는 드롭다운 메뉴 */}
-        {showDropdown && (
-          <SettingDropdown onClose={() => setShowDropdown(false)} />
+        {/* other things */}
+        <p className="mt-10 mb-2 text-gray-400 text-xs">other things</p>
+        <div className="space-y-2">
+          {otherItems.map(({ href, label, icon, match }) => {
+            const isActive = new RegExp(match).test(pathname);
+            const iconSrc = isActive
+              ? `/icons/${icon}-active.svg`
+              : `/icons/${icon}.svg`;
+
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
+                  isActive
+                    ? "bg-[#f3f3f3] text-[#7E6363] font-bold"
+                    : "text-[#a3a3a3]"
+                }`}
+              >
+                <Image src={iconSrc} alt={label} width={17} height={17} />
+                <span>{label}</span>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* 관리자 섹션 - admin 권한일 때만 노출 */}
+
+        {user?.role === "admin" && (
+          <>
+            <p className="mt-10 mb-2 text-gray-400 text-xs">admin</p>
+            <Link
+              href="/admin"
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
+                pathname.startsWith("/admin")
+                  ? "bg-[#f3f3f3] text-[#7E6363] font-bold"
+                  : "text-[#a3a3a3] hover:bg-gray-100"
+              }`}
+            >
+              <ShieldCheck size={17} />
+              <span>관리자 페이지</span>
+            </Link>
+          </>
         )}
 
-        <hr className="border-t border-dashed border-[#C3C3C3] my-4" />
+        <p className="mt-10 mb-2 text-gray-400 text-xs">recent</p>
 
-        {/* 사용자 정보 */}
-        <div className="flex items-center gap-3 py-2">
-          <div className="w-9 h-9 text-[#C3C3C3]">
-            <UserCircle size={36} />
+        <div className="mt-auto w-full relative">
+          {/* 설정 버튼 */}
+          <div
+            onClick={() => setShowDropdown(!showDropdown)}
+            className="flex items-center gap-2 px-1 text-[#C3C3C3] hover:text-[#7E6363] cursor-pointer relative"
+          >
+            <Image src="/icons/setting.svg" alt="설정" width={16} height={16} />
+            <span className="text-sm">설정</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-[#4C4C4C]">
-              <span>{user?.name ?? ""}</span>
-            </span>
-            <span className="text-xs text-[#C3C3C3]">{user?.part ?? ""}</span>
+
+          {/* 위로 뜨는 드롭다운 메뉴 */}
+          {showDropdown && (
+            <SettingDropdown onClose={() => setShowDropdown(false)} />
+          )}
+
+          <hr className="border-t border-dashed border-[#C3C3C3] my-4" />
+
+          {/* 사용자 정보 */}
+          <div className="flex items-center gap-3 py-2">
+            <div className="w-9 h-9 text-[#C3C3C3]">
+              <UserCircle size={36} />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-[#4C4C4C]">
+                <span>{user?.name ?? ""}</span>
+              </span>
+              <span className="text-xs text-[#C3C3C3]">{user?.part ?? ""}</span>
+            </div>
           </div>
         </div>
       </div>
