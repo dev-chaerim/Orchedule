@@ -2,20 +2,7 @@
 
 import { useState } from "react";
 import SimpleDropdown from "../dropdown/SimpleDropdown";
-
-const partOptions = [
-  "Vn1",
-  "Vn2",
-  "Va",
-  "Vc",
-  "Ba",
-  "Fl",
-  "Ob",
-  "Cl",
-  "Bs",
-  "Hr",
-  "Perc",
-];
+import { orderedParts } from "@/src/constants/parts";
 
 interface AddMemberFormProps {
   onAdd: (member: { name: string; part: string; email?: string }) => void;
@@ -58,7 +45,7 @@ export default function AddMemberForm({ onAdd }: AddMemberFormProps) {
           파트
         </label>
         <SimpleDropdown
-          options={partOptions}
+          options={orderedParts}
           value={part} // ✅ 선택된 값 표시
           onChange={(value) => setPart(value)} // ✅ 값 업데이트
           placeholder="파트를 선택하세요"
