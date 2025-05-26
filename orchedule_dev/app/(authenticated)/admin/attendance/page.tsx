@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PartKey } from "@/lib/mock/members";
+import { PartKey, orderedParts, partLabels } from "@/src/constants/parts";
 import { useToastStore } from "@/lib/store/toast";
 import { getNearestDate } from "@/lib/utils/getNearestDate";
 import { useSeasonStore } from "@/lib/store/season";
@@ -253,17 +253,11 @@ export default function AttendanceDashboardPage() {
             className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:ring-2 focus:ring-[#A5796E] focus:border-[#A5796E]"
           >
             <option value="전체">전체</option>
-            <option value="Vn1">Vn1</option>
-            <option value="Vn2">Vn2</option>
-            <option value="Va">Va</option>
-            <option value="Vc">Vc</option>
-            <option value="Ba">Ba</option>
-            <option value="Fl">Fl</option>
-            <option value="Ob">Ob</option>
-            <option value="Cl">Cl</option>
-            <option value="Bs">Bs</option>
-            <option value="Hr">Hr</option>
-            <option value="Perc">Perc</option>
+            {orderedParts.map((part) => (
+              <option key={part} value={part}>
+                {partLabels[part]}
+              </option>
+            ))}
           </select>
         </div>
       </div>

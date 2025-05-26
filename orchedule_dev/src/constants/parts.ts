@@ -1,4 +1,17 @@
-import type { PartKey } from '@/src/lib/mock/members';
+// src/constants/parts.ts
+
+export type PartKey =
+  | 'Vn1'
+  | 'Vn2'
+  | 'Va'
+  | 'Vc'
+  | 'Ba'
+  | 'Fl'
+  | 'Ob'
+  | 'Cl'
+  | 'Bs'
+  | 'Hr'
+  | 'Perc';
 
 export const orderedParts: PartKey[] = [
   'Vn1', 'Vn2', 'Va', 'Vc', 'Ba', 'Fl', 'Ob', 'Cl', 'Bs', 'Hr', 'Perc'
@@ -15,7 +28,7 @@ export const partLabels: Record<PartKey, string> = {
   Cl:  'Clarinet',
   Bs:  'Bassoon',
   Hr:  'Horn',
-  Perc : 'Perc'
+  Perc: 'Perc'
 };
 
 export const parts = orderedParts.map((key) => ({

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { PartKey } from "@/src/lib/mock/members"; // PartKey 타입은 그대로 사용
+import { PartKey, orderedParts, partLabels } from "@/src/constants/parts";
 
 interface Member {
   _id: string;
@@ -9,33 +9,6 @@ interface Member {
   part: PartKey;
   email: string;
 }
-
-const orderedParts: PartKey[] = [
-  "Vn1",
-  "Vn2",
-  "Va",
-  "Vc",
-  "Ba",
-  "Fl",
-  "Ob",
-  "Cl",
-  "Bs",
-  "Hr",
-];
-
-const partLabels: Record<PartKey, string> = {
-  Vn1: "1st Violin",
-  Vn2: "2nd Violin",
-  Va: "Viola",
-  Vc: "Cello",
-  Ba: "Bass",
-  Fl: "Flute",
-  Ob: "Oboe",
-  Cl: "Clarinet",
-  Bs: "Bassoon",
-  Hr: "Horn",
-  Perc: "Perc",
-};
 
 const MemberListPage = () => {
   const [members, setMembers] = useState<Member[]>([]);

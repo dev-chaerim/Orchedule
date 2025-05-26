@@ -3,22 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ConfirmModal from "@/components/modals/ConfirmModal";
-
-const PART_OPTIONS = [
-  "Vn1",
-  "Vn2",
-  "Va",
-  "Vc",
-  "Cb",
-  "Fl",
-  "Ob",
-  "Cl",
-  "Fg",
-  "Hr",
-  "Tp",
-  "Tb",
-  "Perc",
-];
+import { orderedParts } from "@/src/constants/parts";
 
 export default function EditBowingScorePage() {
   const { id } = useParams();
@@ -114,7 +99,7 @@ export default function EditBowingScorePage() {
         <div className="space-y-2">
           <label className="block text-sm font-medium">대상 파트</label>
           <div className="flex flex-wrap gap-2">
-            {PART_OPTIONS.map((part) => (
+            {orderedParts.map((part) => (
               <button
                 key={part}
                 onClick={() => handlePartToggle(part)}

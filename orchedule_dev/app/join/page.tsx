@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation"; // ✅ router 사용 추가
 import SimpleDropdown from "@/components/dropdown/SimpleDropdown";
 import { useToastStore } from "@/lib/store/toast"; // ✅ 토스트 사용
+import { orderedParts } from "@/src/constants/parts";
 
 export default function JoinPage() {
   const router = useRouter();
@@ -72,19 +73,7 @@ export default function JoinPage() {
             파트
           </label>
           <SimpleDropdown
-            options={[
-              "Vn1",
-              "Vn2",
-              "Va",
-              "Vc",
-              "Ba",
-              "Fl",
-              "Ob",
-              "Cl",
-              "Bs",
-              "Hr",
-              "Perc",
-            ]}
+            options={orderedParts}
             value={form.part}
             onChange={(val) => setForm((prev) => ({ ...prev, part: val }))}
             placeholder="파트를 선택하세요"
