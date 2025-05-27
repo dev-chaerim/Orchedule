@@ -1,7 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import SeasonDropdown from "./dropdown/SeasonDropdown";
+import SearchButton from "./search/SearchButton";
+import TopNotification from "./TopNotification";
 
 export default function DesktopHeader() {
   return (
@@ -14,20 +15,8 @@ export default function DesktopHeader() {
 
       {/* 검색 & 알림 아이콘 */}
       <div className="flex items-center gap-4">
-        <Image
-          src="/icons/search.svg"
-          alt="검색"
-          width={20}
-          height={20}
-          className="cursor-pointer"
-        />
-        <Image
-          src="/icons/top-notice.svg"
-          alt="알림"
-          width={20}
-          height={20}
-          className="cursor-pointer"
-        />
+        <SearchButton />
+        <TopNotification />
       </div>
     </div>
   );

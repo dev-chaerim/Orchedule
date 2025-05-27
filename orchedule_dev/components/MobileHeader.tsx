@@ -7,6 +7,7 @@ import SeasonDropdown from "./dropdown/SeasonDropdown";
 import SettingDropdown from "./dropdown/SettingDropdown";
 import { useState } from "react";
 import SearchButton from "./search/SearchButton";
+import TopNotification from "./TopNotification";
 
 export default function MobileHeader() {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -18,13 +19,7 @@ export default function MobileHeader() {
         <Logo />
         <div className="flex items-center gap-4 relative">
           <SearchButton />
-          <Image
-            src="/icons/top-notice.svg"
-            alt="알림"
-            width={20}
-            height={20}
-            className="cursor-pointer"
-          />
+          <TopNotification />
           <div className="relative">
             <Image
               src="/icons/userIcon.svg"
