@@ -10,10 +10,14 @@ import { noticeTabs, attendanceTabs, scoreTabs } from "@/constants/sectionTabs";
 import { AttendanceProvider, useAttendance } from "@/context/AttendanceContext";
 import { FilterChips } from "@/components/attendance/FilterChips";
 import { useUserStore } from "@/lib/store/user";
+import { useSearchStore } from "@/lib/store/search";
+import SearchOverlay from "@/components/search/SearchOverlay";
 
 export default function ClientWrapper({ children }: { children: ReactNode }) {
   const login = useUserStore((state) => state.login);
   const [isUserLoaded, setIsUserLoaded] = useState(false);
+
+  const { isOpen, close } = useSearchStore();
 
   useEffect(() => {
     async function fetchUser() {
@@ -103,8 +107,16 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
   );
 
   return pathname.startsWith("/menu/attendance") ? (
-    <AttendanceProvider>{layout}</AttendanceProvider>
+    <AttendanceProvider>
+      <>
+        {layout}
+        <SearchOverlay isOpen={isOpen} onClose={close} /> {/* ✅ 여기 */}
+      </>
+    </AttendanceProvider>
   ) : (
-    layout
+    <>
+      {layout}
+      <SearchOverlay isOpen={isOpen} onClose={close} /> {/* ✅ 여기 */}
+    </>
   );
 }

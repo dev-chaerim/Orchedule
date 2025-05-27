@@ -6,6 +6,7 @@ import Logo from "./Logo";
 import SeasonDropdown from "./dropdown/SeasonDropdown";
 import SettingDropdown from "./dropdown/SettingDropdown";
 import { useState } from "react";
+import SearchButton from "./search/SearchButton";
 
 export default function MobileHeader() {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -16,13 +17,7 @@ export default function MobileHeader() {
       <div className="flex justify-between items-center w-full px-4">
         <Logo />
         <div className="flex items-center gap-4 relative">
-          <Image
-            src="/icons/search.svg"
-            alt="검색"
-            width={20}
-            height={20}
-            className="cursor-pointer"
-          />
+          <SearchButton />
           <Image
             src="/icons/top-notice.svg"
             alt="알림"
