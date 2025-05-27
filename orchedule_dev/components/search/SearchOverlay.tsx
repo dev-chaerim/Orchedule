@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchStore } from "@/lib/store/search";
 import { useSeasonStore } from "@/lib/store/season";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface Notice {
   _id: string;
@@ -19,6 +20,10 @@ interface Score {
   parts: string[];
 }
 
+type SearchItem =
+  | { _id: string; title: string; type: "notice" }
+  | { _id: string; title: string; type: "score" };
+
 interface SearchOverlayProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,13 +32,12 @@ interface SearchOverlayProps {
 export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const { query, setQuery } = useSearchStore();
   const { selectedSeason } = useSeasonStore();
-  console.log("현재 선택된 시즌 ID:", selectedSeason?._id);
   const router = useRouter();
 
   const [notices, setNotices] = useState<Notice[]>([]);
   const [scores, setScores] = useState<Score[]>([]);
 
-  // ESC 키로 닫기
+  // ESC 키
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -42,7 +46,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // 데이터 불러오기 (시즌 포함)
+  // 데이터 불러오기
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -50,17 +54,14 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
           ? `?season=${selectedSeason._id}`
           : "";
 
-        console.log("seasonParam", seasonParam);
         const [noticeRes, scoreRes] = await Promise.all([
           fetch(`/api/notices`),
           fetch(`/api/score-checks${seasonParam}`),
         ]);
-
         const [noticeData, scoreData] = await Promise.all([
           noticeRes.json(),
           scoreRes.json(),
         ]);
-        console.log("검색 데이터", noticeData, scoreData);
         setNotices(noticeData);
         setScores(scoreData);
       } catch (err) {
@@ -71,21 +72,37 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     if (isOpen) fetchData();
   }, [isOpen, selectedSeason]);
 
-  const filteredNotices = query.trim()
-    ? notices.filter(
-        (n) =>
-          n.title.toLowerCase().includes(query.toLowerCase()) ||
-          n.content?.toLowerCase().includes(query.toLowerCase())
-      )
-    : [];
+  const trimmedQuery = query.trim().toLowerCase();
 
-  const filteredScores = scores.filter(
-    (s) =>
-      query &&
-      (s.title.toLowerCase().includes(query.toLowerCase()) ||
-        s.author?.toLowerCase().includes(query.toLowerCase()) ||
-        s.parts.some((p) => p.toLowerCase().includes(query.toLowerCase())))
-  );
+  const noticeResults: SearchItem[] = notices
+    .filter(
+      (n) =>
+        trimmedQuery &&
+        (n.title.toLowerCase().includes(trimmedQuery) ||
+          n.content?.toLowerCase().includes(trimmedQuery))
+    )
+    .map((n) => ({ _id: n._id, title: n.title, type: "notice" }));
+
+  const scoreResults: SearchItem[] = scores
+    .filter(
+      (s) =>
+        trimmedQuery &&
+        (s.title.toLowerCase().includes(trimmedQuery) ||
+          s.author?.toLowerCase().includes(trimmedQuery) ||
+          s.parts.some((p) => p.toLowerCase().includes(trimmedQuery)))
+    )
+    .map((s) => ({ _id: s._id, title: s.title, type: "score" }));
+
+  const results = [...noticeResults, ...scoreResults];
+
+  const handleClick = (item: SearchItem) => {
+    onClose();
+    if (item.type === "notice") {
+      router.push(`/menu/notice/announcement/${item._id}`);
+    } else if (item.type === "score") {
+      router.push(`/menu/sheetmusic/bowing/${item._id}`);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -95,76 +112,70 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-lg w-full max-w-xl p-6 pt-13 relative"
+        className="bg-white rounded-xl shadow-lg w-full max-w-xl p-6 pt-7 relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 닫기 버튼 */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-        >
-          ✕
-        </button>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-base font-semibold text-[#3E3232]">통합 검색</h1>
+          <button
+            onClick={onClose}
+            className="text-[#3E3232] hover:text-gray-600"
+          >
+            ✕
+          </button>
+        </div>
 
         {/* 검색창 */}
-        <input
-          type="text"
-          placeholder="검색어를 입력하세요"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-[#A5796E] focus:outline-none mb-6"
-        />
+        <div className="mb-6 border-b border-[#D5CAC3] py-2 px-1 flex items-center gap-2">
+          <Image
+            src="/icons/search.svg"
+            alt="검색"
+            width={16}
+            height={16}
+            className="text-gray-400"
+          />
+          <input
+            type="text"
+            placeholder="검색어를 입력하세요"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full text-sm text-[#3E3232] placeholder-[#A1978E] bg-transparent focus:outline-none"
+          />
+        </div>
+
+        <h2 className="text-sm text-[#5A4A42] font-semibold mb-2 px-1">
+          검색 결과
+        </h2>
 
         {/* 검색 결과 */}
-        <div className="space-y-6 max-h-[60vh] overflow-y-auto">
-          {/* 공지 */}
-          <div>
-            <h3 className="text-sm font-semibold text-[#7e6a5c] mb-2">
-              공지사항
-            </h3>
-            <ul className="text-sm text-[#3E3232] space-y-1">
-              {filteredNotices.length > 0 ? (
-                filteredNotices.map((n) => (
-                  <li
-                    key={n._id}
-                    className="cursor-pointer hover:underline"
-                    onClick={() => {
-                      onClose();
-                      router.push(`/menu/notice/announcement/${n._id}`);
-                    }}
-                  >
-                    – {n.title}
-                  </li>
-                ))
-              ) : (
-                <li className="text-gray-400">검색 결과 없음</li>
-              )}
-            </ul>
+        {trimmedQuery === "" ? (
+          <div className="text-center text-[#9E9389] py-12">
+            <p className="text-sm">검색어를 입력해보세요</p>
+            <p className="text-xs mt-1">
+              공지사항, 악보 제목으로 빠르게 찾아볼 수 있어요!
+            </p>
           </div>
-
-          {/* 악보 */}
-          <div>
-            <h3 className="text-sm font-semibold text-[#7e6a5c] mb-2">악보</h3>
-            <ul className="text-sm text-[#3E3232] space-y-1">
-              {filteredScores.length > 0 ? (
-                filteredScores.map((s) => (
-                  <li
-                    key={s._id}
-                    className="cursor-pointer hover:underline"
-                    onClick={() => {
-                      onClose();
-                      router.push(`/menu/sheetmusic/bowing/${s._id}`);
-                    }}
-                  >
-                    – {s.title}
-                  </li>
-                ))
-              ) : (
-                <li className="text-gray-400">검색 결과 없음</li>
-              )}
-            </ul>
+        ) : results.length === 0 ? (
+          <div className="text-center text-[#9E9389] py-12">
+            <p className="text-sm">검색결과가 없습니다.</p>
           </div>
-        </div>
+        ) : (
+          <ul className="mt-4 divide-y divide-[#D5CAC3]">
+            {results.map((item) => (
+              <li
+                key={item._id}
+                onClick={() => handleClick(item)}
+                className="py-3 px-2 flex justify-between items-center cursor-pointer hover:bg-[#f5efdd]"
+              >
+                <span className="text-sm text-[#3E3232]">{item.title}</span>
+                <span className="text-xs text-[#A5796E] border border-[#b69678] px-2 py-0.5 rounded-full font-medium">
+                  {item.type === "notice" ? "공지" : "악보"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
