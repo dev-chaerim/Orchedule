@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSeasonStore } from "@/lib/store/season";
 
 export default function CreateNoticePage() {
   const router = useRouter();
+  const { selectedSeason } = useSeasonStore(); // ✅ 현재 선택된 시즌 가져오기
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [season, setSeason] = useState("2024"); // 기본값 설정
   const [isGlobal, setIsGlobal] = useState(false);
   const [pinned, setPinned] = useState(false);
 
@@ -16,6 +18,11 @@ export default function CreateNoticePage() {
 
     if (!title.trim() || !content.trim()) {
       alert("제목과 내용을 모두 입력해주세요.");
+      return;
+    }
+
+    if (!selectedSeason?._id) {
+      alert("시즌 정보를 불러오지 못했습니다.");
       return;
     }
 
@@ -28,7 +35,7 @@ export default function CreateNoticePage() {
         body: JSON.stringify({
           title,
           content,
-          season,
+          season: selectedSeason._id,
           isGlobal,
           pinned,
           date: new Date().toISOString().split("T")[0],
@@ -67,21 +74,7 @@ export default function CreateNoticePage() {
           className="w-full border border-[#D5CAC3] rounded-md px-4 py-2 text-sm focus:outline-[#7E6363]"
         />
 
-        {/* ✅ 추가 옵션 */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-[#3E3232] font-medium">시즌</label>
-            <select
-              value={season}
-              onChange={(e) => setSeason(e.target.value)}
-              className="border border-[#D5CAC3] rounded-md px-2 py-1 text-sm"
-            >
-              <option value="2024">2024</option>
-              <option value="2023">2023</option>
-              <option value="all">전체</option>
-            </select>
-          </div>
-
           <label className="flex items-center gap-2 text-sm text-[#3E3232]">
             <input
               type="checkbox"

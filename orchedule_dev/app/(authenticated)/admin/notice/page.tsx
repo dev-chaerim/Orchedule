@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSeasonStore } from "@/lib/store/season";
 
 interface Notice {
   _id: string;
@@ -18,7 +19,8 @@ interface Notice {
 
 export default function AdminNoticePage() {
   const [notices, setNotices] = useState<Notice[]>([]);
-  const [selectedSeason, setSelectedSeason] = useState("2024"); // 선택 시즌 상태
+  const selectedSeason = useSeasonStore((state) => state.selectedSeason);
+  const seasonId = selectedSeason?._id;
   const router = useRouter();
 
   useEffect(() => {
@@ -30,12 +32,13 @@ export default function AdminNoticePage() {
     fetchNotices();
   }, []);
 
+  // ✅ seasonId가 없을 경우도 유연하게 전체 보기 허용
   const filteredNotices = [
     ...notices.filter(
-      (n) => n.pinned && (n.isGlobal || n.season === selectedSeason)
+      (n) => n.pinned && (!seasonId || n.isGlobal || n.season === seasonId)
     ),
     ...notices.filter(
-      (n) => !n.pinned && (n.isGlobal || n.season === selectedSeason)
+      (n) => !n.pinned && (!seasonId || n.isGlobal || n.season === seasonId)
     ),
   ];
 
@@ -73,55 +76,47 @@ export default function AdminNoticePage() {
         </Link>
       </div>
 
-      {/* ✅ 시즌 선택 */}
-      <div className="mb-4">
-        <label className="text-sm font-medium mr-2 text-[#3E3232]">
-          시즌 선택:
-        </label>
-        <select
-          value={selectedSeason}
-          onChange={(e) => setSelectedSeason(e.target.value)}
-          className="border border-[#D5CAC3] rounded-md px-2 py-1 text-sm"
-        >
-          <option value="2024">2024</option>
-          <option value="2023">2023</option>
-        </select>
-      </div>
+      {/* ✅ 공지 목록 or 안내 메시지 */}
+      {filteredNotices.length === 0 ? (
+        <p className="text-sm text-[#7e6a5c] text-center py-10 border border-dashed border-[#e0dada] rounded-md bg-[#fcfaf9]">
+          공지사항이 없습니다.
+        </p>
+      ) : (
+        <ul className="space-y-3">
+          {filteredNotices.map((notice) => (
+            <li
+              key={notice._id}
+              onClick={() => handleItemClick(notice._id)}
+              className="bg-white border border-[#E0D6CD] rounded-lg p-4 flex justify-between items-center cursor-pointer hover:bg-[#faf7f3]"
+            >
+              <div>
+                <h3 className="text-sm font-semibold text-[#3E3232]">
+                  {notice.pinned && <span className="mr-1">📌</span>}
+                  {notice.title}
+                </h3>
+                <p className="text-xs text-gray-400 mt-1">
+                  {notice.date} · {notice.author}
+                </p>
+              </div>
 
-      <ul className="space-y-3">
-        {filteredNotices.map((notice) => (
-          <li
-            key={notice._id}
-            onClick={() => handleItemClick(notice._id)}
-            className="bg-white border border-[#E0D6CD] rounded-lg p-4 flex justify-between items-center cursor-pointer hover:bg-[#faf7f3]"
-          >
-            <div>
-              <h3 className="text-sm font-semibold text-[#3E3232]">
-                {notice.pinned && <span className="mr-1">📌</span>}
-                {notice.title}
-              </h3>
-              <p className="text-xs text-gray-400 mt-1">
-                {notice.date} · {notice.author}
-              </p>
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={(e) => handleEdit(notice._id, e)}
-                className="text-xs font-semibold bg-[#F4ECE7] text-[#3E3232] px-3 py-1 rounded-md hover:bg-[#e3dcd7] transition"
-              >
-                수정
-              </button>
-              <button
-                onClick={(e) => handleDelete(notice._id, e)}
-                className="text-xs font-semibold bg-red-50 text-red-400 px-3 py-1 rounded-md hover:bg-red-100 transition"
-              >
-                삭제
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+              <div className="flex gap-2">
+                <button
+                  onClick={(e) => handleEdit(notice._id, e)}
+                  className="text-xs font-semibold bg-[#F4ECE7] text-[#3E3232] px-3 py-1 rounded-md hover:bg-[#e3dcd7] transition"
+                >
+                  수정
+                </button>
+                <button
+                  onClick={(e) => handleDelete(notice._id, e)}
+                  className="text-xs font-semibold bg-red-50 text-red-400 px-3 py-1 rounded-md hover:bg-red-100 transition"
+                >
+                  삭제
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </main>
   );
 }

@@ -108,7 +108,7 @@ export default function EditNoticePage() {
 
         {/* ✅ 추가 필드들 */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <label className="text-sm text-[#3E3232] font-medium">시즌</label>
             <select
               value={season}
@@ -118,7 +118,7 @@ export default function EditNoticePage() {
               <option value="2024">2024</option>
               <option value="2023">2023</option>
             </select>
-          </div>
+          </div> */}
 
           <label className="flex items-center gap-2 text-sm text-[#3E3232]">
             <input
