@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/src/lib/mongoose";
 import Member from "@/src/models/member";
+import bcrypt from "bcrypt";
 
 export async function GET() {
   try {
@@ -17,13 +18,25 @@ export async function POST(req: NextRequest) {
   await connectDB();
 
   try {
-    const { _id, name, part, email } = await req.json();
+    const { name, part, email, password } = await req.json();
 
-    if (!_id || !name || !part || !email) {
+    if (!name || !part || !email || !password) {
       return NextResponse.json({ message: "모든 필드가 필요합니다." }, { status: 400 });
     }
 
-    const newMember = await Member.create({ _id, name, part, email });
+    const existing = await Member.findOne({ email });
+    if (existing) {
+      return NextResponse.json({ message: "이미 존재하는 이메일입니다." }, { status: 409 });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newMember = await Member.create({
+      name,
+      part,
+      email,
+      password: hashedPassword,
+    });
 
     return NextResponse.json(newMember, { status: 201 });
   } catch (err) {
@@ -31,5 +44,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "서버 오류" }, { status: 500 });
   }
 }
+
 
 

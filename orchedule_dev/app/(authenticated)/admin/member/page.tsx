@@ -65,10 +65,16 @@ export default function AdminMembersPage() {
   // ✅ 단원 추가
   const handleAddMember = async (newMember: { name: string; part: string }) => {
     try {
+      const guestEmail = `guest_${Date.now()}@orchestra.com`;
+      const guestPassword = "temporary1234";
       const res = await fetch("/api/members", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newMember),
+        body: JSON.stringify({
+          ...newMember,
+          email: guestEmail,
+          password: guestPassword,
+        }),
       });
       if (!res.ok) throw new Error("단원 추가 실패");
       await fetchMembers();
