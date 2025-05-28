@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
 import { useUserStore } from "@/lib/store/user";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -72,14 +73,23 @@ export default function LoginPage() {
             </p>
           )}
 
-          <label className="flex items-center text-xs text-[#3E3232] select-none ml-1">
-            <input
-              type="checkbox"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-              className="mr-2"
-            />
-            로그인 유지하기
+          <label className="flex items-center text-xs text-[#3E3232] select-none ml-1 justify-between">
+            <span className="flex items-center">
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+                className="mr-2"
+              />
+              로그인 유지하기
+            </span>
+
+            <Link
+              href="/forgot-password"
+              className="text-[#3E3232] hover:underline mr-2"
+            >
+              비밀번호 찾기
+            </Link>
           </label>
 
           <button

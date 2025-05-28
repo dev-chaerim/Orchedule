@@ -40,6 +40,18 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+    if (pathname.startsWith('/forgot-password')) {
+    if (!token) return NextResponse.next(); // 비로그인 사용자는 통과
+
+    try {
+      await jwtVerify(token, encoder.encode(SECRET));
+      return NextResponse.redirect(new URL('/', request.url));
+    } catch {
+      return NextResponse.next();
+    }
+  }
+
+
 
   // 2. 보호된 경로 접근 시 로그인 검증
   if (isProtected) {
@@ -69,5 +81,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/menu/:path*', '/board/:path*', '/practice/:path*', '/admin/:path*', '/login', '/reset-password'],
+  matcher: ['/menu/:path*', '/board/:path*', '/practice/:path*', '/admin/:path*', '/login', '/reset-password', '/forgot-password'],
 };
