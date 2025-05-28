@@ -1,20 +1,28 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToastStore } from "@/lib/store/toast";
+import { useUserStore } from "@/lib/store/user";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const { showToast } = useToastStore();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const { isLoggedIn } = useUserStore();
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
 
   const isValid = password.length >= 10 && password === confirm;
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.replace("/"); // 로그인 상태면 홈으로 이동
+    }
+  }, [isLoggedIn, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

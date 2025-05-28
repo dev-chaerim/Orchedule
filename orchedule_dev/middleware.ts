@@ -27,6 +27,20 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+    // ✅ reset-password 페이지 접근 차단 추가
+  if (pathname.startsWith('/reset-password')) {
+    if (!token) return NextResponse.next(); // 비로그인 사용자는 통과
+
+    try {
+      await jwtVerify(token, encoder.encode(SECRET));
+      // 로그인 되어 있으면 홈으로 이동
+      return NextResponse.redirect(new URL('/', request.url));
+    } catch {
+      return NextResponse.next();
+    }
+  }
+
+
   // 2. 보호된 경로 접근 시 로그인 검증
   if (isProtected) {
     if (!token) {
@@ -55,5 +69,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/menu/:path*', '/board/:path*', '/practice/:path*', '/admin/:path*', '/login'],
+  matcher: ['/menu/:path*', '/board/:path*', '/practice/:path*', '/admin/:path*', '/login', '/reset-password'],
 };
