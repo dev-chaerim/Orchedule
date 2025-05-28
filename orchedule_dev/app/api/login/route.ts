@@ -1,6 +1,7 @@
 // app/api/login/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
+import bcrypt from "bcrypt";
 import Member from '@/src/models/member';
 import { connectDB } from '@/src/lib/mongoose';
 
@@ -21,15 +22,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
+   const isPasswordValid = await bcrypt.compare(password, member.password);
+
   // ✅ 패스워드 확인 (지금은 임시로 '1234' 고정)
-  if (password !== '1234') {
+  if (!isPasswordValid) {
     return NextResponse.json(
       { success: false, message: '비밀번호가 틀렸습니다.' },
       { status: 401 }
     );
   }
-
-  console.log("@@@@@", member)
 
   // ✅ 토큰 발급
   const token = jwt.sign(

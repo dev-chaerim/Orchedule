@@ -29,6 +29,7 @@ export async function PATCH(
       name: joinRequest.name,
       part: joinRequest.part,
       email: joinRequest.email,
+      password: joinRequest.password,
     });
 
     // ✅ 가입 요청 삭제

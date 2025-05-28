@@ -4,6 +4,7 @@ const joinRequestSchema = new Schema({
   name: { type: String, required: true },
   part: { type: String, required: true },
   email: { type: String, required: true },
+  password: { type: String, required: true },
   status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
 });
 
