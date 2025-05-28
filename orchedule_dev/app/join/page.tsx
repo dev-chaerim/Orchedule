@@ -17,6 +17,8 @@ export default function JoinPage() {
     password: "",
   });
 
+  const groupOptions = ["아람 필하모닉"];
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -85,14 +87,11 @@ export default function JoinPage() {
           <label className="block text-sm font-medium text-[#7E6363] mb-1">
             단체명
           </label>
-          <input
-            type="text"
-            name="group"
+          <SimpleDropdown
+            options={groupOptions}
             value={form.group}
-            onChange={handleChange}
-            required
-            placeholder="예: 아람 필하모닉"
-            className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-[#A5796E] focus:border-[#A5796E]"
+            onChange={(val) => setForm((prev) => ({ ...prev, group: val }))}
+            placeholder="단체를 선택하세요"
           />
         </div>
 

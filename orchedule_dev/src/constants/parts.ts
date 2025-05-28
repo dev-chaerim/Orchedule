@@ -11,10 +11,11 @@ export type PartKey =
   | 'Cl'
   | 'Bs'
   | 'Hr'
+  | 'Tp'
   | 'Perc';
 
 export const orderedParts: PartKey[] = [
-  'Vn1', 'Vn2', 'Va', 'Vc', 'Ba', 'Fl', 'Ob', 'Cl', 'Bs', 'Hr', 'Perc'
+  'Vn1', 'Vn2', 'Va', 'Vc', 'Ba', 'Fl', 'Ob', 'Cl', 'Bs', 'Hr','Tp', 'Perc'
 ];
 
 export const partLabels: Record<PartKey, string> = {
@@ -28,6 +29,7 @@ export const partLabels: Record<PartKey, string> = {
   Cl:  'Clarinet',
   Bs:  'Bassoon',
   Hr:  'Horn',
+  Tp:  'Trumpet',
   Perc: 'Perc'
 };
 

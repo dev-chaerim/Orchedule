@@ -13,6 +13,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
 
+  const [errorMessage, setErrorMessage] = useState("");
+
   const isFormValid = email.trim() !== "" && password.trim() !== "";
 
   const handleLogin = async () => {
@@ -29,14 +31,14 @@ export default function LoginPage() {
     if (res.ok) {
       const data = await res.json();
       const user = data.user;
-      console.log("user", user);
-      login(user); // Zustand 저장
-      localStorage.setItem("orchedule-user", JSON.stringify(user)); // localStorage 저장
-
+      login(user);
+      localStorage.setItem("orchedule-user", JSON.stringify(user));
       router.push("/");
+    } else {
+      setErrorMessage("이메일 또는 비밀번호가 올바르지 않습니다.");
+      setPassword(""); // 보안상 비밀번호 초기화
     }
   };
-
   return (
     <main className="min-h-screen bg-[#FAF7F3] flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl shadow-sm w-full max-w-sm px-6 py-10">
@@ -63,6 +65,12 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-4 py-2 bg-[#f5f5f5] rounded-full text-sm placeholder:text-[#C3B4A3] focus:outline-none"
           />
+
+          {errorMessage && (
+            <p className="text-xs text-[#bd3232] text-center -mt-1">
+              {errorMessage}
+            </p>
+          )}
 
           <label className="flex items-center text-xs text-[#3E3232] select-none ml-1">
             <input
