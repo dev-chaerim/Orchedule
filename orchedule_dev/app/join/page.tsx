@@ -122,8 +122,8 @@ export default function JoinPage() {
             value={form.password}
             onChange={handleChange}
             required
-            placeholder="6자 이상 입력"
-            minLength={6}
+            placeholder="10자 이상 입력"
+            minLength={10}
             className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-[#A5796E] focus:border-[#A5796F]"
           />
         </div>

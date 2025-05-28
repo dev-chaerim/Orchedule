@@ -24,6 +24,10 @@ export async function POST(req: NextRequest) {
     if (!name || !part || !email || !password) {
       return NextResponse.json({ message: "모든 필드를 입력해주세요" }, { status: 400 });
     }
+        
+    if (password.length < 10) {
+      return NextResponse.json({ message: "비밀번호는 10자 이상이어야 합니다." }, { status: 400 });
+    }
 
     // ✅ 비밀번호 해시
     const hashedPassword = await bcrypt.hash(password, 10);
