@@ -8,13 +8,16 @@ import { orderedParts } from "@/src/constants/parts";
 
 export default function JoinPage() {
   const router = useRouter();
-  const showToast = useToastStore((state) => state.showToast); // ✅ 토스트 사용
+  const showToast = useToastStore((state) => state.showToast);
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const [form, setForm] = useState({
     name: "",
     part: "",
     group: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
 
   const groupOptions = ["아람 필하모닉"];
@@ -26,6 +29,11 @@ export default function JoinPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (form.password !== form.confirmPassword) {
+      showToast({ message: "비밀번호가 일치하지 않습니다.", type: "error" });
+      return;
+    }
 
     try {
       const res = await fetch("/api/join-requests", {
@@ -126,6 +134,26 @@ export default function JoinPage() {
             minLength={10}
             className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-[#A5796E] focus:border-[#A5796F]"
           />
+        </div>
+
+        {/* 비밀번호 확인 */}
+        <div>
+          <label className="block text-sm font-medium text-[#7E6363] mb-1">
+            비밀번호 확인
+          </label>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            placeholder="비밀번호를 다시 입력하세요"
+            className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-[#A5796E] focus:border-[#A5796F]"
+          />
+          {confirmPassword && confirmPassword !== form.password && (
+            <p className="text-xs text-red-500 mt-1">
+              비밀번호가 일치하지 않습니다.
+            </p>
+          )}
         </div>
 
         {/* 제출 버튼 */}
