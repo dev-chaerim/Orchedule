@@ -42,13 +42,21 @@ export default function JoinPage() {
         body: JSON.stringify(form),
       });
 
-      if (!res.ok) throw new Error("가입 신청 실패");
+      const data = await res.json();
+
+      if (!res.ok) {
+        showToast({
+          message: data.message || "가입 신청에 실패했습니다.",
+          type: "error",
+        });
+        return;
+      }
 
       showToast({ message: "가입 신청이 완료되었습니다.", type: "success" });
-      router.push("/join-success"); // ✅ 가입 성공 페이지로 이동
+      router.push("/join-success");
     } catch (error) {
       console.error("가입 신청 오류:", error);
-      showToast({ message: "가입 신청에 실패했습니다.", type: "error" });
+      showToast({ message: "서버 오류가 발생했습니다.", type: "error" });
     }
   };
 
