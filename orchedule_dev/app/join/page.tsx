@@ -9,7 +9,6 @@ import { orderedParts } from "@/src/constants/parts";
 export default function JoinPage() {
   const router = useRouter();
   const showToast = useToastStore((state) => state.showToast);
-  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [form, setForm] = useState({
     name: "",
@@ -151,13 +150,14 @@ export default function JoinPage() {
           </label>
           <input
             type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            name="confirmPassword"
+            value={form.confirmPassword}
+            onChange={handleChange}
             required
             placeholder="비밀번호를 다시 입력하세요"
             className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-[#A5796E] focus:border-[#A5796F]"
           />
-          {confirmPassword && confirmPassword !== form.password && (
+          {form.confirmPassword && form.confirmPassword !== form.password && (
             <p className="text-xs text-red-500 mt-1">
               비밀번호가 일치하지 않습니다.
             </p>
