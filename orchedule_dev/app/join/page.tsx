@@ -5,10 +5,16 @@ import { useRouter } from "next/navigation"; // ✅ router 사용 추가
 import SimpleDropdown from "@/components/dropdown/SimpleDropdown";
 import { useToastStore } from "@/lib/store/toast"; // ✅ 토스트 사용
 import { orderedParts } from "@/src/constants/parts";
+import {
+  isValidName,
+  isValidEmail,
+  isValidPassword,
+} from "@/lib/utils/validation";
 
 export default function JoinPage() {
   const router = useRouter();
   const showToast = useToastStore((state) => state.showToast);
+  const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -23,16 +29,28 @@ export default function JoinPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    if (name === "name") {
+      const noSpaceValue = value.replace(/\s/g, ""); // 공백 제거
+      setForm((prev) => ({ ...prev, [name]: noSpaceValue }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!isValidName(form.name)) {
+      showToast({ message: "이름 형식을 확인해 주세요.", type: "error" });
+      return;
+    }
+
     if (form.password !== form.confirmPassword) {
       showToast({ message: "비밀번호가 일치하지 않습니다.", type: "error" });
       return;
     }
+
+    setLoading(true);
 
     try {
       const res = await fetch("/api/join-requests", {
@@ -56,6 +74,8 @@ export default function JoinPage() {
     } catch (error) {
       console.error("가입 신청 오류:", error);
       showToast({ message: "서버 오류가 발생했습니다.", type: "error" });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -82,6 +102,11 @@ export default function JoinPage() {
             required
             className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-[#A5796E] focus:border-[#A5796E]"
           />
+          {form.name && !isValidName(form.name) && (
+            <p className="text-xs text-red-500 mt-1">
+              이름은 한글 2~10자로 입력해 주세요.
+            </p>
+          )}
         </div>
 
         {/* 파트 선택 */}
@@ -124,6 +149,11 @@ export default function JoinPage() {
             placeholder="예: example@email.com"
             className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-[#A5796E] focus:border-[#A5796E]"
           />
+          {form.email && !isValidEmail(form.email) && (
+            <p className="text-xs text-red-500 mt-1">
+              올바른 이메일 형식이 아닙니다.
+            </p>
+          )}
         </div>
 
         {/* 비밀번호 입력 */}
@@ -141,6 +171,12 @@ export default function JoinPage() {
             minLength={10}
             className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-[#A5796E] focus:border-[#A5796F]"
           />
+          {form.password && !isValidPassword(form.password) && (
+            <p className="text-xs text-red-500 mt-1">
+              비밀번호는 10자 이상이며, 영문, 숫자, 특수문자 중 최소 2가지
+              이상을 포함해야 합니다.
+            </p>
+          )}
         </div>
 
         {/* 비밀번호 확인 */}
@@ -167,9 +203,12 @@ export default function JoinPage() {
         {/* 제출 버튼 */}
         <button
           type="submit"
-          className="w-full py-2 bg-[#7E6363] text-white text-sm font-semibold rounded-md hover:bg-[#685b5b] transition"
+          disabled={loading}
+          className={`w-full py-2 text-white text-sm font-semibold rounded-md transition ${
+            loading ? "bg-[#c3bcbc]" : "bg-[#7E6363] hover:bg-[#685b5b]"
+          }`}
         >
-          가입 신청하기
+          {loading ? "가입입 중..." : "가입 신청하기"}
         </button>
       </form>
     </div>
