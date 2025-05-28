@@ -12,7 +12,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
+  // const [remember, setRemember] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -73,29 +73,19 @@ export default function LoginPage() {
             </p>
           )}
 
-          <label className="flex items-center text-xs text-[#3E3232] select-none ml-1 justify-between">
-            <span className="flex items-center">
-              <input
-                type="checkbox"
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-                className="mr-2"
-              />
-              로그인 유지하기
-            </span>
-
+          <div className="flex justify-end">
             <Link
               href="/forgot-password"
-              className="text-[#3E3232] hover:underline mr-2"
+              className="text-xs text-[#3E3232] hover:underline mr-2 -mt-2"
             >
               비밀번호 찾기
             </Link>
-          </label>
+          </div>
 
           <button
             onClick={handleLogin}
             disabled={!isFormValid}
-            className={`w-full py-2 rounded-full text-sm font-semibold tracking-wide transition 
+            className={`w-full py-2 mt-3 rounded-full text-sm font-semibold tracking-wide transition 
               ${
                 isFormValid
                   ? "bg-[#7E6363] text-white hover:bg-[#5c4f4f]"
@@ -105,7 +95,7 @@ export default function LoginPage() {
             시작하기
           </button>
 
-          <div className="text-center mt-2">
+          <div className="text-center mt-1">
             <button
               type="button"
               onClick={() => router.push("/join")}
