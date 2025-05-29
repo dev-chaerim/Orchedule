@@ -9,6 +9,7 @@ import { useState } from "react";
 import SettingDropdown from "./dropdown/SettingDropdown";
 import { ShieldCheck } from "lucide-react";
 import { partLabels, PartKey } from "@/src/constants/parts";
+import { ComingSoonItem } from "./home/ComingSoonItem";
 
 const navItems = [
   { href: "/", label: "홈", icon: "home", match: "^/$" },
@@ -97,6 +98,14 @@ export default function SideNav() {
               const iconSrc = isActive
                 ? `/icons/${icon}-active.svg`
                 : `/icons/${icon}.svg`;
+
+              const isComingSoon = href === "/practice" || href === "/board";
+
+              if (isComingSoon) {
+                return (
+                  <ComingSoonItem key={href} label={label} icon={iconSrc} />
+                );
+              }
 
               return (
                 <Link
