@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 const navItems = [
-  { href: '/', label: '홈', icon: 'home' },
-  { href: '/menu', label: '메뉴', icon: 'menu' },
-  { href: '/practice', label: '연습일지', icon: 'practice' },
-  { href: '/board', label: '게시판', icon: 'board' },
+  { href: "/", label: "홈", icon: "home" },
+  { href: "/menu", label: "메뉴", icon: "menu" },
+  { href: "/practice", label: "연습일지", icon: "practice" },
+  { href: "/board", label: "게시판", icon: "board" },
 ];
 
 export default function BottomNav() {
@@ -27,10 +27,16 @@ export default function BottomNav() {
             key={href}
             href={href}
             className={`flex flex-col items-center gap-1 pt-2 text-[13px] font-semibold ${
-              isActive ? 'text-[#7E6363]' : 'text-[#c3c3c3]'
+              isActive ? "text-[#7E6363]" : "text-[#c3c3c3]"
             }`}
           >
-            <Image src={iconSrc} alt={label} width={23} height={23} />
+            <Image
+              src={iconSrc}
+              alt={label}
+              width={23}
+              height={23}
+              style={{ aspectRatio: "1 / 1" }}
+            />
             <span>{label}</span>
           </Link>
         );

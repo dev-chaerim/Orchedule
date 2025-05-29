@@ -5,6 +5,7 @@ import { useSeasonStore } from "@/lib/store/season";
 import { format } from "date-fns";
 import MoreLink from "../MoreLink";
 import LoadingSkeleton from "../common/LoadingSkeleton";
+import { getNearestDate } from "@/lib/utils/getNearestDate";
 
 interface Piece {
   time: string;
@@ -25,42 +26,32 @@ export default function ScheduleList() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    const fetchSchedules = async () => {
-      if (!selectedSeason) return;
+    console.log("ScheduleList 마운트됨", { selectedSeason });
+  }, []);
 
+  useEffect(() => {
+    if (!selectedSeason) return;
+    const fetchSchedules = async () => {
       try {
         setLoading(true);
         const res = await fetch(
           `/api/schedules?seasonId=${selectedSeason._id}`
         );
         if (!res.ok) throw new Error("Failed to fetch schedules");
+
         const data: Schedule[] = await res.json();
-
-        const sorted = [...data].sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
-
-        const today = new Date();
-        const todayStr = today.toISOString().split("T")[0];
-
-        const todaySchedules = sorted.filter((s) => s.date === todayStr);
-        const futureSchedules = sorted.filter((s) => s.date > todayStr);
-        const pastSchedules = sorted.filter((s) => s.date < todayStr);
-
-        let selected: Schedule[] = [];
-
-        if (todaySchedules.length > 0) {
-          selected = todaySchedules;
-        } else if (futureSchedules.length > 0) {
-          selected = [
-            ...pastSchedules.slice(-1),
-            ...futureSchedules.slice(0, 1),
-          ];
-        } else {
-          selected = pastSchedules.slice(-2);
+        if (data.length === 0) {
+          setFilteredSchedules([]);
+          return;
         }
 
-        setFilteredSchedules(selected);
+        const allDates = data.map((s) => s.date);
+        const nearestDate = getNearestDate(allDates);
+
+        const filtered = data.filter((s) => s.date === nearestDate);
+        if (JSON.stringify(filteredSchedules) !== JSON.stringify(filtered)) {
+          setFilteredSchedules(filtered);
+        }
       } catch (err) {
         console.error(err);
         setError(true);
@@ -70,10 +61,9 @@ export default function ScheduleList() {
     };
 
     fetchSchedules();
-  }, [selectedSeason]);
+  }, [selectedSeason?._id]);
 
-  if (!selectedSeason) return null;
-  if (loading) return <LoadingSkeleton lines={4} className="mt-2 mb-6" />;
+  // if (!selectedSeason) return null;
   if (error)
     return (
       <p className="px-4 text-sm text-red-500">

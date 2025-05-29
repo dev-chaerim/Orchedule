@@ -23,6 +23,8 @@ export default function SeasonDropdown() {
 
   // ✅ 시즌 목록 가져오기 (정렬 포함)
   useEffect(() => {
+    if (seasons.length > 0) return;
+
     const fetchSeasons = async () => {
       try {
         const res = await fetch("/api/seasons");
@@ -38,9 +40,12 @@ export default function SeasonDropdown() {
 
         setSeasons(sortedSeasons);
 
-        // ✅ 새로고침 시 기본값 설정 (선택된 시즌이 없을 때만)
-        if (!selectedSeason && sortedSeasons.length > 0) {
-          setSelectedSeason(sortedSeasons[0]); // ✅ 가장 최근 시즌을 기본값으로 설정
+        // ✅ selectedSeason이 없을 때만 설정
+        if (
+          !useSeasonStore.getState().selectedSeason &&
+          sortedSeasons.length > 0
+        ) {
+          setSelectedSeason(sortedSeasons[0]);
         }
       } catch (error) {
         console.error("시즌 목록 불러오기 오류:", error);

@@ -1,13 +1,25 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
+import Image from "next/image";
+import Link from "next/link";
 
 const items = [
-  { label: '공지', icon: '/icons/notice-active.svg', href: '/menu/notice/announcement' },
-  { label: '출석', icon: '/icons/attendance-active.svg', href: '/menu/attendance/check' },
-  { label: '악보', icon: '/icons/sheet-active.svg', href: '/menu/sheetmusic/sheet' },
-  { label: '자리', icon: '/icons/seat.svg', href: '/menu/notice/seatNoti' },
+  {
+    label: "공지",
+    icon: "/icons/notice-active.svg",
+    href: "/menu/notice/announcement",
+  },
+  {
+    label: "출석",
+    icon: "/icons/attendance-active.svg",
+    href: "/menu/attendance/check",
+  },
+  {
+    label: "악보",
+    icon: "/icons/sheet-active.svg",
+    href: "/menu/sheetmusic/sheet",
+  },
+  { label: "자리", icon: "/icons/seat.svg", href: "/menu/notice/seatNoti" },
 ];
 
 export default function HomeQuickButtons() {
@@ -20,8 +32,16 @@ export default function HomeQuickButtons() {
             key={label}
             className="flex flex-col items-center justify-between gap-1 px-4 py-3 bg-white rounded-xl shadow-md w-18"
           >
-            <Image src={icon} alt={label} width={30} height={30} />
-            <span className="text-xs text-[#3e3232c5] font-semibold">{label}</span>
+            <Image
+              src={icon}
+              alt={label}
+              width={30}
+              height={30}
+              style={{ aspectRatio: "1 / 1" }}
+            />
+            <span className="text-xs text-[#3e3232c5] font-semibold">
+              {label}
+            </span>
           </Link>
         ))}
       </div>

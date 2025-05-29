@@ -19,6 +19,8 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
 
   const { isOpen, close } = useSearchStore();
 
+  console.log("ClientWrapper 렌더링");
+
   useEffect(() => {
     async function fetchUser() {
       try {

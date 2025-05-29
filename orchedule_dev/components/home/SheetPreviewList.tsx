@@ -67,6 +67,7 @@ export default function SheetPreviewList() {
                     alt="악보"
                     width={14}
                     height={14}
+                    style={{ aspectRatio: "1 / 1" }}
                   />
                   <span className="text-sm">{sheet.title}</span>
                   {sheet.isNewScore && (

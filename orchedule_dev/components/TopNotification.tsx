@@ -33,6 +33,7 @@ export default function TopNotification() {
         alt="알림"
         width={20}
         height={20}
+        style={{ aspectRatio: "1 / 1" }}
         className="cursor-pointer"
         onClick={() => setOpen(!open)}
       />
