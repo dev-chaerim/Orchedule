@@ -8,6 +8,7 @@ import Logo from "./Logo";
 import { useState } from "react";
 import SettingDropdown from "./dropdown/SettingDropdown";
 import { ShieldCheck } from "lucide-react";
+import { partLabels, PartKey } from "@/src/constants/parts";
 
 const navItems = [
   { href: "/", label: "홈", icon: "home", match: "^/$" },
@@ -47,6 +48,7 @@ export default function SideNav() {
   const user = useUserStore((state) => state.user);
   const [showDropdown, setShowDropdown] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const part = user?.part as PartKey | undefined;
 
   const handleDropdownClick = (e: React.MouseEvent) => {
     setDropdownPosition({
@@ -159,23 +161,25 @@ export default function SideNav() {
           <div>
             <hr className="border-t border-dashed border-[#C3C3C3] my-4" />
 
-            <div className="flex items-center gap-3 py-2 ">
+            <div className="flex items-center gap-3 py-2 mb-2">
               <Image
                 src="/icons/userIcon.svg"
                 alt="사용자"
-                width={23}
-                height={23}
+                width={30}
+                height={30}
                 className="cursor-pointer self-center"
-                onClick={() => setShowDropdown(!showDropdown)}
+                onClick={handleDropdownClick}
               />
 
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-[#4C4C4C]">
-                  {user?.name ?? ""}
+              <div className="flex flex-col leading-tight">
+                <span className="font-semibold text-[#3E3232] text-sm">
+                  {user?.name}
                 </span>
-                <span className="text-xs text-[#C3C3C3]">
-                  {user?.part ?? ""}
-                </span>
+                {part && (
+                  <span className="text-xs text-gray-400 mt-[2px]">
+                    {partLabels[part as PartKey]}
+                  </span>
+                )}
               </div>
             </div>
           </div>
