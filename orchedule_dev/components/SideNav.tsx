@@ -133,6 +133,7 @@ export default function SideNav() {
             <SettingDropdown
               onClose={() => setShowDropdown(false)}
               position={dropdownPosition}
+              direction="top"
             />
           )}
 

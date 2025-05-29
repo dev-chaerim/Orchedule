@@ -7,13 +7,21 @@ import { useUserStore } from "@/lib/store/user";
 interface Props {
   onClose: () => void;
   position: { top: number; left: number };
+  direction?: "bottom" | "top";
 }
 
-export default function SettingDropdown({ onClose, position }: Props) {
+export default function SettingDropdown({
+  onClose,
+  position,
+  direction = "bottom", // 기본값은 아래
+}: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const logout = useUserStore((state) => state.logout);
   const user = useUserStore((state) => state.user);
+
+  const DROPDOWN_WIDTH = 160;
+  const DROPDOWN_HEIGHT = 150;
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -25,19 +33,20 @@ export default function SettingDropdown({ onClose, position }: Props) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose]);
 
-  const DROPDOWN_WIDTH = 160;
-
   const correctedLeft =
     position.left + DROPDOWN_WIDTH > window.innerWidth
       ? window.innerWidth - DROPDOWN_WIDTH - 12
-      : position.left;
+      : position.left - 4;
+
+  const dropdownTop =
+    direction === "top" ? position.top - DROPDOWN_HEIGHT - 8 : position.top;
 
   return (
     <div
       ref={ref}
       style={{
         position: "fixed",
-        top: position.top,
+        top: dropdownTop,
         left: correctedLeft,
         zIndex: 9999,
         minWidth: DROPDOWN_WIDTH,
