@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSeasonStore } from "@/lib/store/season";
 import { format } from "date-fns";
+import MoreLink from "../MoreLink";
 
 interface Piece {
   time: string;
@@ -86,12 +87,7 @@ export default function ScheduleList() {
     <section className="px-4 py-2">
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-base font-semibold">연습 일정</h2>
-        <a
-          href="/menu/notice/schedule"
-          className="text-sm text-[#7E6363] hover:underline"
-        >
-          더보기
-        </a>
+        <MoreLink href="/menu/notice/schedule" />
       </div>
 
       {filteredSchedules.length === 0 ? (
