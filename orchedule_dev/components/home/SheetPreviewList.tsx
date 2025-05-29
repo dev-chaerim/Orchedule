@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import MoreLink from "../MoreLink";
 import { format } from "date-fns";
+import LoadingSkeleton from "../common/LoadingSkeleton";
 
 interface Score {
   _id: string;
@@ -49,7 +50,7 @@ export default function SheetPreviewList() {
 
       <div className="space-y-3">
         {loading ? (
-          <p className="text-sm text-gray-400">불러오는 중...</p>
+          <LoadingSkeleton lines={4} className="mt-2 mb-6" />
         ) : scores.length === 0 ? (
           <p className="text-sm text-gray-400">등록된 악보가 없습니다.</p>
         ) : (

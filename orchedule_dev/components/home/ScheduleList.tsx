@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSeasonStore } from "@/lib/store/season";
 import { format } from "date-fns";
 import MoreLink from "../MoreLink";
+import LoadingSkeleton from "../common/LoadingSkeleton";
 
 interface Piece {
   time: string;
@@ -72,10 +73,7 @@ export default function ScheduleList() {
   }, [selectedSeason]);
 
   if (!selectedSeason) return null;
-  if (loading)
-    return (
-      <p className="px-4 text-sm text-[#7E6363]">연습 일정을 불러오는 중...</p>
-    );
+  if (loading) return <LoadingSkeleton lines={4} className="mt-2 mb-6" />;
   if (error)
     return (
       <p className="px-4 text-sm text-red-500">
@@ -90,7 +88,15 @@ export default function ScheduleList() {
         <MoreLink href="/menu/notice/schedule" />
       </div>
 
-      {filteredSchedules.length === 0 ? (
+      {loading ? (
+        <div className="mt-3">
+          <LoadingSkeleton lines={4} />
+        </div>
+      ) : error ? (
+        <p className="px-1 text-sm text-red-500">
+          일정을 불러오는 데 실패했습니다.
+        </p>
+      ) : filteredSchedules.length === 0 ? (
         <p className="text-sm text-[#7e6a5c] text-center py-10 border border-dashed border-[#e0dada] rounded-md bg-white">
           등록된 연습 일정이 없습니다.
         </p>

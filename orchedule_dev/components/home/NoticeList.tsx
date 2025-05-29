@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import MoreLink from "../MoreLink";
+import LoadingSkeleton from "../common/LoadingSkeleton";
 
 interface Notice {
   _id: string;
@@ -41,13 +42,15 @@ export function NoticeList() {
         <MoreLink href="/menu/notice/announcement" />
       </div>
 
-      <div className="bg-white rounded-xl shadow p-2 space-y-1">
-        {loading ? (
-          <p className="text-sm text-gray-400">불러오는 중...</p>
-        ) : notices.length === 0 ? (
+      {loading ? (
+        <LoadingSkeleton lines={4} className="mt-2 mb-6" />
+      ) : notices.length === 0 ? (
+        <div className="bg-white rounded-xl shadow p-2 space-y-1">
           <p className="text-sm text-gray-400">등록된 공지사항이 없습니다.</p>
-        ) : (
-          notices.map((notice) => (
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl shadow p-2 space-y-1">
+          {notices.map((notice) => (
             <Link
               key={notice._id}
               href={`/menu/notice/announcement/${notice._id}`}
@@ -69,9 +72,9 @@ export function NoticeList() {
               </div>
               <span className="text-xs text-gray-400">{notice.date}</span>
             </Link>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
