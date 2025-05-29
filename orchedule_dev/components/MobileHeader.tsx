@@ -1,4 +1,3 @@
-// components/MobileHeader.tsx
 "use client";
 
 import Image from "next/image";
@@ -11,6 +10,18 @@ import TopNotification from "./TopNotification";
 
 export default function MobileHeader() {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+
+  const handleDropdownClick = (
+    e: React.MouseEvent<HTMLImageElement, MouseEvent>
+  ) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setDropdownPosition({
+      top: rect.bottom + 4,
+      left: rect.left,
+    });
+    setShowDropdown(true);
+  };
 
   return (
     <div className="flex flex-col pt-4 pb-2 md:hidden relative">
@@ -20,23 +31,15 @@ export default function MobileHeader() {
         <div className="flex items-center gap-4 relative">
           <SearchButton />
           <TopNotification />
-          <div className="relative">
+          <div>
             <Image
               src="/icons/userIcon.svg"
               alt="사용자"
               width={23}
               height={23}
               className="cursor-pointer self-center"
-              onClick={() => setShowDropdown(!showDropdown)}
+              onClick={handleDropdownClick}
             />
-            {showDropdown && (
-              <div className="absolute right-17 z-50">
-                <SettingDropdown
-                  direction="top"
-                  onClose={() => setShowDropdown(false)}
-                />
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -44,8 +47,16 @@ export default function MobileHeader() {
       {/* 시즌 선택 */}
       <div className="mt-2 px-4 py-3 flex items-center gap-2 text-sm text-[#3E3232] font-semibold">
         <span className="text-base">아람 필하모닉</span>
-        <SeasonDropdown /> {/* props 제거 */}
+        <SeasonDropdown />
       </div>
+
+      {/* 드롭다운 */}
+      {showDropdown && (
+        <SettingDropdown
+          onClose={() => setShowDropdown(false)}
+          position={dropdownPosition}
+        />
+      )}
     </div>
   );
 }
