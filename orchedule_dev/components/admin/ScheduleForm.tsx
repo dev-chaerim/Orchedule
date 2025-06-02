@@ -8,6 +8,7 @@ import {
   OrchestraSession,
   SpecialNotice,
 } from "@/src/lib/types/schedule";
+import { X } from "lucide-react";
 
 interface ScheduleFormProps {
   defaultDate?: string;
@@ -83,7 +84,7 @@ export default function ScheduleForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-6 bg-white rounded-xl shadow-md p-8 border border-gray-100"
+      className="space-y-8 bg-white rounded-xl shadow-md p-6 border border-gray-100"
     >
       {/* 날짜 입력 */}
       <div>
@@ -99,29 +100,45 @@ export default function ScheduleForm({
         />
       </div>
 
-      <SessionListForm
-        label="자리오디션"
-        sessions={auditionList}
-        onChange={setAuditionList}
-      />
-      <div className="border-t border-dashed border-[#D5CAC3] mt-2 mb-3" />
+      {/* 자리오디션 */}
+      <div>
+        <SessionListForm
+          label="자리오디션"
+          sessions={auditionList}
+          onChange={setAuditionList}
+        />
+      </div>
 
-      <SessionListForm
-        label="파트 레슨"
-        sessions={partList}
-        onChange={setPartList}
-      />
-      <div className="border-t border-dashed border-[#D5CAC3] mt-2 mb-3" />
+      <hr className="border-t border-dashed border-[#D5CAC3]" />
 
+      {/* 파트레슨 */}
+      <div>
+        <SessionListForm
+          label="파트 레슨"
+          sessions={partList}
+          onChange={setPartList}
+        />
+      </div>
+
+      <hr className="border-t border-dashed border-[#D5CAC3]" />
+
+      {/* 오케스트라 */}
       <OrchestraSessionForm session={orchestra} onChange={setOrchestra} />
 
-      {/* 특이사항 입력 */}
+      <hr className="border-t border-dashed border-[#D5CAC3]" />
+
+      {/* 특이사항 */}
       <div>
-        <label className="block text-sm font-semibold text-[#3E3232] mb-2">
+        <label className="block text-sm font-semibold text-[#3E3232] mb-4">
           특이사항
         </label>
+        {notices.length === 0 && (
+          <p className="text-center text-sm text-[#a49d9d] mb-4 py-2">
+            아직 등록된 특이사항이 없습니다.
+          </p>
+        )}
         {notices.map((notice, index) => (
-          <div key={index} className="flex items-start gap-2 mb-2">
+          <div key={index} className="flex items-start gap-2 mb-3">
             <input
               type="text"
               placeholder="내용 입력"
@@ -141,27 +158,33 @@ export default function ScheduleForm({
             <button
               type="button"
               onClick={() => removeNotice(index)}
-              className="text-sm text-red-500 hover:underline mt-2"
+              className="mt-2 w-6 h-6 flex items-center justify-center rounded-full bg-[#f3f0ed] text-[#7E6363] hover:bg-[#e2dbd7] transition"
             >
-              삭제
+              <X size={14} />
             </button>
           </div>
         ))}
-        <button
-          type="button"
-          onClick={addNotice}
-          className="text-sm text-[#5c4f4f] hover:underline mt-2"
-        >
-          + 특이사항 추가
-        </button>
+
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={addNotice}
+            className="px-6 py-2 mt-1 rounded-full bg-[#d2b8b5] text-[#3E3232] font-semibold text-sm hover:bg-[#c2a5a1] transition"
+          >
+            + 특이사항 추가
+          </button>
+        </div>
       </div>
 
-      <button
-        type="submit"
-        className="px-5 py-2 bg-[#3E3232] text-white text-sm font-semibold rounded-md hover:bg-[#2e2626] transition"
-      >
-        {submitLabel}
-      </button>
+      {/* 제출 */}
+      <div className="pt-6 flex justify-end">
+        <button
+          type="submit"
+          className="px-5 py-2 bg-[#3E3232] text-white text-sm font-semibold rounded-md hover:bg-[#2e2626] transition"
+        >
+          {submitLabel}
+        </button>
+      </div>
     </form>
   );
 }

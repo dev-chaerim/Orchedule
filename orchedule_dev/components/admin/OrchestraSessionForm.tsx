@@ -41,7 +41,7 @@ export default function OrchestraSessionForm({ session, onChange }: Props) {
       movements: [],
       isEncore: false,
       highlight: false,
-      note: "", // ✅ 추가
+      note: "",
     };
     onChange({ ...session, pieces: [...session.pieces, newPiece] });
   };
@@ -56,7 +56,8 @@ export default function OrchestraSessionForm({ session, onChange }: Props) {
       <h3 className="block text-sm font-semibold text-[#3E3232] mb-3">
         오케스트라 전체연습
       </h3>
-      <div className="space-y-4 p-4 border border-dashed border-gray-300 rounded-md">
+
+      <div className="space-y-4 p-4 rounded-md">
         <input
           type="text"
           placeholder="시간 (예: 18:30 ~ 21:30)"
@@ -86,15 +87,15 @@ export default function OrchestraSessionForm({ session, onChange }: Props) {
 
         <div className="space-y-6">
           {session.pieces.map((piece, idx) => (
-            <div key={idx} className="p-3 border border-dashed rounded-md">
+            <div key={idx}>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-semibold text-[#3E3232]">
                   곡 {idx + 1}
                 </span>
                 <button
                   type="button"
                   onClick={() => removePiece(idx)}
-                  className="text-gray-400 hover:text-red-500 transition"
+                  className="w-6 h-6 flex items-center justify-center rounded-full bg-[#f3f0ed] text-[#7E6363] hover:bg-[#e2dbd7] transition"
                 >
                   <X size={16} />
                 </button>
@@ -120,7 +121,7 @@ export default function OrchestraSessionForm({ session, onChange }: Props) {
                 className="mt-2 w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
               />
 
-              <div className="flex items-center gap-4 mt-2 text-sm">
+              {/* <div className="flex items-center gap-4 mt-2 text-sm text-[#3E3232]">
                 <label className="flex items-center gap-1">
                   <input
                     type="checkbox"
@@ -141,17 +142,22 @@ export default function OrchestraSessionForm({ session, onChange }: Props) {
                   />
                   강조 표시
                 </label>
-              </div>
+              </div> */}
+
+              {idx < session.pieces.length - 1 && (
+                <hr className="my-6 border-dashed border-[#ddd]" />
+              )}
             </div>
           ))}
-
-          <button
-            type="button"
-            onClick={addPiece}
-            className="text-sm text-[#5c4f4f] hover:underline"
-          >
-            + 곡 추가
-          </button>
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={addPiece}
+              className="px-5 py-2 rounded-full bg-[#d2b8b5] text-[#3E3232] font-semibold text-sm hover:bg-[#c2a5a1] transition"
+            >
+              + 곡 추가
+            </button>
+          </div>
         </div>
       </div>
     </div>
