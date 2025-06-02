@@ -6,12 +6,7 @@ import { useSeasonStore } from "@/lib/store/season";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import { useState } from "react";
 import BackButton from "@/components/BackButton";
-
-interface Piece {
-  time: string;
-  title: string;
-  note?: string;
-}
+import { PracticeSession, OrchestraSession } from "@/src/lib/types/schedule";
 
 export default function NewSchedulePage() {
   const router = useRouter();
@@ -20,7 +15,12 @@ export default function NewSchedulePage() {
   const [showModal, setShowModal] = useState(false);
   const [formKey, setFormKey] = useState(0); // 폼 리셋용 키
 
-  const handleSubmit = async (data: { date: string; pieces: Piece[] }) => {
+  const handleSubmit = async (data: {
+    date: string;
+    auditionSessions: PracticeSession[];
+    partSessions: PracticeSession[];
+    orchestraSession: OrchestraSession;
+  }) => {
     if (!selectedSeason) {
       alert("시즌이 선택되지 않았습니다.");
       return;

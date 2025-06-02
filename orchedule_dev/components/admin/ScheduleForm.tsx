@@ -1,57 +1,80 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
-import SimpleSongDropdown from "@/components/admin/SimpleSongDropdown";
-import { useSeasonStore } from "@/src/lib/store/season";
-
-interface Piece {
-  time: string;
-  title: string;
-  note?: string;
-}
+import SessionListForm from "./SessionListForm";
+import OrchestraSessionForm from "./OrchestraSessionForm";
+import {
+  PracticeSession,
+  OrchestraSession,
+  SpecialNotice,
+} from "@/src/lib/types/schedule";
 
 interface ScheduleFormProps {
   defaultDate?: string;
-  defaultPieces?: Piece[];
-  onSubmit: (data: { date: string; pieces: Piece[] }) => void;
+  onSubmit: (data: {
+    date: string;
+    auditionSessions: PracticeSession[];
+    partSessions: PracticeSession[];
+    orchestraSession: OrchestraSession;
+    specialNotices: SpecialNotice[];
+  }) => void;
   submitLabel?: string;
 }
 
 export default function ScheduleForm({
   defaultDate = "",
-  defaultPieces = [{ time: "", title: "", note: "" }],
   onSubmit,
   submitLabel = "저장",
 }: ScheduleFormProps) {
   const [date, setDate] = useState(defaultDate);
-  const [pieces, setPieces] = useState<Piece[]>(defaultPieces);
-  const selectedSeason = useSeasonStore((state) => state.selectedSeason);
+  const [auditionSessions, setAuditionSessions] = useState<PracticeSession[]>(
+    []
+  );
+  const [partSessions, setPartSessions] = useState<PracticeSession[]>([]);
+  const [orchestraSession, setOrchestraSession] = useState<OrchestraSession>({
+    time: "",
+    location: "",
+    conductor: "",
+    pieces: [],
+  });
+  const [specialNotices, setSpecialNotices] = useState<SpecialNotice[]>([]);
 
-  const handlePieceChange = (
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit({
+      date,
+      auditionSessions,
+      partSessions,
+      orchestraSession,
+      specialNotices,
+    });
+  };
+
+  const updateNotice = (
     index: number,
-    field: keyof Piece,
+    field: keyof SpecialNotice,
     value: string
   ) => {
-    const updated = [...pieces];
-    updated[index][field] = value;
-    setPieces(updated);
+    const updated = [...specialNotices];
+    if (field === "level") {
+      updated[index].level = value as "default" | "warning" | "important";
+    } else {
+      updated[index][field] = value;
+    }
+    setSpecialNotices(updated);
   };
 
-  const handleAddPiece = () => {
-    setPieces([...pieces, { time: "", title: "", note: "" }]);
+  const addNotice = () => {
+    setSpecialNotices([...specialNotices, { content: "", level: "default" }]);
   };
 
-  const handleRemovePiece = (index: number) => {
-    setPieces(pieces.filter((_, i) => i !== index));
+  const removeNotice = (index: number) => {
+    setSpecialNotices(specialNotices.filter((_, i) => i !== index));
   };
 
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit({ date, pieces });
-      }}
+      onSubmit={handleSubmit}
       className="space-y-6 bg-white rounded-xl shadow-md p-8 border border-gray-100"
     >
       {/* 날짜 입력 */}
@@ -68,62 +91,66 @@ export default function ScheduleForm({
         />
       </div>
 
-      {/* 곡 리스트 */}
-      <div className="space-y-4 mt-6">
-        {pieces.map((piece, idx) => (
-          <div
-            key={idx}
-            className="space-y-2 pb-4 border-b border-dashed border-gray-200 last:border-none"
-          >
-            {/* 삭제 버튼 */}
-            <div className="flex justify-end mb-1">
-              <button
-                type="button"
-                onClick={() => handleRemovePiece(idx)}
-                className="text-gray-500 hover:text-red-500 bg-[#eeeeee] hover:bg-red-100 hover:border-red-200 border border-gray-300 px-3 py-1 rounded-full text-xs flex items-center gap-1 transition"
-                aria-label="곡 삭제"
-              >
-                <X size={12} />
-              </button>
-            </div>
+      <SessionListForm
+        label="자리오디션"
+        sessions={auditionSessions}
+        onChange={setAuditionSessions}
+      />
+      <div className="border-t border-dashed border-[#D5CAC3] mt-2 mb-3" />
 
-            {/* 시간 */}
+      <SessionListForm
+        label="파트 레슨"
+        sessions={partSessions}
+        onChange={setPartSessions}
+      />
+      <div className="border-t border-dashed border-[#D5CAC3] mt-2 mb-3" />
+
+      <OrchestraSessionForm
+        session={orchestraSession}
+        onChange={setOrchestraSession}
+      />
+
+      {/* ✅ 특이사항 입력 */}
+      <div>
+        <label className="block text-sm font-semibold text-[#3E3232] mb-2">
+          특이사항
+        </label>
+        {specialNotices.map((notice, index) => (
+          <div key={index} className="flex items-start gap-2 mb-2">
             <input
-              placeholder="예: 3:40~4:05"
-              value={piece.time}
-              onChange={(e) => handlePieceChange(idx, "time", e.target.value)}
-              className="w-full border border-[#C3B9B1] rounded-md px-3 py-2 text-sm focus:ring-[#A5796E] focus:ring-1"
-              required
+              type="text"
+              placeholder="내용 입력"
+              value={notice.content}
+              onChange={(e) => updateNotice(index, "content", e.target.value)}
+              className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm"
             />
-
-            {/* 곡명 */}
-            <SimpleSongDropdown
-              options={selectedSeason?.pieces || []}
-              value={piece.title}
-              onChange={(val) => handlePieceChange(idx, "title", val)}
-            />
-
-            {/* 비고 */}
-            <input
-              placeholder="비고 (선택)"
-              value={piece.note ?? ""}
-              onChange={(e) => handlePieceChange(idx, "note", e.target.value)}
-              className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:ring-[#A5796E] focus:ring-1"
-            />
+            <select
+              value={notice.level}
+              onChange={(e) => updateNotice(index, "level", e.target.value)}
+              className="text-sm border border-gray-300 rounded-md px-2 py-2"
+            >
+              <option value="default">일반</option>
+              <option value="warning">주의</option>
+              <option value="important">중요</option>
+            </select>
+            <button
+              type="button"
+              onClick={() => removeNotice(index)}
+              className="text-sm text-red-500 hover:underline mt-2"
+            >
+              삭제
+            </button>
           </div>
         ))}
-
-        {/* 곡 추가 버튼 */}
         <button
           type="button"
-          onClick={handleAddPiece}
-          className="text-sm text-[#5c4f4f] hover:underline"
+          onClick={addNotice}
+          className="text-sm text-[#5c4f4f] hover:underline mt-2"
         >
-          + 시간 추가
+          + 특이사항 추가
         </button>
       </div>
 
-      {/* 저장 버튼 */}
       <button
         type="submit"
         className="px-5 py-2 bg-[#3E3232] text-white text-sm font-semibold rounded-md hover:bg-[#2e2626] transition"

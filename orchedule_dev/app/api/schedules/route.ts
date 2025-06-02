@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongoose';
-import { Schedule } from '@/src/models/schedule';
+import { PracticeSchedule } from '@/src/models/practiceSchedule';
 
 export async function GET(req: NextRequest) {
   await connectDB();
@@ -10,30 +10,44 @@ export async function GET(req: NextRequest) {
 
   try {
     const query = seasonId ? { seasonId } : {};
-    const schedules = await Schedule.find(query).sort({ date: 1 });
+    const schedules = await PracticeSchedule.find(query).sort({ date: 1 });
     return NextResponse.json(schedules);
   } catch (error) {
-    console.log(error)
+    console.error("일정 불러오기 실패:", error);
     return NextResponse.json({ error: "일정 불러오기 실패" }, { status: 500 });
   }
 }
-
 
 export async function POST(req: NextRequest) {
   await connectDB();
 
   try {
     const body = await req.json();
-    const { seasonId, date, pieces } = body;
+    const {
+      seasonId,
+      date,
+      auditionSessions,
+      partSessions,
+      orchestraSession,
+      specialNotices,
+    } = body;
 
-    if (!seasonId || !date || !pieces || !Array.isArray(pieces)) {
-      return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
+    if (!seasonId || !date || !orchestraSession) {
+      return NextResponse.json({ message: "필수 필드 누락" }, { status: 400 });
     }
 
-    const newSchedule = await Schedule.create({ seasonId, date, pieces });
+    const newSchedule = await PracticeSchedule.create({
+      seasonId,
+      date,
+      auditionSessions,
+      partSessions,
+      orchestraSession,
+      specialNotices,
+    });
+
     return NextResponse.json(newSchedule, { status: 201 });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ message: 'Server error' }, { status: 500 });
+  } catch (error) {
+    console.error("일정 생성 실패:", error);
+    return NextResponse.json({ message: "서버 에러" }, { status: 500 });
   }
 }

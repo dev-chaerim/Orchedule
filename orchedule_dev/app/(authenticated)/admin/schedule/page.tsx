@@ -4,19 +4,7 @@ import { useEffect, useState } from "react";
 import { useSeasonStore } from "@/lib/store/season";
 import { useRouter } from "next/navigation";
 import ScheduleCard from "@/components/admin/ScheduleCard";
-
-interface Piece {
-  time: string;
-  title: string;
-  note?: string;
-}
-
-interface Schedule {
-  _id: string;
-  seasonId: string;
-  date: string;
-  pieces: Piece[];
-}
+import type { Schedule } from "@/src/lib/types/schedule"; // ✅ 공통 Schedule 타입 import
 
 export default function SchedulePage() {
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
@@ -26,7 +14,6 @@ export default function SchedulePage() {
   useEffect(() => {
     const fetchSchedules = async () => {
       try {
-        // ✅ 전체 시즌일 경우 seasonId 파라미터를 제거
         const url = selectedSeason
           ? `/api/schedules?seasonId=${selectedSeason._id}`
           : `/api/schedules`;
