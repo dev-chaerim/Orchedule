@@ -1,25 +1,14 @@
 "use client";
 
-import { useEffect, useState, use } from "react"; // ← use 추가
+import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import ScheduleForm from "@/components/admin/ScheduleForm";
-
-interface Piece {
-  time: string;
-  title: string;
-  note?: string;
-}
-
-interface Schedule {
-  _id: string;
-  date: string;
-  pieces: Piece[];
-}
+import type { Schedule } from "@/src/lib/types/schedule"; // ✅ 공통 Schedule 타입 사용
 
 export default function EditSchedulePage({
   params,
 }: {
-  params: Promise<{ id: string }>; // ← Promise로 변경
+  params: Promise<{ id: string }>;
 }) {
   const router = useRouter();
   const { id } = use(params);
@@ -45,12 +34,24 @@ export default function EditSchedulePage({
     fetchSchedule();
   }, [id]);
 
-  const handleSubmit = async (data: { date: string; pieces: Piece[] }) => {
+  const handleSubmit = async ({
+    date,
+    auditionSessions,
+    partSessions,
+    orchestraSession,
+    specialNotices,
+  }: Omit<Schedule, "_id" | "seasonId">) => {
     try {
       const res = await fetch(`/api/schedules/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          date,
+          auditionSessions,
+          partSessions,
+          orchestraSession,
+          specialNotices,
+        }),
       });
 
       if (!res.ok) throw new Error("수정 실패");
@@ -75,7 +76,10 @@ export default function EditSchedulePage({
       <h2 className="text-lg font-bold text-[#3E3232] mb-4">연습일정 수정</h2>
       <ScheduleForm
         defaultDate={schedule.date}
-        defaultPieces={schedule.pieces}
+        auditionSessions={schedule.auditionSessions}
+        partSessions={schedule.partSessions}
+        orchestraSession={schedule.orchestraSession}
+        specialNotices={schedule.specialNotices}
         onSubmit={handleSubmit}
         submitLabel="수정 저장"
       />

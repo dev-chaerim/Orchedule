@@ -11,6 +11,10 @@ import {
 
 interface ScheduleFormProps {
   defaultDate?: string;
+  auditionSessions?: PracticeSession[];
+  partSessions?: PracticeSession[];
+  orchestraSession?: OrchestraSession;
+  specialNotices?: SpecialNotice[];
   onSubmit: (data: {
     date: string;
     auditionSessions: PracticeSession[];
@@ -23,30 +27,34 @@ interface ScheduleFormProps {
 
 export default function ScheduleForm({
   defaultDate = "",
-  onSubmit,
-  submitLabel = "저장",
-}: ScheduleFormProps) {
-  const [date, setDate] = useState(defaultDate);
-  const [auditionSessions, setAuditionSessions] = useState<PracticeSession[]>(
-    []
-  );
-  const [partSessions, setPartSessions] = useState<PracticeSession[]>([]);
-  const [orchestraSession, setOrchestraSession] = useState<OrchestraSession>({
+  auditionSessions = [],
+  partSessions = [],
+  orchestraSession = {
     time: "",
     location: "",
     conductor: "",
     pieces: [],
-  });
-  const [specialNotices, setSpecialNotices] = useState<SpecialNotice[]>([]);
+  },
+  specialNotices = [],
+  onSubmit,
+  submitLabel = "저장",
+}: ScheduleFormProps) {
+  const [date, setDate] = useState(defaultDate);
+  const [auditionList, setAuditionList] =
+    useState<PracticeSession[]>(auditionSessions);
+  const [partList, setPartList] = useState<PracticeSession[]>(partSessions);
+  const [orchestra, setOrchestra] =
+    useState<OrchestraSession>(orchestraSession);
+  const [notices, setNotices] = useState<SpecialNotice[]>(specialNotices);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
       date,
-      auditionSessions,
-      partSessions,
-      orchestraSession,
-      specialNotices,
+      auditionSessions: auditionList,
+      partSessions: partList,
+      orchestraSession: orchestra,
+      specialNotices: notices,
     });
   };
 
@@ -55,21 +63,21 @@ export default function ScheduleForm({
     field: keyof SpecialNotice,
     value: string
   ) => {
-    const updated = [...specialNotices];
+    const updated = [...notices];
     if (field === "level") {
       updated[index].level = value as "default" | "warning" | "important";
     } else {
       updated[index][field] = value;
     }
-    setSpecialNotices(updated);
+    setNotices(updated);
   };
 
   const addNotice = () => {
-    setSpecialNotices([...specialNotices, { content: "", level: "default" }]);
+    setNotices([...notices, { content: "", level: "default" }]);
   };
 
   const removeNotice = (index: number) => {
-    setSpecialNotices(specialNotices.filter((_, i) => i !== index));
+    setNotices(notices.filter((_, i) => i !== index));
   };
 
   return (
@@ -93,29 +101,26 @@ export default function ScheduleForm({
 
       <SessionListForm
         label="자리오디션"
-        sessions={auditionSessions}
-        onChange={setAuditionSessions}
+        sessions={auditionList}
+        onChange={setAuditionList}
       />
       <div className="border-t border-dashed border-[#D5CAC3] mt-2 mb-3" />
 
       <SessionListForm
         label="파트 레슨"
-        sessions={partSessions}
-        onChange={setPartSessions}
+        sessions={partList}
+        onChange={setPartList}
       />
       <div className="border-t border-dashed border-[#D5CAC3] mt-2 mb-3" />
 
-      <OrchestraSessionForm
-        session={orchestraSession}
-        onChange={setOrchestraSession}
-      />
+      <OrchestraSessionForm session={orchestra} onChange={setOrchestra} />
 
-      {/* ✅ 특이사항 입력 */}
+      {/* 특이사항 입력 */}
       <div>
         <label className="block text-sm font-semibold text-[#3E3232] mb-2">
           특이사항
         </label>
-        {specialNotices.map((notice, index) => (
+        {notices.map((notice, index) => (
           <div key={index} className="flex items-start gap-2 mb-2">
             <input
               type="text"
