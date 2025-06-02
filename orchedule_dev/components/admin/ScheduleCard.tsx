@@ -5,9 +5,8 @@ import { Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
 import ConfirmModal from "../modals/ConfirmModal";
-
-// ✅ 타입은 무조건 동일한 경로로 import!
 import type { Schedule } from "@/src/lib/types/schedule";
+import { ko } from "date-fns/locale";
 
 interface ScheduleCardProps {
   schedule: Schedule;
@@ -47,16 +46,16 @@ export default function ScheduleCard({
         </button>
 
         {/* 날짜 표시 */}
-        <h3 className="text-sm font-semibold text-[#3E3232] mb-2">
-          {format(new Date(schedule.date), "MMM d")} · {schedule.date}
+        <h3 className="text-sm font-semibold text-[#3E3232] mb-4">
+          {format(new Date(schedule.date), "yyyy.MM.dd (EEE)", { locale: ko })}
         </h3>
 
         {/* 특이사항 */}
         {Array.isArray(schedule.specialNotices) &&
           schedule.specialNotices.length > 0 && (
             <div className="mb-2 text-xs text-[#7E6363]">
-              <strong>특이사항</strong>
-              <ul className="list-disc pl-4 mt-1">
+              <strong className="text-[#3E3232] font-bold">특이사항</strong>
+              <ul className="list-disc pl-5 mt-1 space-y-0.5">
                 {schedule.specialNotices.map((notice, idx) => (
                   <li
                     key={idx}
@@ -75,13 +74,13 @@ export default function ScheduleCard({
             </div>
           )}
 
-        {/* 자리오디션 */}
-        {Array.isArray(schedule.auditionSessions) &&
-          schedule.auditionSessions.length > 0 && (
+        {/* 파트레슨 */}
+        {Array.isArray(schedule.partSessions) &&
+          schedule.partSessions.length > 0 && (
             <div className="mb-2 text-xs text-[#7E6363]">
-              <strong>자리오디션</strong>
-              <ul className="list-disc pl-4 mt-1">
-                {schedule.auditionSessions.map((s, idx) => (
+              <strong className="text-[#3E3232] font-bold">파트레슨</strong>
+              <ul className="list-disc pl-5 mt-1 space-y-0.5">
+                {schedule.partSessions.map((s, idx) => (
                   <li key={idx}>
                     {s.time} – {s.title} @ {s.location}
                     {s.note && (
@@ -95,13 +94,13 @@ export default function ScheduleCard({
             </div>
           )}
 
-        {/* 파트레슨 */}
-        {Array.isArray(schedule.partSessions) &&
-          schedule.partSessions.length > 0 && (
+        {/* 자리오디션 */}
+        {Array.isArray(schedule.auditionSessions) &&
+          schedule.auditionSessions.length > 0 && (
             <div className="mb-2 text-xs text-[#7E6363]">
-              <strong>파트레슨</strong>
-              <ul className="list-disc pl-4 mt-1">
-                {schedule.partSessions.map((s, idx) => (
+              <strong className="text-[#3E3232] font-bold">자리오디션</strong>
+              <ul className="list-disc pl-5 mt-1 space-y-0.5">
+                {schedule.auditionSessions.map((s, idx) => (
                   <li key={idx}>
                     {s.time} – {s.title} @ {s.location}
                     {s.note && (
@@ -117,26 +116,38 @@ export default function ScheduleCard({
 
         {/* 오케스트라 세션 */}
         {schedule.orchestraSession && (
-          <div className="text-xs text-[#7E6363]">
-            <strong>오케스트라</strong>
-            <div className="ml-2">
-              <div>{schedule.orchestraSession.time}</div>
-              <div>지휘자: {schedule.orchestraSession.conductor}</div>
-              <div>장소: {schedule.orchestraSession.location}</div>
-              <ul className="list-disc pl-4 mt-1">
-                {schedule.orchestraSession.pieces.map((p, idx) => (
-                  <li key={idx}>
-                    {p.title}
-                    {p.movements?.length ? ` (${p.movements.join(", ")})` : ""}
+          <div className="mt-2 mb-1 text-xs text-[#7E6363]">
+            <strong className="text-[#3E3232] font-bold">오케스트라</strong>
+            <ul className="list-disc pl-5 mt-1 space-y-1">
+              <li>
+                {schedule.orchestraSession.time} –{" "}
+                {schedule.orchestraSession.conductor} @{" "}
+                {schedule.orchestraSession.location}
+              </li>
+            </ul>
+            <ul className="pl-6 mt-1 space-y-0.5">
+              {schedule.orchestraSession.pieces.map((p, idx) => (
+                <li key={idx} className="flex items-start gap-1">
+                  <span className="text-sm text-[#3E3232] leading-5">▸</span>
+                  <div>
+                    <span>
+                      {p.title}
+                      {p.movements && p.movements.length > 0 && (
+                        <span className="text-[#D97706] font-semibold">
+                          ({p.movements.join(", ")})
+                        </span>
+                      )}
+                    </span>
+
                     {p.note && (
-                      <span className="ml-1 text-gray-400 italic">
-                        ({p.note})
-                      </span>
+                      <div className="text-gray-400 italic mt-1 ml-2">
+                        {p.note}
+                      </div>
                     )}
-                  </li>
-                ))}
-              </ul>
-            </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>
