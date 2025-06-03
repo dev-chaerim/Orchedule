@@ -118,7 +118,7 @@ export default function ScheduleList() {
             {schedule.partSessions && schedule.partSessions.length > 0 && (
               <div className="mb-5">
                 <p className="font-semibold flex items-center mb-1 text-[#3E3232]">
-                  <span className="mr-1 text-gray-400 text-sm">👥</span>
+                  <span className="mr-2 text-gray-400 text-sm">👥</span>
                   파트레슨
                 </p>
                 <ul className="space-y-1 ml-4">
@@ -127,7 +127,7 @@ export default function ScheduleList() {
                       <span className="text-[#3E3232]">
                         {s.time} – {s.title}
                       </span>{" "}
-                      <span className="text-[#7e6a5c]">@ {s.location}</span>
+                      <span className="text-[#7e6a5c]">#{s.location}</span>
                     </li>
                   ))}
                 </ul>
@@ -148,7 +148,7 @@ export default function ScheduleList() {
                       {schedule.orchestraSession.conductor}
                     </span>{" "}
                     <span className="text-[#7e6a5c]">
-                      @ {schedule.orchestraSession.location}
+                      #{schedule.orchestraSession.location}
                     </span>
                   </p>
                   <ul className="space-y-2">
@@ -163,7 +163,7 @@ export default function ScheduleList() {
                           )}
                         </p>
                         {piece.note && (
-                          <p className="text-xs text-[#7e6a5c] italic mt-0.5">
+                          <p className="text-xs text-[#7e6a5c] italic mt-0.5 ml-4">
                             {piece.note}
                           </p>
                         )}

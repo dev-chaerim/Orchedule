@@ -5,22 +5,10 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { format } from "date-fns";
 import ScheduleCard from "./ScheduleCard";
+import { Schedule } from "@/lib/types/schedule";
 
 type ValuePiece = Date | null;
 type Value = ValuePiece | [ValuePiece, ValuePiece];
-
-interface Piece {
-  time: string;
-  title: string;
-  note?: string;
-}
-
-interface Schedule {
-  _id: string;
-  seasonId: string;
-  date: string;
-  pieces: Piece[];
-}
 
 const CalendarSelect = () => {
   const [calendarValue, setCalendarValue] = useState<Value>(new Date());
@@ -36,7 +24,6 @@ const CalendarSelect = () => {
         const res = await fetch("/api/schedules");
         if (!res.ok) throw new Error("서버 오류 발생");
         const data = await res.json();
-        console.log("연습일정 data", data);
         setSchedules(data);
       } catch (err) {
         console.log("err", err);
@@ -108,19 +95,71 @@ const CalendarSelect = () => {
           ) : error ? (
             <div className="text-center text-red-500 text-sm py-6">{error}</div>
           ) : schedule ? (
-            <div>
-              <p className="text-base font-semibold text-[#3E3232] mb-5">
-                📅 {schedule.date} 연습곡
+            <div className="space-y-6">
+              <p className="text-base font-semibold text-[#3E3232]">
+                📅 {schedule.date} 연습일정
               </p>
-              <div className="space-y-2">
-                {schedule.pieces.map(({ time, title, note }, idx) => (
+
+              {/* 특이사항 */}
+              {schedule.specialNotices &&
+                schedule.specialNotices?.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-[#3E3232] mb-1">
+                      📌 특이사항
+                    </h3>
+                    <ul className="space-y-1 ml-2 text-sm ">
+                      {schedule.specialNotices.map((notice, i) => (
+                        <li
+                          key={i}
+                          className={
+                            notice.level === "important"
+                              ? "text-[#b54949] font-semibold"
+                              : notice.level === "warning"
+                              ? "text-[#cc9900]"
+                              : "text-[#3E3232]"
+                          }
+                        >
+                          {notice.content}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+              {/* 파트레슨 */}
+              {schedule.partSessions && schedule.partSessions?.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-[#3E3232] mb-1">
+                    👥 파트레슨
+                  </h3>
+                  <div className="space-y-2">
+                    {schedule.partSessions.map((s, i) => (
+                      <ScheduleCard
+                        key={i}
+                        time={s.time}
+                        description={
+                          `${s.title} #${s.location}` +
+                          (s.conductor ? ` #${s.conductor}` : "")
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 오케스트라 */}
+              {schedule.orchestraSession && (
+                <div>
+                  <h3 className="font-semibold text-[#3E3232] mb-1">
+                    🎼 오케스트라
+                  </h3>
                   <ScheduleCard
-                    key={idx}
-                    time={time}
-                    description={`${title}${note ? ` ${note}` : ""}`}
+                    time={schedule.orchestraSession.time}
+                    description={`${schedule.orchestraSession.conductor} #${schedule.orchestraSession.location}`}
+                    pieces={schedule.orchestraSession.pieces}
                   />
-                ))}
-              </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="bg-[#fdfbf9] border border-[#e8e0d9] rounded-xl p-6 text-center w-full">
