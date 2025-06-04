@@ -10,6 +10,9 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
+  images: {
+    domains: ["res.cloudinary.com"], // ✅ Cloudinary 이미지 허용
+  },
   // reactStrictMode: true,
   // swcMinify: true,
 };

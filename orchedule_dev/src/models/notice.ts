@@ -9,6 +9,7 @@ const noticeSchema = new Schema({
   isNew: { type: Boolean, default: false },
   season: { type: Schema.Types.ObjectId, ref: 'Season', required: true },
   isGlobal: { type: Boolean, default: false },
+  imageUrl: { type: String, default: "" },
 });
 
 const Notice = models.Notice || model('Notice', noticeSchema);

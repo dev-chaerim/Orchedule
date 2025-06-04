@@ -135,7 +135,7 @@ export default function OrchestraSessionForm({ session, onChange }: Props) {
                 <label className="flex items-center gap-1">
                   <input
                     type="checkbox"
-                    checked={piece.highlight}
+                    checked={piece.phighlight}
                     onChange={(e) =>
                       updatePiece(idx, "highlight", e.target.checked.toString())
                     }

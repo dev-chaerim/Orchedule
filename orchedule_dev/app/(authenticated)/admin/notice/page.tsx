@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSeasonStore } from "@/lib/store/season";
+import ConfirmModal from "@/components/modals/ConfirmModal";
 
 interface Notice {
   _id: string;
@@ -22,6 +23,9 @@ export default function AdminNoticePage() {
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
   const seasonId = selectedSeason?._id;
   const router = useRouter();
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [targetId, setTargetId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchNotices = async () => {
@@ -42,17 +46,24 @@ export default function AdminNoticePage() {
     ),
   ];
 
-  const handleDelete = async (id: string, e: React.MouseEvent) => {
+  const openDeleteModal = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm("정말 삭제하시겠습니까?")) return;
+    setTargetId(id);
+    setModalOpen(true);
+  };
 
+  const confirmDelete = async () => {
+    if (!targetId) return;
     try {
-      const res = await fetch(`/api/notices/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/notices/${targetId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("삭제 실패");
-      setNotices(notices.filter((n) => n._id !== id));
+      setNotices((prev) => prev.filter((n) => n._id !== targetId));
     } catch (err) {
       alert("삭제 중 오류가 발생했습니다.");
       console.error(err);
+    } finally {
+      setModalOpen(false);
+      setTargetId(null);
     }
   };
 
@@ -107,7 +118,7 @@ export default function AdminNoticePage() {
                   수정
                 </button>
                 <button
-                  onClick={(e) => handleDelete(notice._id, e)}
+                  onClick={(e) => openDeleteModal(notice._id, e)}
                   className="text-xs font-semibold bg-red-50 text-red-400 px-3 py-1 rounded-md hover:bg-red-100 transition"
                 >
                   삭제
@@ -117,6 +128,18 @@ export default function AdminNoticePage() {
           ))}
         </ul>
       )}
+
+      <ConfirmModal
+        open={modalOpen}
+        onCancel={() => setModalOpen(false)}
+        onConfirm={confirmDelete}
+        message="정말 삭제하시겠습니까?"
+        confirmLabel="삭제"
+        cancelLabel="취소"
+        confirmColor="red"
+        successMessage="삭제되었습니다."
+        errorMessage="삭제 중 오류가 발생했습니다."
+      />
     </main>
   );
 }

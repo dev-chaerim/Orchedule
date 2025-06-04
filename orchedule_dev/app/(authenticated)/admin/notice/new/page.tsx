@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSeasonStore } from "@/lib/store/season";
+import ImageUploader from "@/components/common/ImageUploader";
+import ImagePreview from "@/components/common/ImagePreview";
+import ConfirmModal from "@/components/modals/ConfirmModal";
 
 export default function CreateNoticePage() {
   const router = useRouter();
@@ -12,6 +15,14 @@ export default function CreateNoticePage() {
   const [content, setContent] = useState("");
   const [isGlobal, setIsGlobal] = useState(false);
   const [pinned, setPinned] = useState(false);
+
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleDelete = (index: number) => {
+    setImageUrls((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,13 +52,13 @@ export default function CreateNoticePage() {
           date: new Date().toISOString().split("T")[0],
           author: "관리자",
           isNew: true,
+          imageUrls,
         }),
       });
 
       if (!res.ok) throw new Error("등록 실패");
 
-      alert("공지 등록 완료!");
-      router.push("/admin/notice");
+      setIsModalOpen(true);
     } catch (err) {
       alert("공지 등록 중 오류가 발생했습니다.");
       console.error(err);
@@ -57,6 +68,25 @@ export default function CreateNoticePage() {
   return (
     <main className="max-w-2xl mx-auto p-6">
       <h1 className="text-xl font-bold mb-4 text-[#3E3232]">공지 작성</h1>
+      <div className="flex items-center gap-4 mb-3">
+        <label className="flex items-center gap-2 text-sm text-[#3E3232]">
+          <input
+            type="checkbox"
+            checked={isGlobal}
+            onChange={(e) => setIsGlobal(e.target.checked)}
+          />
+          모든 시즌에 표시
+        </label>
+
+        <label className="flex items-center gap-2 text-sm text-[#3E3232]">
+          <input
+            type="checkbox"
+            checked={pinned}
+            onChange={(e) => setPinned(e.target.checked)}
+          />
+          상단 고정
+        </label>
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
@@ -74,25 +104,21 @@ export default function CreateNoticePage() {
           className="w-full border border-[#D5CAC3] rounded-md px-4 py-2 text-sm focus:outline-[#7E6363]"
         />
 
-        <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2 text-sm text-[#3E3232]">
-            <input
-              type="checkbox"
-              checked={isGlobal}
-              onChange={(e) => setIsGlobal(e.target.checked)}
-            />
-            모든 시즌에 표시
-          </label>
+        <ImageUploader
+          onUpload={(url) => setImageUrls((prev) => [...prev, url])}
+        />
 
-          <label className="flex items-center gap-2 text-sm text-[#3E3232]">
-            <input
-              type="checkbox"
-              checked={pinned}
-              onChange={(e) => setPinned(e.target.checked)}
-            />
-            상단 고정
-          </label>
-        </div>
+        {imageUrls.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            {imageUrls.map((url, i) => (
+              <ImagePreview
+                key={i}
+                src={url}
+                onDelete={() => handleDelete(i)}
+              />
+            ))}
+          </div>
+        )}
 
         <div className="text-right">
           <button
@@ -103,6 +129,13 @@ export default function CreateNoticePage() {
           </button>
         </div>
       </form>
+      <ConfirmModal
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        onConfirm={() => router.push("/admin/notice")}
+        message="공지 등록을 완료하시겠습니까?"
+        confirmLabel="목록으로 이동"
+      />
     </main>
   );
 }
