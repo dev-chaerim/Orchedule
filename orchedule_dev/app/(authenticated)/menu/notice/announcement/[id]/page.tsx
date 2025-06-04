@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams, notFound } from "next/navigation";
-import BackButton from "@/components/BackButton";
 import Link from "next/link";
+import BackButton from "@/components/BackButton";
+import ImagePreview from "@/components/common/ImagePreview";
+import ConfirmModal from "@/components/modals/ConfirmModal";
 import { useUserStore } from "@/lib/store/user";
 
 interface Notice {
@@ -16,6 +18,7 @@ interface Notice {
   isNew: boolean;
   season: string;
   isGlobal: boolean;
+  imageUrls?: string[];
 }
 
 export default function NoticeDetailPage() {
@@ -26,6 +29,7 @@ export default function NoticeDetailPage() {
 
   const [notice, setNotice] = useState<Notice | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     const fetchNotice = async () => {
@@ -45,17 +49,10 @@ export default function NoticeDetailPage() {
     if (id) fetchNotice();
   }, [id, router]);
 
-  const handleDelete = async () => {
-    if (!confirm("정말 삭제하시겠습니까?")) return;
-
-    try {
-      const res = await fetch(`/api/notices/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("삭제 실패");
-      router.replace("/admin/notice");
-    } catch (err) {
-      alert("삭제 중 오류가 발생했습니다.");
-      console.error(err);
-    }
+  const deleteNotice = async () => {
+    const res = await fetch(`/api/notices/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error("삭제 실패");
+    router.replace("/admin/notice");
   };
 
   if (loading) {
@@ -68,27 +65,31 @@ export default function NoticeDetailPage() {
 
   return (
     <div className="p-3 space-y-4">
-      <BackButton fallbackHref="/menu/notice/announcement" label="목록" />
+      {/* 목록 + 수정/삭제 버튼 */}
+      <div className="flex justify-between items-center">
+        <BackButton fallbackHref="/menu/notice/announcement" label="목록" />
 
+        {user?.role === "admin" && (
+          <div className="flex gap-2 mb-3">
+            <Link href={`/admin/notice/${notice._id}/edit`}>
+              <button className="text-xs font-semibold bg-[#F4ECE7] text-[#3E3232] px-3 py-1 rounded-md hover:bg-[#e3dcd7] transition">
+                수정
+              </button>
+            </Link>
+            <button
+              onClick={() => setShowConfirm(true)}
+              className="text-xs font-semibold bg-[#fbeeee] text-[#b64646] px-3 py-1 rounded-md hover:bg-[#f8e2e2] transition"
+            >
+              삭제
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* 공지 본문 영역 */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
         <div className="flex justify-between items-start">
           <h1 className="text-lg font-bold text-[#3E3232]">{notice.title}</h1>
-
-          {user?.role === "admin" && (
-            <div className="flex gap-2">
-              <Link href={`/admin/notice/${notice._id}/edit`}>
-                <button className="text-xs font-semibold bg-[#F4ECE7] text-[#3E3232] font-medium px-3 py-1 rounded-md hover:bg-[#e3dcd7] transition">
-                  수정
-                </button>
-              </Link>
-              <button
-                onClick={handleDelete}
-                className="text-xs font-semibold bg-red-50 text-red-400 font-medium px-3 py-1 rounded-md hover:bg-red-100 transition"
-              >
-                삭제
-              </button>
-            </div>
-          )}
         </div>
 
         <div className="text-sm text-gray-500">
@@ -98,7 +99,28 @@ export default function NoticeDetailPage() {
         <p className="text-sm text-gray-800 whitespace-pre-line">
           {notice.content}
         </p>
+
+        {notice.imageUrls && notice.imageUrls.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            {notice.imageUrls.map((url, i) => (
+              <ImagePreview key={i} src={url} />
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* 확인 모달 */}
+      <ConfirmModal
+        open={showConfirm}
+        onCancel={() => setShowConfirm(false)}
+        onConfirm={deleteNotice}
+        message="정말 이 공지를 삭제하시겠습니까?"
+        confirmLabel="삭제"
+        cancelLabel="취소"
+        confirmColor="red"
+        successMessage="삭제되었습니다."
+        errorMessage="삭제 중 오류가 발생했습니다."
+      />
     </div>
   );
 }

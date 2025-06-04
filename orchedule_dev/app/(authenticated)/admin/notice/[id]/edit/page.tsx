@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import ImageUploader from "@/components/common/ImageUploader";
+import ImagePreview from "@/components/common/ImagePreview";
+import ConfirmModal from "@/components/modals/ConfirmModal";
 
 export default function EditNoticePage() {
   const router = useRouter();
@@ -13,6 +16,8 @@ export default function EditNoticePage() {
   const [season, setSeason] = useState("2024");
   const [isGlobal, setIsGlobal] = useState(false);
   const [pinned, setPinned] = useState(false);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // ✅ 기존 공지 불러오기
@@ -28,6 +33,7 @@ export default function EditNoticePage() {
         setSeason(data.season);
         setIsGlobal(data.isGlobal);
         setPinned(data.pinned);
+        setImageUrls(data.imageUrls || []);
         setIsLoading(false);
         console.log("[불러온 공지]", data);
       } catch (err) {
@@ -40,6 +46,11 @@ export default function EditNoticePage() {
     if (id) fetchNotice();
   }, [id, router]);
 
+  // ✅ 이미지 삭제
+  const handleDelete = (index: number) => {
+    setImageUrls((prev) => prev.filter((_, i) => i !== index));
+  };
+
   // ✅ 수정 요청
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,14 +59,6 @@ export default function EditNoticePage() {
       alert("제목과 내용을 모두 입력해주세요.");
       return;
     }
-
-    console.log("등록 요청 본문:", {
-      title,
-      content,
-      season,
-      isGlobal,
-      pinned,
-    });
 
     try {
       const res = await fetch(`/api/notices/${id}`, {
@@ -69,13 +72,13 @@ export default function EditNoticePage() {
           season,
           isGlobal,
           pinned,
+          imageUrls,
         }),
       });
 
       if (!res.ok) throw new Error("수정 실패");
 
-      alert("공지 수정 완료!");
-      router.push("/admin/notice");
+      setIsModalOpen(true);
     } catch (err) {
       alert("공지 수정 중 오류가 발생했습니다.");
       console.error(err);
@@ -106,20 +109,26 @@ export default function EditNoticePage() {
           className="w-full border border-[#D5CAC3] rounded-md px-4 py-2 text-sm focus:outline-[#7E6363]"
         />
 
-        {/* ✅ 추가 필드들 */}
-        <div className="flex items-center gap-4">
-          {/* <div className="flex items-center gap-2">
-            <label className="text-sm text-[#3E3232] font-medium">시즌</label>
-            <select
-              value={season}
-              onChange={(e) => setSeason(e.target.value)}
-              className="border border-[#D5CAC3] rounded-md px-2 py-1 text-sm"
-            >
-              <option value="2024">2024</option>
-              <option value="2023">2023</option>
-            </select>
-          </div> */}
+        {/* ✅ 이미지 프리뷰 */}
+        {imageUrls.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {imageUrls.map((url, i) => (
+              <ImagePreview
+                key={i}
+                src={url}
+                onDelete={() => handleDelete(i)}
+              />
+            ))}
+          </div>
+        )}
 
+        {/* ✅ 이미지 업로더 */}
+        <ImageUploader
+          onUpload={(url) => setImageUrls((prev) => [...prev, url])}
+        />
+
+        {/* ✅ 체크박스 */}
+        <div className="flex items-center gap-4">
           <label className="flex items-center gap-2 text-sm text-[#3E3232]">
             <input
               type="checkbox"
@@ -148,6 +157,14 @@ export default function EditNoticePage() {
           </button>
         </div>
       </form>
+
+      <ConfirmModal
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        onConfirm={() => router.push("/admin/notice")}
+        message="공지 수정을 완료하시겠습니까?"
+        confirmLabel="목록으로 이동"
+      />
     </main>
   );
 }

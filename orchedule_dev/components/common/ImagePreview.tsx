@@ -31,17 +31,19 @@ export default function ImagePreview({
           <X size={16} className="text-[#3E3232]" />
         </button>
       )}
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        sizes="100vw"
-        className="object-contain"
-        onLoad={({ currentTarget }) => {
-          const r = currentTarget.naturalWidth / currentTarget.naturalHeight;
-          setRatio(r);
-        }}
-      />
+      <a href={src} target="_blank" rel="noopener noreferrer">
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes="100vw"
+          className="object-contain"
+          onLoad={({ currentTarget }) => {
+            const r = currentTarget.naturalWidth / currentTarget.naturalHeight;
+            setRatio(r);
+          }}
+        />
+      </a>
     </div>
   );
 }

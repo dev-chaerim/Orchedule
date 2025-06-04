@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSeasonStore } from "@/lib/store/season";
 import ConfirmModal from "@/components/modals/ConfirmModal";
+import { Trash2 } from "lucide-react";
 
 interface Notice {
   _id: string;
@@ -16,6 +17,7 @@ interface Notice {
   isNew: boolean;
   season: string;
   isGlobal: boolean;
+  imageUrls?: string[];
 }
 
 export default function AdminNoticePage() {
@@ -67,11 +69,6 @@ export default function AdminNoticePage() {
     }
   };
 
-  const handleEdit = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    router.push(`/admin/notice/${id}/edit`);
-  };
-
   const handleItemClick = (id: string) => {
     router.push(`/menu/notice/announcement/${id}?from=admin`);
   };
@@ -98,7 +95,7 @@ export default function AdminNoticePage() {
             <li
               key={notice._id}
               onClick={() => handleItemClick(notice._id)}
-              className="bg-white border border-[#E0D6CD] rounded-lg p-4 flex justify-between items-center cursor-pointer hover:bg-[#faf7f3]"
+              className="relative bg-white border border-[#E0D6CD] rounded-lg p-4 flex justify-between items-center cursor-pointer hover:bg-[#faf7f3]"
             >
               <div>
                 <h3 className="text-sm font-semibold text-[#3E3232]">
@@ -110,18 +107,13 @@ export default function AdminNoticePage() {
                 </p>
               </div>
 
-              <div className="flex gap-2">
-                <button
-                  onClick={(e) => handleEdit(notice._id, e)}
-                  className="text-xs font-semibold bg-[#F4ECE7] text-[#3E3232] px-3 py-1 rounded-md hover:bg-[#e3dcd7] transition"
-                >
-                  수정
-                </button>
+              <div className=" flex gap-2">
                 <button
                   onClick={(e) => openDeleteModal(notice._id, e)}
-                  className="text-xs font-semibold bg-red-50 text-red-400 px-3 py-1 rounded-md hover:bg-red-100 transition"
+                  className="absolute top-2 right-2 p-1 rounded-full hover:bg-red-100 text-[#7E6363] transition"
+                  aria-label="삭제"
                 >
-                  삭제
+                  <Trash2 size={16} />
                 </button>
               </div>
             </li>

@@ -36,6 +36,7 @@ export default function ImageUploader({ onUpload }: ImageUploaderProps) {
           "/upload/",
           "/upload/q_100,f_auto/"
         );
+        console.log("Cloudinary 업로드 URL:", enhancedUrl);
         onUpload(enhancedUrl); // 부모에게 이미지 URL 전달
       } catch (err) {
         console.error("업로드 실패:", err);
