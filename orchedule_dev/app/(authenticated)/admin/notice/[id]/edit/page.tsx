@@ -94,6 +94,27 @@ export default function EditNoticePage() {
   return (
     <main className="max-w-2xl mx-auto p-6">
       <h1 className="text-xl font-bold mb-4 text-[#3E3232]">공지 수정</h1>
+      {/* ✅ 체크박스 */}
+      <div className="flex items-center gap-4 mb-2">
+        <label className="flex items-center gap-2 text-sm text-[#3E3232]">
+          <input
+            type="checkbox"
+            checked={isGlobal}
+            onChange={(e) => setIsGlobal(e.target.checked)}
+          />
+          모든 시즌에 표시
+        </label>
+
+        <label className="flex items-center gap-2 text-sm text-[#3E3232]">
+          <input
+            type="checkbox"
+            checked={pinned}
+            onChange={(e) => setPinned(e.target.checked)}
+          />
+          상단 고정
+        </label>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
@@ -127,27 +148,6 @@ export default function EditNoticePage() {
           onUpload={(url) => setImageUrls((prev) => [...prev, url])}
         />
 
-        {/* ✅ 체크박스 */}
-        <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2 text-sm text-[#3E3232]">
-            <input
-              type="checkbox"
-              checked={isGlobal}
-              onChange={(e) => setIsGlobal(e.target.checked)}
-            />
-            모든 시즌에 표시
-          </label>
-
-          <label className="flex items-center gap-2 text-sm text-[#3E3232]">
-            <input
-              type="checkbox"
-              checked={pinned}
-              onChange={(e) => setPinned(e.target.checked)}
-            />
-            상단 고정
-          </label>
-        </div>
-
         <div className="text-right">
           <button
             type="submit"
@@ -163,7 +163,7 @@ export default function EditNoticePage() {
         onCancel={() => setIsModalOpen(false)}
         onConfirm={() => router.push("/admin/notice")}
         message="공지 수정을 완료하시겠습니까?"
-        confirmLabel="목록으로 이동"
+        confirmLabel="저장하기"
       />
     </main>
   );

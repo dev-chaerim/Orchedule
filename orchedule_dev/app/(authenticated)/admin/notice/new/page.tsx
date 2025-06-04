@@ -134,7 +134,7 @@ export default function CreateNoticePage() {
         onCancel={() => setIsModalOpen(false)}
         onConfirm={() => router.push("/admin/notice")}
         message="공지 등록을 완료하시겠습니까?"
-        confirmLabel="목록으로 이동"
+        confirmLabel="저장하기"
       />
     </main>
   );
