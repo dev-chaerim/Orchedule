@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import ImageUploader from "@/components/common/ImageUploader";
 import ImagePreview from "@/components/common/ImagePreview";
+import PDFPreview from "@/components/common/PDFPreview";
 import ConfirmModal from "@/components/modals/ConfirmModal";
+import { UploadResult } from "@/lib/utils/uploadFileToCloudinary";
 
 export default function EditNoticePage() {
   const router = useRouter();
@@ -16,7 +18,7 @@ export default function EditNoticePage() {
   const [season, setSeason] = useState("2024");
   const [isGlobal, setIsGlobal] = useState(false);
   const [pinned, setPinned] = useState(false);
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [attachments, setAttachments] = useState<UploadResult[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -33,9 +35,8 @@ export default function EditNoticePage() {
         setSeason(data.season);
         setIsGlobal(data.isGlobal);
         setPinned(data.pinned);
-        setImageUrls(data.imageUrls || []);
+        setAttachments(data.attachments || []);
         setIsLoading(false);
-        console.log("[불러온 공지]", data);
       } catch (err) {
         alert("공지 불러오기 실패");
         console.error(err);
@@ -46,20 +47,13 @@ export default function EditNoticePage() {
     if (id) fetchNotice();
   }, [id, router]);
 
-  // ✅ 이미지 삭제
+  // ✅ 파일 삭제
   const handleDelete = (index: number) => {
-    setImageUrls((prev) => prev.filter((_, i) => i !== index));
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // ✅ 수정 요청
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!title.trim() || !content.trim()) {
-      alert("제목과 내용을 모두 입력해주세요.");
-      return;
-    }
-
+  // ✅ 모달에서 저장 확정 시 실행
+  const handleConfirmSave = async () => {
     try {
       const res = await fetch(`/api/notices/${id}`, {
         method: "PATCH",
@@ -72,17 +66,29 @@ export default function EditNoticePage() {
           season,
           isGlobal,
           pinned,
-          imageUrls,
+          attachments,
         }),
       });
 
       if (!res.ok) throw new Error("수정 실패");
 
-      setIsModalOpen(true);
+      router.push("/admin/notice");
     } catch (err) {
       alert("공지 수정 중 오류가 발생했습니다.");
       console.error(err);
     }
+  };
+
+  // ✅ 폼 제출 시 (모달 띄우기만)
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!title.trim() || !content.trim()) {
+      alert("제목과 내용을 모두 입력해주세요.");
+      return;
+    }
+
+    setIsModalOpen(true); // 모달 먼저 띄우기
   };
 
   if (isLoading) {
@@ -94,7 +100,7 @@ export default function EditNoticePage() {
   return (
     <main className="max-w-2xl mx-auto p-6">
       <h1 className="text-xl font-bold mb-4 text-[#3E3232]">공지 수정</h1>
-      {/* ✅ 체크박스 */}
+
       <div className="flex items-center gap-4 mb-2">
         <label className="flex items-center gap-2 text-sm text-[#3E3232]">
           <input
@@ -130,22 +136,27 @@ export default function EditNoticePage() {
           className="w-full border border-[#D5CAC3] rounded-md px-4 py-2 text-sm focus:outline-[#7E6363]"
         />
 
-        {/* ✅ 이미지 프리뷰 */}
-        {imageUrls.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {imageUrls.map((url, i) => (
-              <ImagePreview
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+          {attachments.map((file, i) =>
+            file.type === "application/pdf" ? (
+              <PDFPreview
                 key={i}
-                src={url}
+                publicId={file.publicId}
+                pageCount={file.pageCount}
                 onDelete={() => handleDelete(i)}
               />
-            ))}
-          </div>
-        )}
+            ) : (
+              <ImagePreview
+                key={i}
+                src={file.url}
+                onDelete={() => handleDelete(i)}
+              />
+            )
+          )}
+        </div>
 
-        {/* ✅ 이미지 업로더 */}
         <ImageUploader
-          onUpload={(url) => setImageUrls((prev) => [...prev, url])}
+          onUpload={(file) => setAttachments((prev) => [...prev, file])}
         />
 
         <div className="text-right">
@@ -161,7 +172,7 @@ export default function EditNoticePage() {
       <ConfirmModal
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
-        onConfirm={() => router.push("/admin/notice")}
+        onConfirm={handleConfirmSave}
         message="공지 수정을 완료하시겠습니까?"
         confirmLabel="저장하기"
       />

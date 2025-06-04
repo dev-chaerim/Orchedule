@@ -5,8 +5,16 @@ import { useRouter, useParams, notFound } from "next/navigation";
 import Link from "next/link";
 import BackButton from "@/components/BackButton";
 import ImagePreview from "@/components/common/ImagePreview";
+import PDFPreview from "@/components/common/PDFPreview";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import { useUserStore } from "@/lib/store/user";
+
+interface Attachment {
+  url: string;
+  publicId: string;
+  type: string; // e.g. "image/jpeg", "application/pdf"
+  pageCount?: number;
+}
 
 interface Notice {
   _id: string;
@@ -18,7 +26,7 @@ interface Notice {
   isNew: boolean;
   season: string;
   isGlobal: boolean;
-  imageUrls?: string[];
+  attachments?: Attachment[];
 }
 
 export default function NoticeDetailPage() {
@@ -100,11 +108,20 @@ export default function NoticeDetailPage() {
           {notice.content}
         </p>
 
-        {notice.imageUrls && notice.imageUrls.length > 0 && (
+        {/* 첨부파일 프리뷰 */}
+        {notice.attachments && notice.attachments.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-            {notice.imageUrls.map((url, i) => (
-              <ImagePreview key={i} src={url} />
-            ))}
+            {notice.attachments.map((file, i) =>
+              file.type === "application/pdf" && file.pageCount ? (
+                <PDFPreview
+                  key={i}
+                  publicId={file.publicId}
+                  pageCount={file.pageCount}
+                />
+              ) : (
+                <ImagePreview key={i} src={file.url} />
+              )
+            )}
           </div>
         )}
       </div>

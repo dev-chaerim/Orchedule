@@ -6,27 +6,28 @@ import { useSeasonStore } from "@/lib/store/season";
 import ImageUploader from "@/components/common/ImageUploader";
 import ImagePreview from "@/components/common/ImagePreview";
 import ConfirmModal from "@/components/modals/ConfirmModal";
+import PDFPreview from "@/components/common/PDFPreview";
+import { UploadResult } from "@/lib/utils/uploadFileToCloudinary";
 
 export default function CreateNoticePage() {
   const router = useRouter();
-  const { selectedSeason } = useSeasonStore(); // ✅ 현재 선택된 시즌 가져오기
+  const { selectedSeason } = useSeasonStore();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isGlobal, setIsGlobal] = useState(false);
   const [pinned, setPinned] = useState(false);
 
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadResult[]>([]);
 
-  const handleDelete = (index: number) => {
-    setImageUrls((prev) => prev.filter((_, i) => i !== index));
+  // ✅ 파일 삭제
+  const handleFileDelete = (index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  // ✅ 실제 등록 요청 함수 (모달의 onConfirm에서 실행)
+  const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) {
       alert("제목과 내용을 모두 입력해주세요.");
       return;
@@ -52,22 +53,30 @@ export default function CreateNoticePage() {
           date: new Date().toISOString().split("T")[0],
           author: "관리자",
           isNew: true,
-          imageUrls,
+          attachments: uploadedFiles,
         }),
       });
 
       if (!res.ok) throw new Error("등록 실패");
 
-      setIsModalOpen(true);
+      router.push("/admin/notice");
     } catch (err) {
       alert("공지 등록 중 오류가 발생했습니다.");
       console.error(err);
     }
   };
 
+  // ✅ 모달 띄우기만 (폼 제출 시)
+  const handleConfirm = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsModalOpen(true);
+  };
+
   return (
     <main className="max-w-2xl mx-auto p-6">
       <h1 className="text-xl font-bold mb-4 text-[#3E3232]">공지 작성</h1>
+
+      {/* ✅ 체크박스 */}
       <div className="flex items-center gap-4 mb-3">
         <label className="flex items-center gap-2 text-sm text-[#3E3232]">
           <input
@@ -87,7 +96,9 @@ export default function CreateNoticePage() {
           상단 고정
         </label>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-4">
+
+      {/* ✅ 작성 폼 */}
+      <form onSubmit={handleConfirm} className="space-y-4">
         <input
           type="text"
           placeholder="제목을 입력하세요"
@@ -104,21 +115,30 @@ export default function CreateNoticePage() {
           className="w-full border border-[#D5CAC3] rounded-md px-4 py-2 text-sm focus:outline-[#7E6363]"
         />
 
+        {/* ✅ 파일 업로더 */}
         <ImageUploader
-          onUpload={(url) => setImageUrls((prev) => [...prev, url])}
+          onUpload={(file) => setUploadedFiles((prev) => [...prev, file])}
         />
 
-        {imageUrls.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-            {imageUrls.map((url, i) => (
+        {/* ✅ 파일 프리뷰 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+          {uploadedFiles.map((file, i) =>
+            file.type === "application/pdf" ? (
+              <PDFPreview
+                key={i}
+                publicId={file.publicId}
+                pageCount={file.pageCount}
+                onDelete={() => handleFileDelete(i)}
+              />
+            ) : (
               <ImagePreview
                 key={i}
-                src={url}
-                onDelete={() => handleDelete(i)}
+                src={file.url}
+                onDelete={() => handleFileDelete(i)}
               />
-            ))}
-          </div>
-        )}
+            )
+          )}
+        </div>
 
         <div className="text-right">
           <button
@@ -129,10 +149,12 @@ export default function CreateNoticePage() {
           </button>
         </div>
       </form>
+
+      {/* ✅ 확인 모달 */}
       <ConfirmModal
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
-        onConfirm={() => router.push("/admin/notice")}
+        onConfirm={handleSubmit}
         message="공지 등록을 완료하시겠습니까?"
         confirmLabel="저장하기"
       />

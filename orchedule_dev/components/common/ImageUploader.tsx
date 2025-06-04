@@ -1,8 +1,12 @@
 "use client";
 import { useState } from "react";
+import {
+  uploadFileToCloudinary,
+  UploadResult,
+} from "@/lib/utils/uploadFileToCloudinary";
 
 interface ImageUploaderProps {
-  onUpload: (url: string) => void;
+  onUpload: (file: UploadResult) => void;
 }
 
 export default function ImageUploader({ onUpload }: ImageUploaderProps) {
@@ -12,50 +16,31 @@ export default function ImageUploader({ onUpload }: ImageUploaderProps) {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    const newFileNames: string[] = [];
+    setIsUploading(true);
 
     for (const file of Array.from(files)) {
-      newFileNames.push(file.name);
-
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", "img_upload");
-
       try {
-        setIsUploading(true);
-        const res = await fetch(
-          "https://api.cloudinary.com/v1_1/dwiiiowbu/image/upload",
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-
-        const data = await res.json();
-        const enhancedUrl = data.secure_url.replace(
-          "/upload/",
-          "/upload/q_100,f_auto/"
-        );
-        console.log("Cloudinary 업로드 URL:", enhancedUrl);
-        onUpload(enhancedUrl); // 부모에게 이미지 URL 전달
+        const result = await uploadFileToCloudinary(file);
+        onUpload(result); // ✅ 전체 업로드 결과 전달
       } catch (err) {
         console.error("업로드 실패:", err);
         alert(`"${file.name}" 업로드 중 오류가 발생했습니다.`);
-      } finally {
-        setIsUploading(false);
       }
     }
+
+    setIsUploading(false);
+    e.target.value = "";
   };
 
   return (
     <div className="flex flex-col gap-2">
       <label className="text-sm text-[#3E3232] font-semibold">
-        이미지 첨부
+        이미지 또는 PDF 첨부
       </label>
       <div className="flex flex-wrap items-center gap-3">
         <input
           type="file"
-          accept="image/*"
+          accept="image/*,.pdf"
           multiple
           onChange={handleUpload}
           className="file:mr-4 file:py-1 file:px-3
