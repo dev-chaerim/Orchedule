@@ -25,6 +25,10 @@ export default function AttendanceDashboardPage() {
     { _id: string; name: string; part: PartKey }[]
   >([]);
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [isScheduleLoading, setIsScheduleLoading] = useState(false);
+  const [isScheduleFirstLoad, setIsScheduleFirstLoad] = useState(true);
+
   const showToast = useToastStore((state) => state.showToast);
 
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
@@ -43,26 +47,6 @@ export default function AttendanceDashboardPage() {
     { 출석: 0, 지각: 0, 불참: 0 }
   );
 
-  // ✅ 멤버 데이터를 불러오는 함수
-  useEffect(() => {
-    const fetchMembers = async () => {
-      try {
-        const res = await fetch("/api/members");
-        if (!res.ok) throw new Error("멤버 데이터를 불러오는데 실패했습니다.");
-        const data = await res.json();
-        setMembers(data);
-      } catch (error) {
-        console.error("멤버 데이터 로딩 오류:", error);
-        showToast({
-          message: "멤버 데이터를 불러오는데 실패했습니다.",
-          type: "error",
-        });
-      }
-    };
-    fetchMembers();
-  }, []);
-
-  // ✅ 연습 날짜 목록 불러오기
   useEffect(() => {
     const fetchDates = async () => {
       try {
@@ -80,7 +64,28 @@ export default function AttendanceDashboardPage() {
     fetchDates();
   }, []);
 
-  // ✅ 출석 상태 - 실시간 polling
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      setIsScheduleFirstLoad(true);
+      setIsScheduleLoading(true);
+      try {
+        const res = await fetch("/api/schedules");
+        const all = await res.json();
+        const matched = all.find((s: Schedule) => s.date === selectedDate);
+        setScheduleDetail(matched || null);
+      } catch (err) {
+        console.error("스케줄 로딩 실패:", err);
+      } finally {
+        setIsScheduleFirstLoad(false);
+        setIsScheduleLoading(false);
+      }
+    };
+
+    if (selectedDate) {
+      fetchSchedule();
+    }
+  }, [selectedDate]);
+
   useEffect(() => {
     if (!selectedDate || !selectedSeason) return;
 
@@ -110,23 +115,26 @@ export default function AttendanceDashboardPage() {
     return () => clearInterval(interval);
   }, [selectedDate, selectedSeason, members, showToast]);
 
-  // ✅ 연습 일정 불러오기
   useEffect(() => {
-    const fetchSchedule = async () => {
+    const fetchMembers = async () => {
+      setIsLoading(true);
       try {
-        const res = await fetch("/api/schedules");
-        const all = await res.json();
-        const matched = all.find((s: Schedule) => s.date === selectedDate);
-        setScheduleDetail(matched || null);
-      } catch (err) {
-        console.error("스케줄 로딩 실패:", err);
+        const res = await fetch("/api/members");
+        if (!res.ok) throw new Error("멤버 데이터를 불러오는데 실패했습니다.");
+        const data = await res.json();
+        setMembers(data);
+      } catch (error) {
+        console.error("멤버 데이터 로딩 오류:", error);
+        showToast({
+          message: "멤버 데이터를 불러오는데 실패했습니다.",
+          type: "error",
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
-
-    if (selectedDate) {
-      fetchSchedule();
-    }
-  }, [selectedDate]);
+    fetchMembers();
+  }, []);
 
   const startEdit = (memberId: string) => {
     const current = attendance.get(memberId) ?? "출석";
@@ -184,13 +192,15 @@ export default function AttendanceDashboardPage() {
     }
   };
 
-  const hasNextSchedule = !!selectedDate;
-
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-lg font-bold text-[#3E3232] mb-6">출석현황 관리</h1>
 
-      {hasNextSchedule ? (
+      {isScheduleFirstLoad || isScheduleLoading ? ( // ⭐️ 첫 로딩 중에는 무조건 로딩 표시
+        <div className="text-center text-[#a79c90] text-sm py-6">
+          ⏳ 연습일정을 불러오는 중이에요...
+        </div>
+      ) : scheduleDetail ? (
         <div className="mb-6 p-5 border border-[#dfd8d2] rounded-xl bg-white text-sm text-[#3E3232]">
           <div className="font-semibold text-base mb-2 flex items-center gap-2">
             <span className="text-[#2c2c2c]">다음 연습일</span>
@@ -198,14 +208,13 @@ export default function AttendanceDashboardPage() {
           <div className="text-sm font-medium">
             🎼 {selectedDate || "날짜 없음"}
           </div>
-          {scheduleDetail &&
-            scheduleDetail.orchestraSession?.pieces?.length > 0 && (
-              <ul className="list-disc list-inside text-xs mt-2 text-[#7E6363] space-y-0.5">
-                {scheduleDetail.orchestraSession.pieces.map((piece, i) => (
-                  <li key={i}>{piece.title}</li>
-                ))}
-              </ul>
-            )}
+          {scheduleDetail.orchestraSession?.pieces?.length > 0 && (
+            <ul className="list-disc list-inside text-xs mt-2 text-[#7E6363] space-y-0.5">
+              {scheduleDetail.orchestraSession.pieces.map((piece, i) => (
+                <li key={i}>{piece.title}</li>
+              ))}
+            </ul>
+          )}
         </div>
       ) : (
         <p className="mb-6 text-sm text-[#7e6a5c] text-center py-10 border border-[#e0dada] rounded-md">
@@ -272,80 +281,86 @@ export default function AttendanceDashboardPage() {
       </div>
 
       {/* 출석 테이블 */}
-      <div className="border border-[#e4e0dc] rounded-xl overflow-x-auto">
-        <table className="min-w-full text-sm text-center">
-          <thead className="bg-[#f5f4f2] text-[#3E3232]">
-            <tr>
-              <th className="px-4 py-3 font-semibold">이름</th>
-              <th className="px-4 py-3 font-semibold">파트</th>
-              <th className="px-4 py-3 font-semibold">출결 상태</th>
-              <th className="px-4 py-3 font-semibold">관리</th>
-            </tr>
-          </thead>
-          <tbody className="bg-[#fdfcfa]">
-            {filteredMembers.map((member) => {
-              const isEditing = editingId === member._id;
-              const currentStatus = attendance.get(member._id) ?? "출석";
+      {isLoading ? (
+        <div className="text-center text-[#a79c90] text-sm py-6">
+          ⏳ 출석현황을 불러오는 중이에요...
+        </div>
+      ) : (
+        <div className="border border-[#e4e0dc] rounded-xl overflow-x-auto">
+          <table className="min-w-full text-sm text-center">
+            <thead className="bg-[#f5f4f2] text-[#3E3232]">
+              <tr>
+                <th className="px-4 py-3 font-semibold">이름</th>
+                <th className="px-4 py-3 font-semibold">파트</th>
+                <th className="px-4 py-3 font-semibold">출결 상태</th>
+                <th className="px-4 py-3 font-semibold">관리</th>
+              </tr>
+            </thead>
+            <tbody className="bg-[#fdfcfa]">
+              {filteredMembers.map((member) => {
+                const isEditing = editingId === member._id;
+                const currentStatus = attendance.get(member._id) ?? "출석";
 
-              return (
-                <tr
-                  key={member._id}
-                  className="border-t border-[#eceae7] last:border-0 hover:bg-[#f7f6f4] transition"
-                >
-                  <td className="px-4 py-3 text-[#3E3232] whitespace-nowrap">
-                    {member.name}
-                  </td>
-                  <td className="px-4 py-3 text-[#7E6363] whitespace-nowrap">
-                    {member.part}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    {isEditing ? (
-                      <select
-                        value={editingStatus}
-                        onChange={(e) =>
-                          setEditingStatus(e.target.value as AttendanceStatus)
-                        }
-                        className="border border-gray-300 rounded-md px-3 py-1 text-sm"
-                      >
-                        <option value="출석">출석</option>
-                        <option value="지각">지각</option>
-                        <option value="불참">불참</option>
-                      </select>
-                    ) : (
-                      <span>{currentStatus}</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap space-x-2">
-                    {isEditing ? (
-                      <>
+                return (
+                  <tr
+                    key={member._id}
+                    className="border-t border-[#eceae7] last:border-0 hover:bg-[#f7f6f4] transition"
+                  >
+                    <td className="px-4 py-3 text-[#3E3232] whitespace-nowrap">
+                      {member.name}
+                    </td>
+                    <td className="px-4 py-3 text-[#7E6363] whitespace-nowrap">
+                      {member.part}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {isEditing ? (
+                        <select
+                          value={editingStatus}
+                          onChange={(e) =>
+                            setEditingStatus(e.target.value as AttendanceStatus)
+                          }
+                          className="border border-gray-300 rounded-md px-3 py-1 text-sm"
+                        >
+                          <option value="출석">출석</option>
+                          <option value="지각">지각</option>
+                          <option value="불참">불참</option>
+                        </select>
+                      ) : (
+                        <span>{currentStatus}</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap space-x-2">
+                      {isEditing ? (
+                        <>
+                          <button
+                            onClick={saveEdit}
+                            className="text-xs text-[#7E6363] hover:text-[#3E3232]"
+                          >
+                            저장
+                          </button>
+                          <button
+                            onClick={cancelEdit}
+                            className="text-xs text-[#b14040] hover:underline"
+                          >
+                            취소
+                          </button>
+                        </>
+                      ) : (
                         <button
-                          onClick={saveEdit}
+                          onClick={() => startEdit(member._id)}
                           className="text-xs text-[#7E6363] hover:text-[#3E3232]"
                         >
-                          저장
+                          수정
                         </button>
-                        <button
-                          onClick={cancelEdit}
-                          className="text-xs text-[#b14040] hover:underline"
-                        >
-                          취소
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        onClick={() => startEdit(member._id)}
-                        className="text-xs text-[#7E6363] hover:text-[#3E3232]"
-                      >
-                        수정
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

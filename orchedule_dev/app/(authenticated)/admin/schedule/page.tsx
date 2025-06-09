@@ -9,10 +9,12 @@ import type { Schedule } from "@/src/lib/types/schedule"; // ✅ 공통 Schedule
 export default function SchedulePage() {
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [isLoading, setIsLoading] = useState(false); // ✅ 로딩 상태 추가
   const router = useRouter();
 
   useEffect(() => {
     const fetchSchedules = async () => {
+      setIsLoading(true); // ✅ 로딩 시작
       try {
         const url = selectedSeason
           ? `/api/schedules?seasonId=${selectedSeason._id}`
@@ -25,6 +27,8 @@ export default function SchedulePage() {
         console.log("관리자 연습일정 data", data);
       } catch (err) {
         console.error("일정 불러오기 실패:", err);
+      } finally {
+        setIsLoading(false); // ✅ 로딩 종료
       }
     };
 
@@ -61,7 +65,11 @@ export default function SchedulePage() {
       </div>
 
       <div className="space-y-4">
-        {schedules.length > 0 ? (
+        {isLoading ? (
+          <div className="text-center text-[#a79c90] text-sm py-6">
+            ⏳ 연습일정을 불러오는 중이에요...
+          </div>
+        ) : schedules.length > 0 ? (
           schedules.map((schedule) => (
             <ScheduleCard
               key={schedule._id}

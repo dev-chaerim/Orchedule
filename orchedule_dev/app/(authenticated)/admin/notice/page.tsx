@@ -22,6 +22,7 @@ interface Notice {
 
 export default function AdminNoticePage() {
   const [notices, setNotices] = useState<Notice[]>([]);
+  const [isLoading, setIsLoading] = useState(false); // ✅ 로딩 상태 추가
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
   const seasonId = selectedSeason?._id;
   const router = useRouter();
@@ -31,17 +32,23 @@ export default function AdminNoticePage() {
 
   useEffect(() => {
     const fetchNotices = async () => {
-      const res = await fetch(
-        `/api/notices${seasonId ? `?season=${seasonId}` : ""}`
-      );
-      const data = await res.json();
-      setNotices(data);
+      setIsLoading(true); // ✅ 로딩 시작
+      try {
+        const res = await fetch(
+          `/api/notices${seasonId ? `?season=${seasonId}` : ""}`
+        );
+        const data = await res.json();
+        setNotices(data);
+      } catch (err) {
+        console.error("공지 불러오기 실패:", err);
+      } finally {
+        setIsLoading(false); // ✅ 로딩 종료
+      }
     };
 
     fetchNotices();
-  }, [seasonId]); // ✅ seasonId 바뀌면 다시 fetch
+  }, [seasonId]);
 
-  // ✅ seasonId가 없을 경우도 유연하게 전체 보기 허용
   const filteredNotices = [
     ...notices.filter(
       (n) => n.pinned && (!seasonId || n.isGlobal || n.season === seasonId)
@@ -87,8 +94,12 @@ export default function AdminNoticePage() {
         </Link>
       </div>
 
-      {/* ✅ 공지 목록 or 안내 메시지 */}
-      {filteredNotices.length === 0 ? (
+      {/* ✅ 로딩 상태 표시 */}
+      {isLoading ? (
+        <div className="text-center text-[#a79c90] text-sm py-6">
+          ⏳ 공지사항을 불러오는 중이에요...
+        </div>
+      ) : filteredNotices.length === 0 ? (
         <p className="text-sm text-[#7e6a5c] text-center py-10 border border-dashed border-[#e0dada] rounded-md bg-[#fcfaf9]">
           공지사항이 없습니다.
         </p>
@@ -110,7 +121,7 @@ export default function AdminNoticePage() {
                 </p>
               </div>
 
-              <div className=" flex gap-2">
+              <div className="flex gap-2">
                 <button
                   onClick={(e) => openDeleteModal(notice._id, e)}
                   className="absolute top-2 right-2 p-1 rounded-full hover:bg-red-100 text-[#7E6363] transition"

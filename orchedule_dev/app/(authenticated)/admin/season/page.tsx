@@ -55,7 +55,9 @@ export default function AdminSeasonPage() {
 
       {/* ✅ 로딩 상태 표시 */}
       {isLoading ? (
-        <div className="text-sm text-gray-500">로딩 중...</div>
+        <div className="text-center text-[#a79c90] text-sm py-6">
+          ⏳ 시즌목록을 불러오는 중이에요...
+        </div>
       ) : seasons.length === 0 ? (
         <div className="text-sm text-[#7e6a5c] text-center py-10 border border-dashed border-[#e0dada] rounded-md bg-[#fcfaf9]">
           아직 등록된 시즌이 없습니다.

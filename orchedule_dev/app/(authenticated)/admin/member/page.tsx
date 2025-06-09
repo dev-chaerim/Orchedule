@@ -17,17 +17,19 @@ interface JoinRequest {
   name: string;
   part: string;
   email: string;
-  status: string; // ✅ 추가됨
+  status: string;
 }
 
 export default function AdminMembersPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // ✅ 로딩 상태 추가
   const showToast = useToastStore((state) => state.showToast);
 
   // ✅ 단원 목록 불러오기
   const fetchMembers = async () => {
+    setIsLoading(true); // ✅ 로딩 시작
     try {
       const res = await fetch("/api/members");
       if (!res.ok) throw new Error("단원 목록 불러오기 실패");
@@ -41,6 +43,8 @@ export default function AdminMembersPage() {
         console.error("단원 목록 불러오기 오류:", error);
         showToast({ message: "단원 목록 불러오기 실패", type: "error" });
       }
+    } finally {
+      setIsLoading(false); // ✅ 로딩 종료
     }
   };
 
@@ -50,7 +54,6 @@ export default function AdminMembersPage() {
       const res = await fetch("/api/join-requests");
       if (!res.ok) throw new Error("가입 요청 목록 불러오기 실패");
       const data = await res.json();
-      // ✅ status 필드 추가
       const processedData = data.map((req: JoinRequest) => ({
         ...req,
         status: req.status || "pending",
@@ -62,7 +65,6 @@ export default function AdminMembersPage() {
     }
   };
 
-  // ✅ 단원 추가
   const handleAddMember = async (newMember: { name: string; part: string }) => {
     try {
       const guestEmail = `guest_${Date.now()}@orchestra.com`;
@@ -86,7 +88,6 @@ export default function AdminMembersPage() {
     }
   };
 
-  // ✅ 단원 삭제
   const handleDeleteMember = async (id: string) => {
     try {
       const res = await fetch(`/api/members/${id}`, {
@@ -101,7 +102,6 @@ export default function AdminMembersPage() {
     }
   };
 
-  // ✅ 가입 요청 승인
   const handleApproveRequest = async (id: string) => {
     try {
       const res = await fetch(`/api/join-requests/${id}`, {
@@ -112,11 +112,9 @@ export default function AdminMembersPage() {
 
       if (!res.ok) throw new Error("가입 요청 승인 실패");
 
-      // ✅ 응답 데이터 파싱
       const approvedMember = await res.json();
       console.log("✅ 승인된 단원 데이터:", approvedMember);
 
-      // ✅ 승인된 단원을 현재 단원 목록에 추가
       setMembers((prev) => [
         ...prev,
         {
@@ -127,7 +125,6 @@ export default function AdminMembersPage() {
         },
       ]);
 
-      // ✅ 가입 요청 목록 갱신
       setJoinRequests((prev) => prev.filter((req) => req._id !== id));
 
       showToast({ message: "가입 요청이 승인되었습니다.", type: "success" });
@@ -142,7 +139,6 @@ export default function AdminMembersPage() {
     }
   };
 
-  // ✅ 가입 요청 거절
   const handleRejectRequest = async (id: string) => {
     try {
       const res = await fetch(`/api/join-requests/${id}`, {
@@ -191,20 +187,27 @@ export default function AdminMembersPage() {
         </div>
       )}
 
-      {/* 단원 목록 테이블 */}
-      <MemberListTable
-        members={members}
-        onUpdate={(id, updatedData) => {
-          setMembers((prev) =>
-            prev.map((m) =>
-              m._id === id
-                ? { ...m, name: updatedData.name, part: updatedData.part }
-                : m
-            )
-          );
-        }}
-        onDelete={handleDeleteMember}
-      />
+      {/* 로딩 중 표시 */}
+      {isLoading ? (
+        <div className="text-center text-[#a79c90] text-sm py-6">
+          ⏳ 단원 목록을 불러오는 중이에요...
+        </div>
+      ) : (
+        /* 단원 목록 테이블 */
+        <MemberListTable
+          members={members}
+          onUpdate={(id, updatedData) => {
+            setMembers((prev) =>
+              prev.map((m) =>
+                m._id === id
+                  ? { ...m, name: updatedData.name, part: updatedData.part }
+                  : m
+              )
+            );
+          }}
+          onDelete={handleDeleteMember}
+        />
+      )}
     </div>
   );
 }
