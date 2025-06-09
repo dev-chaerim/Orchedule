@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSeasonStore } from "@/lib/store/season";
+
 interface Notice {
   _id: string;
   title: string;
@@ -15,20 +16,36 @@ interface Notice {
 
 export default function NoticeListPage() {
   const [notices, setNotices] = useState<Notice[]>([]);
+  const [loading, setLoading] = useState(false);
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
   const seasonId = selectedSeason?._id;
 
   useEffect(() => {
     const fetchNotices = async () => {
-      const res = await fetch(
-        `/api/notices${seasonId ? `?season=${seasonId}` : ""}`
-      );
-      const data = await res.json();
-      setNotices(data);
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `/api/notices${seasonId ? `?season=${seasonId}` : ""}`
+        );
+        const data = await res.json();
+        setNotices(data);
+      } catch (err) {
+        console.error("공지 조회 실패:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchNotices();
   }, [seasonId]);
+
+  if (loading) {
+    return (
+      <div className="text-center text-[#a79c90] text-sm py-6">
+        ⏳ 공지사항을 불러오는 중이에요...
+      </div>
+    );
+  }
 
   if (notices.length === 0) {
     return (

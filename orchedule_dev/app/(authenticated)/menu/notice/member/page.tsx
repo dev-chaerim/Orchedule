@@ -36,7 +36,9 @@ const MemberListPage = () => {
       <h1 className="text-lg font-bold text-[#3E3232] mb-4 px-1">단원 명단</h1>
 
       {loading ? (
-        <p className="text-sm text-gray-400">불러오는 중...</p>
+        <div className="text-center text-[#a79c90] text-sm py-6">
+          ⏳ 단원명단을 불러오는 중이에요...
+        </div>
       ) : (
         <div className="space-y-6">
           {orderedParts.map((part) => {
