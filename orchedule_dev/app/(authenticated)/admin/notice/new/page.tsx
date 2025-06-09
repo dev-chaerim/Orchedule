@@ -6,8 +6,8 @@ import { useSeasonStore } from "@/lib/store/season";
 import ImageUploader from "@/components/common/ImageUploader";
 import ImagePreview from "@/components/common/ImagePreview";
 import ConfirmModal from "@/components/modals/ConfirmModal";
-import PDFPreview from "@/components/common/PDFPreview";
 import { UploadResult } from "@/lib/utils/uploadFileToCloudinary";
+import PDFPreview from "@/components/common/PDFPreview"; // ✅ 우리가 원래 썼던 Array.from 버전 PDFPreview 사용
 
 export default function CreateNoticePage() {
   const router = useRouter();
@@ -121,24 +121,27 @@ export default function CreateNoticePage() {
         />
 
         {/* ✅ 파일 프리뷰 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-          {uploadedFiles.map((file, i) =>
-            file.type === "application/pdf" ? (
-              <PDFPreview
-                key={i}
-                url={file.url}
-                publicId={file.publicId}
-                onDelete={() => handleFileDelete(i)}
-              />
-            ) : (
-              <ImagePreview
-                key={i}
-                src={file.url}
-                onDelete={() => handleFileDelete(i)}
-              />
-            )
-          )}
-        </div>
+        {uploadedFiles.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            {uploadedFiles.map((file, i) =>
+              file.type === "application/pdf" ? (
+                <PDFPreview
+                  key={i}
+                  publicId={file.publicId}
+                  pageCount={file.pageCount}
+                  pdfUrl={file.url} // ✅ S3 URL 넘기기
+                  onDelete={() => handleFileDelete(i)}
+                />
+              ) : (
+                <ImagePreview
+                  key={i}
+                  src={file.url}
+                  onDelete={() => handleFileDelete(i)}
+                />
+              )
+            )}
+          </div>
+        )}
 
         <div className="text-right">
           <button

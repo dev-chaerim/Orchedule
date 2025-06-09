@@ -21,10 +21,10 @@ export default function ImageUploader({ onUpload }: ImageUploaderProps) {
 
     for (const file of Array.from(files)) {
       try {
-        let result;
+        let result: UploadResult;
 
         if (file.type === "application/pdf") {
-          // S3 API 호출
+          // S3 업로드
           const formData = new FormData();
           formData.append("file", file);
 
@@ -35,12 +35,24 @@ export default function ImageUploader({ onUpload }: ImageUploaderProps) {
 
           if (!res.ok) throw new Error("S3 업로드 실패");
 
-          result = await res.json();
+          const s3Result = await res.json();
+
+          // Cloudinary 업로드
+          const cloudinaryResult = await uploadFileToCloudinary(file);
+
+          // UploadResult 형식에 맞게 생성
+          result = {
+            url: s3Result.url, // S3 URL 사용
+            publicId: cloudinaryResult.publicId,
+            pageCount: cloudinaryResult.pageCount,
+            type: file.type,
+          };
         } else {
-          // 기존 Cloudinary 업로드 그대로 유지
+          // 이미지 → Cloudinary만 업로드
           result = await uploadFileToCloudinary(file);
         }
 
+        // 업로드 성공 결과 전달
         onUpload(result);
       } catch (err) {
         console.error("업로드 실패:", err);
@@ -49,7 +61,7 @@ export default function ImageUploader({ onUpload }: ImageUploaderProps) {
     }
 
     setIsUploading(false);
-    e.target.value = "";
+    e.target.value = ""; // input 초기화
   };
 
   return (
