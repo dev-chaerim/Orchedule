@@ -1,24 +1,25 @@
 "use client";
 
-import Image from "next/image";
 import { X } from "lucide-react";
 
 interface PDFPreviewProps {
   publicId: string;
-  pageCount: number;
+  url: string;
   onDelete?: () => void;
 }
 
 export default function PDFPreview({
   publicId,
-  pageCount,
+  url,
   onDelete,
 }: PDFPreviewProps) {
-  const baseUrl = "https://res.cloudinary.com/dwiiiowbu/image/upload";
+  // 원래 파일명만 추출
+  const fileName = publicId.startsWith("s3-")
+    ? publicId.split("-").slice(2).join("-")
+    : publicId;
 
   return (
-    <div className="relative w-full max-w-[400px] mx-auto rounded-md overflow-hidden border border-[#D5CAC3]">
-      {/* 삭제 버튼 */}
+    <div className="relative w-full max-w-[400px] mx-auto rounded-md overflow-hidden border border-[#D5CAC3] bg-white p-3">
       {onDelete && (
         <button
           onClick={onDelete}
@@ -29,33 +30,21 @@ export default function PDFPreview({
         </button>
       )}
 
-      {/* PDF 썸네일들 */}
-      <div className="space-y-2 p-2">
-        {Array.from({ length: pageCount }).map((_, i) => {
-          const page = i + 1;
-          const imageUrl = `${baseUrl}/pg_${page}/${publicId}.jpg`;
-          const pdfUrl = `https://res.cloudinary.com/dwiiiowbu/image/upload/${publicId}.pdf`;
-
-          return (
-            <div
-              key={page}
-              className="block relative w-full aspect-[3/4] rounded overflow-hidden cursor-pointer"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                window.open(pdfUrl, "_blank", "noopener,noreferrer");
-              }}
-            >
-              <Image
-                src={imageUrl}
-                alt={`PDF page ${page}`}
-                fill
-                sizes="100vw"
-                className="object-contain"
-              />
-            </div>
-          );
-        })}
+      {/* 파일명 표시 */}
+      <div className="flex flex-col items-center justify-center space-y-2 py-4">
+        <div className="text-sm font-medium text-[#3E3232] truncate max-w-[90%]">
+          {fileName}
+        </div>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            window.open(url, "_blank", "noopener,noreferrer");
+          }}
+          className="text-sm px-4 py-1 bg-[#e7dbd2] text-[#3E3232] font-semibold rounded-md hover:bg-[#dbcfc8] transition"
+        >
+          PDF 미리보기
+        </button>
       </div>
     </div>
   );

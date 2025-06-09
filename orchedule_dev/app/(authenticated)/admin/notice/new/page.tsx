@@ -126,8 +126,8 @@ export default function CreateNoticePage() {
             file.type === "application/pdf" ? (
               <PDFPreview
                 key={i}
+                url={file.url}
                 publicId={file.publicId}
-                pageCount={file.pageCount}
                 onDelete={() => handleFileDelete(i)}
               />
             ) : (

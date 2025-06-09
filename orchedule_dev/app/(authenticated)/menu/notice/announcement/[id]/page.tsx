@@ -113,11 +113,7 @@ export default function NoticeDetailPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
             {notice.attachments.map((file, i) =>
               file.type === "application/pdf" && file.pageCount ? (
-                <PDFPreview
-                  key={i}
-                  publicId={file.publicId}
-                  pageCount={file.pageCount}
-                />
+                <PDFPreview key={i} url={file.url} publicId={file.publicId} />
               ) : (
                 <ImagePreview key={i} src={file.url} />
               )

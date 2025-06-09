@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import {
   uploadFileToCloudinary,
@@ -20,8 +21,27 @@ export default function ImageUploader({ onUpload }: ImageUploaderProps) {
 
     for (const file of Array.from(files)) {
       try {
-        const result = await uploadFileToCloudinary(file);
-        onUpload(result); // ✅ 전체 업로드 결과 전달
+        let result;
+
+        if (file.type === "application/pdf") {
+          // S3 API 호출
+          const formData = new FormData();
+          formData.append("file", file);
+
+          const res = await fetch("/api/upload-s3", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!res.ok) throw new Error("S3 업로드 실패");
+
+          result = await res.json();
+        } else {
+          // 기존 Cloudinary 업로드 그대로 유지
+          result = await uploadFileToCloudinary(file);
+        }
+
+        onUpload(result);
       } catch (err) {
         console.error("업로드 실패:", err);
         alert(`"${file.name}" 업로드 중 오류가 발생했습니다.`);
