@@ -34,7 +34,7 @@ interface AttendanceData {
 
 interface Props {
   part: string;
-  selectedDate: string; // 날짜 props 필요
+  selectedDate: string;
 }
 
 // partKey 확인 함수
@@ -47,10 +47,13 @@ const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
   const [members, setMembers] = useState<
     (MemberType & { attendanceStatus: string })[]
   >([]);
+  const [isLoading, setIsLoading] = useState(true); // ⭐️ 추가
 
   useEffect(() => {
     const fetchData = async () => {
       if (!selectedSeason?._id || !selectedDate) return;
+
+      setIsLoading(true); // ⭐️ 로딩 시작
 
       try {
         const seatRes = await fetch(
@@ -78,18 +81,18 @@ const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
         setMembers(assignedMembers);
       } catch (error) {
         console.error("자리배치 또는 출석 데이터 불러오기 실패", error);
+      } finally {
+        setIsLoading(false); // ⭐️ 로딩 끝
       }
     };
 
-    // 초기 1회 실행
     fetchData();
 
-    // 5초마다 새로고침
     const interval = setInterval(() => {
       fetchData();
     }, 5000);
 
-    return () => clearInterval(interval); // 언마운트 시 인터벌 제거
+    return () => clearInterval(interval);
   }, [selectedSeason?._id, selectedDate, part]);
 
   const rows = Math.ceil(members.length / 2);
@@ -102,22 +105,28 @@ const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
         </h3>
       </div>
 
-      <div className="space-y-3">
-        {Array.from({ length: rows }, (_, rowIdx) => {
-          const left = members[rowIdx * 2];
-          const right = members[rowIdx * 2 + 1];
+      {isLoading ? ( // ⭐️ 로딩 표시
+        <div className="text-center text-[#a79c90] text-sm py-6">
+          ⏳ 정보를 불러오는 중이에요...
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {Array.from({ length: rows }, (_, rowIdx) => {
+            const left = members[rowIdx * 2];
+            const right = members[rowIdx * 2 + 1];
 
-          return (
-            <div key={rowIdx} className="flex justify-center">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-[#7e6a5c]">{rowIdx + 1}</span>
-                <SeatCell member={left} />
-                <SeatCell member={right} />
+            return (
+              <div key={rowIdx} className="flex justify-center">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-[#7e6a5c]">{rowIdx + 1}</span>
+                  <SeatCell member={left} />
+                  <SeatCell member={right} />
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
@@ -132,19 +141,19 @@ const SeatCell: React.FC<{
   let color = "#3e3232";
 
   if (status === "출석") {
-    bgColor = "#F3F9F1"; // 부드러운 민트
+    bgColor = "#F3F9F1";
     border = "1.5px solid #BCD9B9";
     color = "#3B5742";
   }
 
   if (status === "지각") {
-    bgColor = "#FFF7ED"; // 연한 크림
+    bgColor = "#FFF7ED";
     border = "1.5px dotted #E6AA64";
     color = "#8B5E2F";
   }
 
   if (status === "불참") {
-    bgColor = "#F3F3F3"; // 연회색
+    bgColor = "#F3F3F3";
     border = "1.5px dashed #C2C2C2";
     color = "#999999";
   }

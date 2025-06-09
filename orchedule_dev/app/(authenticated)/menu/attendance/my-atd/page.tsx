@@ -23,6 +23,9 @@ export default function MyAttendancePage() {
   const [summary, setSummary] = useState<MyAttendanceSummary | null>(null);
   const [logs, setLogs] = useState<AttendanceLog[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // ⭐️ 전체 로딩 추가
+  const [isChartLoading, setIsChartLoading] = useState(false); // ⭐️ chart 로딩 추가
+
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
   const seasonId = selectedSeason?._id;
   const { user } = useUserStore();
@@ -59,11 +62,36 @@ export default function MyAttendancePage() {
       }
     };
 
-    fetchSummary();
-    fetchLogs();
+    const loadData = async () => {
+      setIsLoading(true); // ⭐️ 전체 로딩 시작
+      await Promise.all([fetchSummary(), fetchLogs()]);
+      setIsLoading(false); // ⭐️ 전체 로딩 끝
+    };
+
+    loadData();
   }, [seasonId, user]);
 
+  // ⭐️ chart 로딩 효과 처리 (attended 0 이상일 때만 chart 보여주므로 기준으로 사용)
+  useEffect(() => {
+    if (attended > 0) {
+      setIsChartLoading(true);
+      const timeout = setTimeout(() => {
+        setIsChartLoading(false);
+      }, 300); // 약간의 delay로 UX 자연스럽게
+
+      return () => clearTimeout(timeout);
+    }
+  }, [attended, seasonId, user?.id]);
+
   const visibleLogs = isExpanded ? logs : logs.slice(0, 3);
+
+  if (isLoading) {
+    return (
+      <div className="w-full flex justify-center py-10 text-[#a79c90] text-sm">
+        ⏳ 출석 데이터를 불러오는 중이에요...
+      </div>
+    );
+  }
 
   return (
     <div className="w-full flex justify-center">
@@ -140,11 +168,15 @@ export default function MyAttendancePage() {
               </div>
             </div>
 
-            <div className="w-1/2 bg-white rounded-xl shadow p-6">
+            <div className="w-1/2 bg-white rounded-xl shadow p-6 flex items-center justify-center">
               {user && seasonId ? (
                 attended === 0 ? (
                   <div className="text-[#bbb] text-sm text-center py-6 flex items-center justify-center h-full">
                     출석 기록이 없습니다
+                  </div>
+                ) : isChartLoading ? (
+                  <div className="text-[#a79c90] text-sm">
+                    ⏳불러오는 중이에요...
                   </div>
                 ) : (
                   <MonthlyAttendanceChart

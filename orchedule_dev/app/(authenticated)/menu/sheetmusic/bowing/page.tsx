@@ -39,9 +39,10 @@ export default function SheetScoreCheckList() {
         </Link>
       </div>
 
-      {/* 로딩 / 없음 */}
       {loading ? (
-        <div className="text-sm text-gray-500">로딩 중...</div>
+        <div className="text-center text-[#a79c90] text-sm py-10">
+          ⏳ 악보 리스트를 불러오는 중이에요...
+        </div>
       ) : scores.length === 0 ? (
         <div className="text-sm text-gray-400">등록된 악보가 없습니다.</div>
       ) : (
