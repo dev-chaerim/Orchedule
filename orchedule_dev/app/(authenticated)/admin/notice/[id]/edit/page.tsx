@@ -136,13 +136,15 @@ export default function EditNoticePage() {
           className="w-full border border-[#D5CAC3] rounded-md px-4 py-2 text-sm focus:outline-[#7E6363]"
         />
 
+        {/* ✅ 첨부 파일 프리뷰 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
           {attachments.map((file, i) =>
             file.type === "application/pdf" ? (
               <PDFPreview
                 key={i}
-                url={file.url}
                 publicId={file.publicId}
+                pageCount={file.pageCount}
+                pdfUrl={file.url} // ✅ S3 URL 넘기기
                 onDelete={() => handleDelete(i)}
               />
             ) : (
