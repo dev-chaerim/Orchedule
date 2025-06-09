@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/src/lib/mongoose';
 import Notice from '@/models/notice';
+import type { FilterQuery } from 'mongoose';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,9 +12,16 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const season = searchParams.get('season');
 
-    const notices = season
-      ? await Notice.find({ season }).sort({ pinned: -1, date: -1 })
-      : await Notice.find().sort({ pinned: -1, date: -1 });
+    const filter: FilterQuery<typeof Notice> = {};
+
+    if (season) {
+      filter.$or = [
+        { season },
+        { isGlobal: true },
+      ];
+    }
+
+    const notices = await Notice.find(filter).sort({ pinned: -1, date: -1 });
 
     return NextResponse.json(notices);
   } catch (err) {
@@ -21,6 +29,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ message: '공지 조회 실패' }, { status: 500 });
   }
 }
+
 
 export async function POST(req: NextRequest) {
   await connectDB();

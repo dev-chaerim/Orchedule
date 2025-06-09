@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
+import { useSeasonStore } from "@/lib/store/season";
 interface Notice {
   _id: string;
   title: string;
@@ -15,15 +15,20 @@ interface Notice {
 
 export default function NoticeListPage() {
   const [notices, setNotices] = useState<Notice[]>([]);
+  const selectedSeason = useSeasonStore((state) => state.selectedSeason);
+  const seasonId = selectedSeason?._id;
 
   useEffect(() => {
-    const fetchData = async () => {
-      const res = await fetch("/api/notices");
+    const fetchNotices = async () => {
+      const res = await fetch(
+        `/api/notices${seasonId ? `?season=${seasonId}` : ""}`
+      );
       const data = await res.json();
       setNotices(data);
     };
-    fetchData();
-  }, []);
+
+    fetchNotices();
+  }, [seasonId]);
 
   if (notices.length === 0) {
     return (

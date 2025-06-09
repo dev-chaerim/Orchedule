@@ -32,6 +32,7 @@ export default function SeasonSheetDetailPage() {
         const res = await fetch(`/api/scores/${id}`);
         if (!res.ok) throw new Error("악보를 찾을 수 없습니다.");
         const data = await res.json();
+        console.log("sheet data", data);
         setSheet(data);
       } catch (err) {
         console.error(err);

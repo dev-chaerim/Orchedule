@@ -31,12 +31,15 @@ export default function AdminNoticePage() {
 
   useEffect(() => {
     const fetchNotices = async () => {
-      const res = await fetch("/api/notices");
+      const res = await fetch(
+        `/api/notices${seasonId ? `?season=${seasonId}` : ""}`
+      );
       const data = await res.json();
       setNotices(data);
     };
+
     fetchNotices();
-  }, []);
+  }, [seasonId]); // ✅ seasonId 바뀌면 다시 fetch
 
   // ✅ seasonId가 없을 경우도 유연하게 전체 보기 허용
   const filteredNotices = [
