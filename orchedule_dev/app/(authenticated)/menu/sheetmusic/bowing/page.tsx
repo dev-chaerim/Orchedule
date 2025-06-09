@@ -28,9 +28,9 @@ export default function SheetScoreCheckList() {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
+    <div className="max-w-4xl mx-auto px-4 space-y-4">
       {/* 추가 버튼 */}
-      <div className="flex justify-end">
+      <div className="flex justify-end  -mt-4">
         <Link
           href="/menu/sheetmusic/bowing/new"
           className="inline-block bg-[#3E3232] text-white text-sm px-4 py-2 rounded-md hover:bg-[#2c2323] transition"

@@ -5,19 +5,9 @@ import { PartKey, orderedParts, partLabels } from "@/src/constants/parts";
 import { useToastStore } from "@/lib/store/toast";
 import { getNearestDate } from "@/lib/utils/getNearestDate";
 import { useSeasonStore } from "@/lib/store/season";
+import { Schedule } from "@/src/lib/types/schedule";
 
 type AttendanceStatus = "출석" | "지각" | "불참";
-
-interface Piece {
-  title: string;
-  time: string;
-  note?: string;
-}
-
-interface ScheduleData {
-  date: string;
-  pieces: Piece[];
-}
 
 export default function AttendanceDashboardPage() {
   const [attendance, setAttendance] = useState<Map<string, AttendanceStatus>>(
@@ -25,9 +15,7 @@ export default function AttendanceDashboardPage() {
   );
   const [scheduleDates, setScheduleDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState("");
-  const [scheduleDetail, setScheduleDetail] = useState<ScheduleData | null>(
-    null
-  );
+  const [scheduleDetail, setScheduleDetail] = useState<Schedule | null>(null);
   const [selectedPart, setSelectedPart] = useState<PartKey | "전체">("전체");
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -62,7 +50,7 @@ export default function AttendanceDashboardPage() {
         const res = await fetch("/api/members");
         if (!res.ok) throw new Error("멤버 데이터를 불러오는데 실패했습니다.");
         const data = await res.json();
-        setMembers(data); // ✅ API로부터 받은 멤버 데이터 상태 업데이트
+        setMembers(data);
       } catch (error) {
         console.error("멤버 데이터 로딩 오류:", error);
         showToast({
@@ -74,13 +62,13 @@ export default function AttendanceDashboardPage() {
     fetchMembers();
   }, []);
 
+  // ✅ 연습 날짜 목록 불러오기
   useEffect(() => {
     const fetchDates = async () => {
       try {
         const res = await fetch("/api/schedules/dates");
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
-          // ✅ 오늘 기준 가장 가까운 날짜를 기본값으로 설정
           const nearestDate = getNearestDate(data);
           setScheduleDates(data);
           setSelectedDate(nearestDate);
@@ -91,6 +79,7 @@ export default function AttendanceDashboardPage() {
     };
     fetchDates();
   }, []);
+
   // ✅ 출석 상태 - 실시간 polling
   useEffect(() => {
     if (!selectedDate || !selectedSeason) return;
@@ -117,17 +106,17 @@ export default function AttendanceDashboardPage() {
     };
 
     fetchAttendance();
-    const interval = setInterval(fetchAttendance, 5000); // ⏱️ 5초마다
+    const interval = setInterval(fetchAttendance, 5000);
     return () => clearInterval(interval);
   }, [selectedDate, selectedSeason, members, showToast]);
 
-  // ✅ 연습 일정 - 최초 1회만 실행
+  // ✅ 연습 일정 불러오기
   useEffect(() => {
     const fetchSchedule = async () => {
       try {
         const res = await fetch("/api/schedules");
         const all = await res.json();
-        const matched = all.find((s: ScheduleData) => s.date === selectedDate);
+        const matched = all.find((s: Schedule) => s.date === selectedDate);
         setScheduleDetail(matched || null);
       } catch (err) {
         console.error("스케줄 로딩 실패:", err);
@@ -154,13 +143,11 @@ export default function AttendanceDashboardPage() {
     if (!editingId || !selectedDate || !seasonId) return;
 
     try {
-      // ✅ 기존 출석 데이터 있는지 확인
       const checkRes = await fetch(
         `/api/attendances?date=${selectedDate}&seasonId=${seasonId}`
       );
       const checkData = await checkRes.json();
 
-      // ✅ 없으면 먼저 생성 (기본 출석값으로 빈 records라도 생성)
       if (!checkData.records || checkData.records.length === 0) {
         await fetch(`/api/attendances`, {
           method: "POST",
@@ -173,7 +160,6 @@ export default function AttendanceDashboardPage() {
           }),
         });
       } else {
-        // ✅ 있으면 PATCH로 수정
         await fetch(
           `/api/attendances?date=${selectedDate}&seasonId=${seasonId}`,
           {
@@ -207,23 +193,24 @@ export default function AttendanceDashboardPage() {
       {hasNextSchedule ? (
         <div className="mb-6 p-5 border border-[#dfd8d2] rounded-xl bg-white text-sm text-[#3E3232]">
           <div className="font-semibold text-base mb-2 flex items-center gap-2">
-            <span className="text-[#2c2c2c]">🎼 다음 연습일</span>
+            <span className="text-[#2c2c2c]">다음 연습일</span>
           </div>
           <div className="text-sm font-medium">
-            {selectedDate || "날짜 없음"}
+            🎼 {selectedDate || "날짜 없음"}
           </div>
-          {scheduleDetail && scheduleDetail.pieces.length > 0 && (
-            <ul className="list-disc list-inside text-xs mt-2 text-[#7E6363] space-y-0.5">
-              {scheduleDetail.pieces.map((piece, i) => (
-                <li key={i}>{piece.title}</li>
-              ))}
-            </ul>
-          )}
+          {scheduleDetail &&
+            scheduleDetail.orchestraSession?.pieces?.length > 0 && (
+              <ul className="list-disc list-inside text-xs mt-2 text-[#7E6363] space-y-0.5">
+                {scheduleDetail.orchestraSession.pieces.map((piece, i) => (
+                  <li key={i}>{piece.title}</li>
+                ))}
+              </ul>
+            )}
         </div>
       ) : (
-        <div className="mb-6 p-5 border border-[#f2c7c7] rounded-xl bg-[#fff5f5] text-sm text-[#b14040]">
-          <div className="mb-2 font-medium">등록된 다음 연습일이 없습니다.</div>
-        </div>
+        <p className="mb-6 text-sm text-[#7e6a5c] text-center py-10 border border-[#e0dada] rounded-md">
+          등록된 다음 연습일이 없습니다.
+        </p>
       )}
 
       {/* 필터 */}

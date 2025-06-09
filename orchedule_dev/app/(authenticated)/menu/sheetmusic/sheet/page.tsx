@@ -29,7 +29,7 @@ export default function SeasonSheetListPage() {
     <div className="max-w-4xl mx-auto px-4 space-y-4">
       {/* 관리자 전용 등록 버튼 */}
       {user?.role === "admin" && (
-        <div className="text-right mb-3">
+        <div className="text-right mb-3 -mt-4">
           <Link href="/menu/sheetmusic/sheet/new">
             <button className="bg-[#F4ECE7] text-[#3E3232] text-sm font-medium px-4 py-2 rounded-md hover:bg-[#e3dcd7]">
               + 악보 등록
@@ -64,9 +64,6 @@ export default function SeasonSheetListPage() {
         <div className="bg-[#fdfbf9] border border-[#e8e0d9] rounded-xl p-6 text-center w-full">
           <p className="text-sm text-[#7e6a5c] font-semibold">
             아직 등록된 악보가 없어요.
-          </p>
-          <p className="text-xs text-[#a79c90] mt-1">
-            오른쪽 상단의 [악보 등록] 버튼으로 추가해보세요!
           </p>
         </div>
       )}
