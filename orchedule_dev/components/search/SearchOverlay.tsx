@@ -5,6 +5,7 @@ import { useSearchStore } from "@/lib/store/search";
 import { useSeasonStore } from "@/lib/store/season";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { ScoreCheck, Sheet } from "@/src/lib/types/sheet";
 
 interface Notice {
   _id: string;
@@ -13,16 +14,10 @@ interface Notice {
   content?: string;
 }
 
-interface Score {
-  _id: string;
-  title: string;
-  author?: string;
-  parts: string[];
-}
-
 type SearchItem =
   | { _id: string; title: string; type: "notice" }
-  | { _id: string; title: string; type: "score" };
+  | { _id: string; title: string; type: "score-check" }
+  | { _id: string; title: string; type: "season-score" };
 
 interface SearchOverlayProps {
   isOpen: boolean;
@@ -35,7 +30,8 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const router = useRouter();
 
   const [notices, setNotices] = useState<Notice[]>([]);
-  const [scores, setScores] = useState<Score[]>([]);
+  const [scoreChecks, setScoreChecks] = useState<ScoreCheck[]>([]);
+  const [seasonScores, setSeasonScores] = useState<Sheet[]>([]);
 
   // ESC 키
   useEffect(() => {
@@ -54,16 +50,19 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
           ? `?season=${selectedSeason._id}`
           : "";
 
-        const [noticeRes, scoreRes] = await Promise.all([
+        const [noticeRes, scoreCheckRes, seasonScoreRes] = await Promise.all([
           fetch(`/api/notices`),
           fetch(`/api/score-checks${seasonParam}`),
+          fetch(`/api/season-scores${seasonParam}`),
         ]);
-        const [noticeData, scoreData] = await Promise.all([
-          noticeRes.json(),
-          scoreRes.json(),
-        ]);
+
+        const [noticeData, scoreCheckData, seasonScoreData] = await Promise.all(
+          [noticeRes.json(), scoreCheckRes.json(), seasonScoreRes.json()]
+        );
+
         setNotices(noticeData);
-        setScores(scoreData);
+        setScoreChecks(scoreCheckData);
+        setSeasonScores(seasonScoreData);
       } catch (err) {
         console.error("검색 데이터 로드 실패:", err);
       }
@@ -83,24 +82,42 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     )
     .map((n) => ({ _id: n._id, title: n.title, type: "notice" }));
 
-  const scoreResults: SearchItem[] = scores
+  const scoreCheckResults: SearchItem[] = scoreChecks
     .filter(
       (s) =>
         trimmedQuery &&
         (s.title.toLowerCase().includes(trimmedQuery) ||
           s.author?.toLowerCase().includes(trimmedQuery) ||
-          s.parts.some((p) => p.toLowerCase().includes(trimmedQuery)))
+          s.content?.toLowerCase().includes(trimmedQuery) || // ✅ 추가됨!
+          (s.parts || []).some((p) => p.toLowerCase().includes(trimmedQuery)))
     )
-    .map((s) => ({ _id: s._id, title: s.title, type: "score" }));
+    .map((s) => ({ _id: s._id, title: s.title, type: "score-check" }));
 
-  const results = [...noticeResults, ...scoreResults];
+  const seasonScoreResults: SearchItem[] = seasonScores
+    .filter(
+      (s) =>
+        trimmedQuery &&
+        (s.title.toLowerCase().includes(trimmedQuery) ||
+          s.author?.toLowerCase().includes(trimmedQuery) ||
+          s.content?.toLowerCase().includes(trimmedQuery) || // ✅ 여기!
+          (s.parts || []).some((p) => p.toLowerCase().includes(trimmedQuery)))
+    )
+    .map((s) => ({ _id: s._id, title: s.title, type: "season-score" }));
+
+  const results = [
+    ...noticeResults,
+    ...scoreCheckResults,
+    ...seasonScoreResults,
+  ];
 
   const handleClick = (item: SearchItem) => {
     onClose();
     if (item.type === "notice") {
       router.push(`/menu/notice/announcement/${item._id}`);
-    } else if (item.type === "score") {
+    } else if (item.type === "score-check") {
       router.push(`/menu/sheetmusic/bowing/${item._id}`);
+    } else if (item.type === "season-score") {
+      router.push(`/menu/sheetmusic/sheet/${item._id}`);
     }
   };
 
@@ -170,7 +187,11 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
               >
                 <span className="text-sm text-[#3E3232]">{item.title}</span>
                 <span className="text-xs text-[#A5796E] border border-[#b69678] px-2 py-0.5 rounded-full font-medium">
-                  {item.type === "notice" ? "공지" : "악보"}
+                  {item.type === "notice"
+                    ? "공지"
+                    : item.type === "score-check"
+                    ? "악보체크"
+                    : "시즌악보"}
                 </span>
               </li>
             ))}
