@@ -6,6 +6,7 @@ import BackButton from "@/components/BackButton";
 import { useUserStore } from "@/lib/store/user";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import Linkify from "linkify-react";
+import ActionButtons from "@/components/common/ActionButtons";
 
 interface Sheet {
   _id: string;
@@ -88,22 +89,12 @@ export default function SeasonSheetDetailPage() {
         <BackButton fallbackHref="/menu/sheetmusic/sheet" label="목록" />
 
         {user?.name === sheet.author && (
-          <div className="flex gap-2 mb-3">
-            <button
-              onClick={() =>
-                router.push(`/menu/sheetmusic/sheet/${sheet._id}/edit`)
-              }
-              className="text-xs font-semibold bg-[#F4ECE7] text-[#3E3232] px-3 py-1 rounded-md hover:bg-[#e3dcd7] transition"
-            >
-              수정
-            </button>
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="text-xs font-semibold bg-red-50 text-red-400 px-3 py-1 rounded-md hover:bg-red-100 transition"
-            >
-              삭제
-            </button>
-          </div>
+          <ActionButtons
+            onEdit={() =>
+              router.push(`/menu/sheetmusic/sheet/${sheet._id}/edit`)
+            }
+            onDelete={() => setShowDeleteConfirm(true)}
+          />
         )}
       </div>
 
