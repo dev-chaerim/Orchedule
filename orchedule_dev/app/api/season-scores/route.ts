@@ -1,6 +1,8 @@
+// app/api/season-scores/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/src/lib/mongoose";
 import SeasonScore from "@/src/models/seasonScore";
+import type { AttachmentInput } from "@/src/lib/types/sheet";
 
 // GET: 시즌악보 목록 조회 (season query param 지원)
 export async function GET(req: NextRequest) {
@@ -28,11 +30,18 @@ export async function POST(req: NextRequest) {
     parts,
   } = await req.json();
 
+  const formattedAttachments = attachments?.map((file: AttachmentInput) => ({
+    url: file.url,
+    publicId: file.publicId,
+    pageCount: file.pageCount ?? 1,
+    type: file.type ?? "image/png",
+  })) || [];
+
   const newScore = new SeasonScore({
     seasonId,
     title,
     author,
-    attachments,
+    attachments: formattedAttachments,
     content,
     date,
     parts,

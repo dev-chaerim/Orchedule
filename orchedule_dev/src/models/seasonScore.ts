@@ -12,12 +12,22 @@ const CommentSchema = new mongoose.Schema({
 const SeasonScoreSchema = new mongoose.Schema({
   seasonId: { type: String, required: true },
   title: String,
-  author: String,
-  attachments: [String],    // 이미지 파일 URL 배열
+  author: String,   // 이미지 파일 URL 배열
   content: String,          // 설명 (링크 포함 가능)
   date: String,
   parts: [String],          // PartKey[]
   comments: [CommentSchema],
+  attachments: {
+    type: [
+        {
+        url: { type: String, required: true },
+        publicId: { type: String, required: true },
+        pageCount: { type: Number, required: true },
+        type: { type: String, required: true }, // ex: "application/pdf", "image/png" 등
+        },
+    ],
+    required: false,
+  },
 });
 
 export default mongoose.models.SeasonScore ||

@@ -7,6 +7,10 @@ import { useSeasonStore } from "@/lib/store/season";
 import { orderedParts, partLabels, PartKey } from "@/constants/parts";
 import ImageUploader from "@/components/common/ImageUploader";
 import ConfirmModal from "@/components/modals/ConfirmModal";
+import PDFPreview from "@/components/common/PDFPreview";
+import ImagePreview from "@/components/common/ImagePreview";
+import type { AttachmentInput } from "@/src/lib/types/sheet";
+import type { UploadResult } from "@/lib/utils/uploadFileToCloudinary";
 
 export default function SheetCreatePage() {
   const router = useRouter();
@@ -15,7 +19,7 @@ export default function SheetCreatePage() {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [attachments, setAttachments] = useState<string[]>([]);
+  const [attachments, setAttachments] = useState<AttachmentInput[]>([]);
   const [selectedParts, setSelectedParts] = useState<PartKey[]>([]);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -71,6 +75,15 @@ export default function SheetCreatePage() {
     setShowConfirm(true);
   };
 
+  // ✅ UploadResult 그대로 사용 가능 (AttachmentInput과 구조 동일)
+  const handleUploadComplete = (file: UploadResult) => {
+    setAttachments((prev) => [...prev, file]);
+  };
+
+  const handleDelete = (index: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
   if (user?.role !== "admin") {
     return (
       <div className="p-6 text-sm text-gray-500">접근 권한이 없습니다.</div>
@@ -98,9 +111,30 @@ export default function SheetCreatePage() {
         />
 
         {/* ImageUploader 추가 */}
-        <ImageUploader
-          onUpload={(file) => setAttachments((prev) => [...prev, file.url])}
-        />
+        <ImageUploader onUpload={handleUploadComplete} />
+
+        {/* 첨부파일 프리뷰 */}
+        {attachments.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            {attachments.map((file, i) =>
+              file.type === "application/pdf" ? (
+                <PDFPreview
+                  key={i}
+                  publicId={file.publicId}
+                  pageCount={file.pageCount ?? 1}
+                  pdfUrl={file.url}
+                  onDelete={() => handleDelete(i)}
+                />
+              ) : (
+                <ImagePreview
+                  key={i}
+                  src={file.url}
+                  onDelete={() => handleDelete(i)}
+                />
+              )
+            )}
+          </div>
+        )}
 
         {/* 파트 선택 */}
         <div className="space-y-3 pt-2">

@@ -7,6 +7,9 @@ import { useUserStore } from "@/lib/store/user";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import Linkify from "linkify-react";
 import ActionButtons from "@/components/common/ActionButtons";
+import PDFPreview from "@/components/common/PDFPreview";
+import ImagePreview from "@/components/common/ImagePreview";
+import type { AttachmentInput } from "@/src/lib/types/sheet";
 
 interface Sheet {
   _id: string;
@@ -14,7 +17,7 @@ interface Sheet {
   date: string;
   author: string;
   content: string;
-  attachments: string[];
+  attachments: AttachmentInput[];
   parts: string[];
 }
 
@@ -72,14 +75,14 @@ export default function SeasonSheetDetailPage() {
 
   const dateObj = new Date(sheet.date);
 
-  const pdfAttachment = sheet.attachments.find((url) =>
-    url.toLowerCase().endsWith(".pdf")
+  const pdfAttachment = sheet.attachments.find(
+    (file) => file.type === "application/pdf"
   );
 
   const linkifyOptions = {
     target: "_blank",
     rel: "noopener noreferrer",
-    className: "text-blue-600 hover:underline break-words", // 핵심: break-words 추가
+    className: "text-blue-600 hover:underline break-words",
   };
 
   return (
@@ -129,7 +132,7 @@ export default function SeasonSheetDetailPage() {
         {/* PDF 다운로드 버튼 */}
         {pdfAttachment && (
           <a
-            href={pdfAttachment}
+            href={pdfAttachment.url}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 bg-[#7E6363] text-white text-sm px-4 py-2 rounded-md hover:bg-[#5c4f4f] transition"
@@ -138,26 +141,27 @@ export default function SeasonSheetDetailPage() {
           </a>
         )}
 
-        {/* 첨부 이미지 표시 */}
-        {sheet.attachments
-          .filter(
-            (url) =>
-              !url.toLowerCase().endsWith(".pdf") &&
-              (url.toLowerCase().endsWith(".png") ||
-                url.toLowerCase().endsWith(".jpg") ||
-                url.toLowerCase().endsWith(".jpeg") ||
-                url.toLowerCase().endsWith(".gif"))
-          )
-          .map((url, idx) => (
-            <div key={idx}>
-              <img
-                src={url}
-                alt={`악보 이미지 ${idx + 1}`}
-                className="w-full rounded-md border border-gray-200"
-              />
-            </div>
-          ))}
+        {/* 첨부 파일 프리뷰 */}
+        {sheet.attachments.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            {sheet.attachments.map((file, idx) =>
+              file.type === "application/pdf" ? (
+                <PDFPreview
+                  key={idx}
+                  publicId={file.publicId}
+                  pdfUrl={file.url}
+                  pageCount={file.pageCount ?? 1}
+                  onDelete={undefined}
+                />
+              ) : (
+                <ImagePreview key={idx} src={file.url} onDelete={undefined} />
+              )
+            )}
+          </div>
+        )}
       </div>
+
+      {/* 파트 태그 */}
       {sheet.parts && sheet.parts.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-4 ml-1">
           {sheet.parts.map((part, idx) => (

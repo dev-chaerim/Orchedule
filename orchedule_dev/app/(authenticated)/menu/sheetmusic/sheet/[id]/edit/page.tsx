@@ -7,6 +7,9 @@ import ConfirmModal from "@/components/modals/ConfirmModal";
 import ImageUploader from "@/components/common/ImageUploader";
 import { UploadResult } from "@/lib/utils/uploadFileToCloudinary";
 import { parts as partOptions } from "@/constants/parts";
+import type { AttachmentInput } from "@/src/lib/types/sheet";
+import PDFPreview from "@/components/common/PDFPreview";
+import ImagePreview from "@/components/common/ImagePreview";
 
 export default function SeasonSheetEditPage() {
   const router = useRouter();
@@ -15,7 +18,7 @@ export default function SeasonSheetEditPage() {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [attachments, setAttachments] = useState<string[]>([]);
+  const [attachments, setAttachments] = useState<AttachmentInput[]>([]);
   const [parts, setParts] = useState<string[]>([]);
   const [date, setDate] = useState(""); // 유지용
   const [showConfirm, setShowConfirm] = useState(false);
@@ -51,11 +54,11 @@ export default function SeasonSheetEditPage() {
   };
 
   const handleUpload = (file: UploadResult) => {
-    setAttachments((prev) => [...prev, file.url]);
+    setAttachments((prev) => [...prev, file]);
   };
 
-  const handleRemoveAttachment = (url: string) => {
-    setAttachments((prev) => prev.filter((item) => item !== url));
+  const handleRemoveAttachment = (index: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleConfirmSubmit = async () => {
@@ -115,25 +118,25 @@ export default function SeasonSheetEditPage() {
         {/* ImageUploader */}
         <ImageUploader onUpload={handleUpload} />
 
-        {/* 기존 첨부된 이미지/파일 미리보기 + 삭제 */}
         {attachments.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {attachments.map((url, idx) => (
-              <div key={idx} className="relative">
-                <img
-                  src={url}
-                  alt={`첨부파일 ${idx + 1}`}
-                  className="w-24 h-24 object-cover rounded-md border border-[#D5CAC3]"
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            {attachments.map((file, idx) =>
+              file.type === "application/pdf" ? (
+                <PDFPreview
+                  key={idx}
+                  publicId={file.publicId}
+                  pageCount={file.pageCount ?? 1}
+                  pdfUrl={file.url}
+                  onDelete={() => handleRemoveAttachment(idx)}
                 />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveAttachment(url)}
-                  className="absolute top-1 right-1 text-xs bg-red-50 text-red-400 px-1 rounded hover:bg-red-100"
-                >
-                  삭제
-                </button>
-              </div>
-            ))}
+              ) : (
+                <ImagePreview
+                  key={idx}
+                  src={file.url}
+                  onDelete={() => handleRemoveAttachment(idx)}
+                />
+              )
+            )}
           </div>
         )}
 
