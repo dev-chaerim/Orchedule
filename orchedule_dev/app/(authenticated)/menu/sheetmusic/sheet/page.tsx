@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useUserStore } from "@/lib/store/user";
 import { useSeasonStore } from "@/lib/store/season";
 import { Music } from "lucide-react";
+import RegisterButton from "@/components/common/RegisterButton";
 
 interface Sheet {
   _id: string;
@@ -45,13 +46,9 @@ export default function SeasonSheetListPage() {
     <div className="max-w-4xl mx-auto px-4 space-y-4">
       {/* 관리자 전용 등록 버튼 */}
       {user?.role === "admin" && (
-        <div className="text-right mb-3 -mt-4">
-          <Link href="/menu/sheetmusic/sheet/new">
-            <button className="bg-[#F4ECE7] text-[#3E3232] text-sm font-medium px-4 py-2 rounded-md hover:bg-[#e3dcd7]">
-              + 악보 등록
-            </button>
-          </Link>
-        </div>
+        <RegisterButton href="/menu/sheetmusic/sheet/new">
+          악보 등록
+        </RegisterButton>
       )}
 
       {/* 로딩 표시 */}
