@@ -1,13 +1,15 @@
 import mongoose from "mongoose";
 
 const CommentSchema = new mongoose.Schema({
-  author: String,
-  content: String,
+  authorId: { type: String, required: true },    // ✅ authorId 추가
+  authorName: { type: String, required: true },  // ✅ authorName (기존 author 대신)
+  content: { type: String, required: true },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
+
 
 const SeasonScoreSchema = new mongoose.Schema({
   seasonId: { type: String, required: true },

@@ -6,15 +6,7 @@ import { useUserStore } from "@/lib/store/user";
 import { useSeasonStore } from "@/lib/store/season";
 import { Music } from "lucide-react";
 import RegisterButton from "@/components/common/RegisterButton";
-
-interface Sheet {
-  _id: string;
-  seasonId: string;
-  title: string;
-  date: string; // ISO 문자열
-  author: string;
-  content: string;
-}
+import { Sheet } from "@/src/lib/types/sheet";
 
 export default function SeasonSheetListPage() {
   const [sheets, setSheets] = useState<Sheet[]>([]);
@@ -104,6 +96,9 @@ export default function SeasonSheetListPage() {
 
                 <div className="text-xs text-[#7e6a5c] mt-2 leading-relaxed line-clamp-2">
                   {contentPreview}
+                </div>
+                <div className="text-xs text-gray-400 mt-3">
+                  💬 댓글 {sheet.comments?.length ?? 0}
                 </div>
               </Link>
             );

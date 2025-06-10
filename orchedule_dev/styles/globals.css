@@ -17,3 +17,7 @@ html, body {
   display: none;
 }
 
+input,
+textarea {
+  @apply focus:outline-none focus:ring-2 focus:ring-[#D5CAC3];
+}

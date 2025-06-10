@@ -9,17 +9,8 @@ import Linkify from "linkify-react";
 import ActionButtons from "@/components/common/ActionButtons";
 import PDFPreview from "@/components/common/PDFPreview";
 import ImagePreview from "@/components/common/ImagePreview";
-import type { AttachmentInput } from "@/src/lib/types/sheet";
-
-interface Sheet {
-  _id: string;
-  title: string;
-  date: string;
-  author: string;
-  content: string;
-  attachments: AttachmentInput[];
-  parts: string[];
-}
+import Comments from "@/components/comments/Comments";
+import type { Sheet } from "@/src/lib/types/sheet";
 
 export default function SeasonSheetDetailPage() {
   const { id } = useParams();
@@ -174,6 +165,14 @@ export default function SeasonSheetDetailPage() {
           ))}
         </div>
       )}
+
+      <Comments
+        resourceId={sheet._id}
+        resourceType="season-score"
+        initialComments={sheet.comments}
+        currentUserId={user?.id}
+        currentUserName={user?.name}
+      />
 
       {/* 삭제 확인 모달 */}
       <ConfirmModal
