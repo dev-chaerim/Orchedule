@@ -4,65 +4,69 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useUserStore } from "@/lib/store/user";
 import ConfirmModal from "@/components/modals/ConfirmModal";
+import ImageUploader from "@/components/common/ImageUploader";
+import { UploadResult } from "@/lib/utils/uploadFileToCloudinary";
+import { parts as partOptions } from "@/constants/parts";
 
-const allParts = [
-  "바이올린",
-  "비올라",
-  "첼로",
-  "베이스",
-  "플룻",
-  "오보에",
-  "클라리넷",
-  "바순",
-  "호른",
-];
-
-export default function SheetEditPage() {
+export default function SeasonSheetEditPage() {
   const router = useRouter();
   const { id } = useParams();
   const user = useUserStore((state) => state.user);
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [fileUrl, setFileUrl] = useState("");
-  const [youtubeUrl, setYoutubeUrl] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [parts, setParts] = useState<string[]>([]);
   const [date, setDate] = useState(""); // 유지용
   const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch(`/api/scores/${id}`);
+      const res = await fetch(`/api/season-scores/${id}`);
       if (!res.ok) return alert("악보를 불러올 수 없습니다.");
       const data = await res.json();
 
       setTitle(data.title);
       setContent(data.content);
-      setFileUrl(data.fileUrl);
-      setYoutubeUrl(data.youtubeUrl || "");
-      setTags(data.tags || []);
+      setAttachments(data.attachments || []);
+      setParts(data.parts || []);
       setDate(data.date); // 유지
     };
 
     if (id) fetchData();
   }, [id]);
 
-  const toggleTag = (tag: string) => {
-    setTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+  const togglePart = (part: string) => {
+    setParts((prev) =>
+      prev.includes(part) ? prev.filter((p) => p !== part) : [...prev, part]
     );
   };
 
+  const toggleAllParts = () => {
+    if (parts.length === partOptions.length) {
+      setParts([]);
+    } else {
+      setParts(partOptions.map((p) => p.key));
+    }
+  };
+
+  const handleUpload = (file: UploadResult) => {
+    setAttachments((prev) => [...prev, file.url]);
+  };
+
+  const handleRemoveAttachment = (url: string) => {
+    setAttachments((prev) => prev.filter((item) => item !== url));
+  };
+
   const handleConfirmSubmit = async () => {
-    const res = await fetch(`/api/scores/${id}`, {
-      method: "PUT",
+    const res = await fetch(`/api/season-scores/${id}`, {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title,
         content,
-        fileUrl,
-        youtubeUrl,
-        tags,
+        attachments,
+        parts,
         author: user?.name,
         date, // 그대로 유지
       }),
@@ -75,7 +79,7 @@ export default function SheetEditPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !fileUrl || !content) {
+    if (!title || !content) {
       alert("필수 항목을 모두 입력해주세요.");
       return;
     }
@@ -107,41 +111,68 @@ export default function SheetEditPage() {
           rows={6}
           className="w-full border border-[#D5CAC3] rounded-md px-4 py-2 text-sm"
         />
-        <input
-          type="text"
-          placeholder="악보 파일 링크"
-          value={fileUrl}
-          onChange={(e) => setFileUrl(e.target.value)}
-          className="w-full border border-[#D5CAC3] rounded-md px-4 py-2 text-sm"
-        />
-        <input
-          type="text"
-          placeholder="YouTube 링크 (선택)"
-          value={youtubeUrl}
-          onChange={(e) => setYoutubeUrl(e.target.value)}
-          className="w-full border border-[#D5CAC3] rounded-md px-4 py-2 text-sm"
-        />
 
+        {/* ImageUploader */}
+        <ImageUploader onUpload={handleUpload} />
+
+        {/* 기존 첨부된 이미지/파일 미리보기 + 삭제 */}
+        {attachments.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {attachments.map((url, idx) => (
+              <div key={idx} className="relative">
+                <img
+                  src={url}
+                  alt={`첨부파일 ${idx + 1}`}
+                  className="w-24 h-24 object-cover rounded-md border border-[#D5CAC3]"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveAttachment(url)}
+                  className="absolute top-1 right-1 text-xs bg-red-50 text-red-400 px-1 rounded hover:bg-red-100"
+                >
+                  삭제
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* 파트 선택 */}
         <div className="space-y-1">
           <p className="text-sm font-medium text-[#3E3232]">파트 선택</p>
           <div className="flex flex-wrap gap-2">
-            {allParts.map((part) => (
+            {/* 전체 선택 버튼 */}
+            <button
+              type="button"
+              onClick={toggleAllParts}
+              className={`px-3 py-1 rounded-full text-sm border transition ${
+                parts.length === partOptions.length
+                  ? "bg-[#7E6363] text-white border-[#7E6363]"
+                  : "bg-white text-[#7E6363] border-[#D5CAC3]"
+              }`}
+            >
+              전체 선택
+            </button>
+
+            {/* 개별 파트 선택 */}
+            {partOptions.map((part) => (
               <button
-                key={part}
+                key={part.key}
                 type="button"
-                onClick={() => toggleTag(part)}
+                onClick={() => togglePart(part.key)}
                 className={`px-3 py-1 rounded-full text-sm border transition ${
-                  tags.includes(part)
+                  parts.includes(part.key)
                     ? "bg-[#7E6363] text-white border-[#7E6363]"
                     : "bg-white text-[#7E6363] border-[#D5CAC3]"
                 }`}
               >
-                {part}
+                {part.label}
               </button>
             ))}
           </div>
         </div>
 
+        {/* 수정하기 버튼 */}
         <div className="text-right">
           <button
             type="submit"
@@ -152,6 +183,7 @@ export default function SheetEditPage() {
         </div>
       </form>
 
+      {/* ConfirmModal */}
       <ConfirmModal
         open={showConfirm}
         onCancel={() => setShowConfirm(false)}

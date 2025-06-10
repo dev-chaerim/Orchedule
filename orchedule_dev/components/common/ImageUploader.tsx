@@ -65,7 +65,7 @@ export default function ImageUploader({ onUpload }: ImageUploaderProps) {
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       <label className="text-sm text-[#3E3232] font-semibold">
         이미지 또는 PDF 첨부
       </label>

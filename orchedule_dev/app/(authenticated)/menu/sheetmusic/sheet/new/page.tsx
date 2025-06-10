@@ -3,51 +3,49 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useUserStore } from "@/lib/store/user";
+import { useSeasonStore } from "@/lib/store/season";
+import { orderedParts, partLabels, PartKey } from "@/constants/parts";
+import ImageUploader from "@/components/common/ImageUploader";
 import ConfirmModal from "@/components/modals/ConfirmModal";
-
-const allParts = [
-  "바이올린",
-  "비올라",
-  "첼로",
-  "베이스",
-  "플룻",
-  "오보에",
-  "클라리넷",
-  "바순",
-  "호른",
-];
 
 export default function SheetCreatePage() {
   const router = useRouter();
   const user = useUserStore((state) => state.user);
+  const selectedSeason = useSeasonStore((state) => state.selectedSeason);
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [fileUrl, setFileUrl] = useState("");
-  const [youtubeUrl, setYoutubeUrl] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [selectedParts, setSelectedParts] = useState<PartKey[]>([]);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const toggleTag = (tag: string) => {
-    setTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+  const togglePart = (part: PartKey) => {
+    setSelectedParts((prev) =>
+      prev.includes(part) ? prev.filter((p) => p !== part) : [...prev, part]
     );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedParts.length === orderedParts.length) {
+      setSelectedParts([]);
+    } else {
+      setSelectedParts([...orderedParts]);
+    }
   };
 
   const handleConfirmSubmit = async () => {
     try {
-      const res = await fetch("/api/scores", {
+      const res = await fetch("/api/season-scores", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          seasonId: selectedSeason?._id,
           title,
           content,
-          fileUrl,
-          youtubeUrl,
-          tags,
+          attachments,
+          parts: selectedParts,
           author: user?.name,
           date: new Date().toISOString(),
-          type: "season", // ✅ 반드시 필요!
         }),
       });
 
@@ -66,8 +64,8 @@ export default function SheetCreatePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !fileUrl || !content) {
-      alert("필수 항목을 모두 입력해주세요.");
+    if (!title.trim() || !content.trim()) {
+      alert("제목과 설명은 필수입니다.");
       return;
     }
     setShowConfirm(true);
@@ -80,7 +78,7 @@ export default function SheetCreatePage() {
   }
 
   return (
-    <main className="max-w-2xl mx-auto p-6 space-y-4">
+    <main className="max-w-2xl mx-auto px-6 space-y-4">
       <h1 className="text-xl font-bold text-[#3E3232]">악보 등록</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -98,36 +96,44 @@ export default function SheetCreatePage() {
           rows={6}
           className="w-full border border-[#D5CAC3] rounded-md px-4 py-2 text-sm"
         />
-        <input
-          type="text"
-          placeholder="악보 파일 링크"
-          value={fileUrl}
-          onChange={(e) => setFileUrl(e.target.value)}
-          className="w-full border border-[#D5CAC3] rounded-md px-4 py-2 text-sm"
-        />
-        <input
-          type="text"
-          placeholder="YouTube 링크 (선택)"
-          value={youtubeUrl}
-          onChange={(e) => setYoutubeUrl(e.target.value)}
-          className="w-full border border-[#D5CAC3] rounded-md px-4 py-2 text-sm"
+
+        {/* ImageUploader 추가 */}
+        <ImageUploader
+          onUpload={(file) => setAttachments((prev) => [...prev, file.url])}
         />
 
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-[#3E3232]">파트 선택</p>
+        {/* 파트 선택 */}
+        <div className="space-y-3 pt-2">
+          <p className="text-sm font-semibold text-[#3E3232]">파트 선택</p>
+          <div className="mb-2">
+            <button
+              type="button"
+              onClick={toggleSelectAll}
+              className={`px-3 py-1 rounded-full text-sm border transition ${
+                selectedParts.length === orderedParts.length
+                  ? "bg-[#7E6363] text-white border-[#7E6363]"
+                  : "bg-white text-[#7E6363] border-[#D5CAC3]"
+              }`}
+            >
+              {selectedParts.length === orderedParts.length
+                ? "전체 해제"
+                : "전체 선택"}
+            </button>
+          </div>
+
           <div className="flex flex-wrap gap-2">
-            {allParts.map((part) => (
+            {orderedParts.map((part) => (
               <button
                 key={part}
                 type="button"
-                onClick={() => toggleTag(part)}
+                onClick={() => togglePart(part)}
                 className={`px-3 py-1 rounded-full text-sm border transition ${
-                  tags.includes(part)
+                  selectedParts.includes(part)
                     ? "bg-[#7E6363] text-white border-[#7E6363]"
                     : "bg-white text-[#7E6363] border-[#D5CAC3]"
                 }`}
               >
-                {part}
+                {partLabels[part]}
               </button>
             ))}
           </div>
