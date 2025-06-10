@@ -54,7 +54,7 @@ export function NoticeList() {
             <Link
               key={notice._id}
               href={`/menu/notice/announcement/${notice._id}`}
-              className="flex justify-between items-center p-1 text-sm hover:bg-gray-50 rounded transition"
+              className="flex justify-between items-center p-1 text-sm  hover:bg-[#f8f5f1] hover:rounded-sm rounded transition"
             >
               <div className="flex items-center gap-2">
                 <Image
