@@ -1,111 +1,223 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import BackButton from "@/components/BackButton";
-
-interface ScoreCheck {
-  _id: string;
-  title: string;
-  date: string; // ISO 문자열
-  author: string;
-  parts: string[];
-  tag: string;
-  fileUrl: string;
-}
+import { useUserStore } from "@/lib/store/user";
+import ConfirmModal from "@/components/modals/ConfirmModal";
+import Linkify from "linkify-react";
+import ActionButtons from "@/components/common/ActionButtons";
+import ImagePreview from "@/components/common/ImagePreview";
+import type { Sheet } from "@/src/lib/types/sheet";
 
 export default function ScoreCheckDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [sheet, setSheet] = useState<ScoreCheck | null>(null);
+  const user = useUserStore((state) => state.user);
+
+  const [sheet, setSheet] = useState<Sheet | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchSheet = async () => {
       try {
         const res = await fetch(`/api/score-checks/${id}`);
         if (!res.ok) throw new Error("악보를 찾을 수 없습니다.");
         const data = await res.json();
+        console.log("sheet data", data);
         setSheet(data);
       } catch (err) {
         console.error(err);
-        setError("악보를 찾을 수 없습니다.");
+        router.push("/menu/sheetmusic/bowing");
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
-  }, [id]);
+
+    if (id) fetchSheet();
+  }, [id, router]);
 
   const handleDelete = async () => {
-    if (!confirm("정말로 이 악보를 삭제하시겠습니까?")) return;
+    const res = await fetch(`/api/score-checks/${sheet?._id}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error("삭제 실패");
+    router.push("/menu/sheetmusic/bowing");
+  };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[300px] text-[#a79c90] text-sm">
+        ⏳ 악보를 불러오는 중이에요...
+      </div>
+    );
+  }
+
+  if (!sheet) {
+    return (
+      <div className="text-center text-sm text-gray-500">
+        악보를 찾을 수 없습니다.
+      </div>
+    );
+  }
+
+  const dateObj = new Date(sheet.date);
+
+  const pdfFiles = sheet.attachments.filter(
+    (file) => file.type === "application/pdf"
+  );
+  const imageFiles = sheet.attachments.filter((file) =>
+    file.type?.startsWith("image/")
+  );
+
+  const linkifyOptions = {
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "text-blue-600 hover:underline break-words",
+  };
+
+  const getFileNameFromUrl = (url: string) => {
     try {
-      const res = await fetch(`/api/score-checks/${id}`, {
-        method: "DELETE",
-      });
+      const decodedUrl = decodeURIComponent(url);
+      const parts = decodedUrl.split("/");
+      const last = parts[parts.length - 1]; // v숫자-파일명.확장자
 
-      if (res.ok) {
-        alert("삭제되었습니다.");
-        router.push("/menu/sheetmusic/bowing");
-      } else {
-        alert("삭제에 실패했습니다.");
+      // "v숫자-" 제거
+      const dashIndex = last.indexOf("-");
+      if (dashIndex !== -1) {
+        return last.substring(dashIndex + 1);
       }
-    } catch (err) {
-      console.error(err);
-      alert("서버 오류가 발생했습니다.");
+      return last;
+    } catch {
+      return "파일명 없음";
     }
   };
 
-  if (loading)
-    return <div className="p-4 text-sm text-gray-500">로딩 중...</div>;
-  if (error || !sheet)
-    return <div className="p-4 text-sm text-red-500">{error}</div>;
-
-  const formattedDate = new Date(sheet.date).toLocaleString("ko-KR");
-
   return (
-    <div className="p-3 space-y-4">
-      <BackButton fallbackHref="/menu/sheetmusic/bowing" label="목록" />
+    <div className="space-y-4 px-4 max-w-3xl mx-auto -mt-2">
+      {/* 상단: 목록 버튼 + 수정/삭제 */}
+      <div className="flex justify-between items-center">
+        <BackButton fallbackHref="/menu/sheetmusic/bowing" label="목록" />
 
-      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
-        <div className="space-y-2">
-          <h1 className="text-lg font-bold">{sheet.title}</h1>
-          <div className="text-sm text-gray-500">
-            {formattedDate} · {sheet.author}
-          </div>
-          <div className="text-sm text-gray-700">
-            대상 파트: {sheet.parts.join(", ")}
-          </div>
-          <div className="text-xs text-gray-400">작품: {sheet.tag}</div>
-
-          <a
-            href={sheet.fileUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 bg-[#7E6363] text-white text-sm px-4 py-2 rounded-md hover:bg-[#5c4f4f] transition"
-          >
-            <span>📄</span> 악보 다운로드
-          </a>
-        </div>
-
-        <div className="flex justify-end gap-2 pt-2 border-t border-dashed border-gray-200 pt-4">
-          <Link
-            href={`/menu/sheetmusic/bowing/${id}/edit`}
-            className="inline-flex items-center gap-1 text-sm text-[#7E6363] border border-[#e0dada] px-4 py-2 rounded-md hover:bg-[#f8f6f5] transition"
-          >
-            ✏️ 수정
-          </Link>
-          <button
-            onClick={handleDelete}
-            className="inline-flex items-center gap-1 text-sm text-[#7E6363] border border-[#e0dada] px-4 py-2 rounded-md hover:bg-[#f8f6f5] transition"
-          >
-            🗑 삭제
-          </button>
-        </div>
+        {user?.name === sheet.author && (
+          <ActionButtons
+            onEdit={() =>
+              router.push(`/menu/sheetmusic/bowing/${sheet._id}/edit`)
+            }
+            onDelete={() => setShowDeleteConfirm(true)}
+          />
+        )}
       </div>
+      <h2 className="text-lg font-bold text-[#3E3232] leading-snug mt-1 pb-1">
+        {sheet.title}
+      </h2>
+
+      {/* 제목 + 날짜 + 작성자 */}
+      <div className="text-xs text-gray-400 flex items-center gap-2 ml-2">
+        <span>
+          {dateObj.toLocaleDateString("ko-KR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </span>
+        <span>
+          {dateObj.toLocaleTimeString("ko-KR", {
+            hour: "numeric",
+            minute: "numeric",
+            hour12: true,
+          })}
+        </span>
+        <span className="text-gray-400">·</span>
+        <span>{sheet.author}</span>
+      </div>
+
+      {/* 본문 영역 */}
+      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4 -mt-1">
+        <Linkify options={linkifyOptions}>
+          <div className="whitespace-pre-line text-sm text-gray-700 pb-7">
+            {sheet.content || "파트보를 확인해주세요."}
+          </div>
+        </Linkify>
+
+        {/* 이미지 프리뷰 */}
+        {imageFiles.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            {imageFiles.map((file, idx) => (
+              <ImagePreview key={idx} src={file.url} onDelete={undefined} />
+            ))}
+          </div>
+        )}
+
+        {/* PDF 다운로드 박스 */}
+        {pdfFiles.length > 0 && (
+          <div>
+            <span className="block text-sm font-semibold text-[#3E3232] mb-3">
+              첨부파일
+            </span>
+            <div className="space-y-4">
+              {pdfFiles.map((file, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between border border-[#e0dada] rounded-lg p-3 bg-[#fcfbf9]"
+                >
+                  <div>
+                    <div className="text-sm text-[#3E3232] mt-1">
+                      📃 {getFileNameFromUrl(file.url)}
+                    </div>
+                  </div>
+
+                  <a
+                    href={file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 border border-gray-300 rounded-md hover:bg-gray-100"
+                    title="다운로드"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.6A1 1 0 0 0 2.5 14h11a1 1 0 0 0 1-1v-2.6a.5.5 0 0 1 1 0v2.6A2 2 0 0 1 13.5 15h-11A2 2 0 0 1 .5 13v-2.6a.5.5 0 0 1 .5-.5z" />
+                      <path d="M7.646 10.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 1 0-.708-.708L8.5 9.293V1.5a.5.5 0 0 0-1 0v7.793L5.354 7.146a.5.5 0 1 0-.708.708l3 3z" />
+                    </svg>
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 파트 태그 */}
+      {sheet.parts && sheet.parts.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-4 ml-1">
+          {sheet.parts.map((part, idx) => (
+            <span
+              key={idx}
+              className="text-xs text-[#7e6a5c] bg-[#f4ece7] px-2 py-1 rounded-full"
+            >
+              #{part}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* 삭제 확인 모달 */}
+      <ConfirmModal
+        open={showDeleteConfirm}
+        onCancel={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        message="정말 삭제하시겠습니까?"
+        confirmLabel="삭제"
+        confirmColor="red"
+        successMessage="삭제되었습니다."
+        errorMessage="삭제 중 오류가 발생했습니다."
+      />
     </div>
   );
 }

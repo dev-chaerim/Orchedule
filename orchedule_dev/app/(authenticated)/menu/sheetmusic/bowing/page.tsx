@@ -2,70 +2,85 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
-interface ScoreCheck {
-  _id: string;
-  title: string;
-  date: string; // ISO 문자열
-  author: string;
-  fileUrl: string;
-  parts: string[];
-  tag?: string;
-}
+import { ScoreCheck } from "@/src/lib/types/sheet";
+import RegisterButton from "@/components/common/RegisterButton";
+import { Music } from "lucide-react";
 
 export default function SheetScoreCheckList() {
-  const [scores, setScores] = useState<ScoreCheck[]>([]);
+  const [scoreChecks, setScoreChecks] = useState<ScoreCheck[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchScores = async () => {
+    const fetchData = async () => {
       const res = await fetch("/api/score-checks");
       const data = await res.json();
-      setScores(data);
+      setScoreChecks(data);
       setLoading(false);
     };
-    fetchScores();
+    fetchData();
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 space-y-4">
+    <div className="max-w-3xl mx-auto px-4 space-y-4 -mt-2">
       {/* 추가 버튼 */}
-      <div className="flex justify-end  -mt-4">
-        <Link
-          href="/menu/sheetmusic/bowing/new"
-          className="inline-block bg-[#3E3232] text-white text-sm px-4 py-2 rounded-md hover:bg-[#2c2323] transition"
-        >
-          + 악보 추가
-        </Link>
-      </div>
+
+      <RegisterButton href="/menu/sheetmusic/bowing/new">
+        악보 등록
+      </RegisterButton>
 
       {loading ? (
         <div className="text-center text-[#a79c90] text-sm py-10">
-          ⏳ 악보 리스트를 불러오는 중이에요...
+          ⏳ 악보체크를 불러오는 중이에요...
         </div>
-      ) : scores.length === 0 ? (
-        <div className="text-sm text-gray-400">등록된 악보가 없습니다.</div>
+      ) : scoreChecks.length === 0 ? (
+        <div className="bg-[#fdfbf9] border border-[#e8e0d9] rounded-xl p-6 text-center w-full">
+          <p className="text-sm text-[#7e6a5c] font-semibold">
+            아직 등록된 악보가 없어요.
+          </p>
+        </div>
       ) : (
-        scores.map((sheet) => {
-          const createdAt = new Date(sheet.date);
+        scoreChecks.map((check) => {
+          const createdAt = new Date(check.date);
+          const contentPreview =
+            check.content.replace(/\n/g, " ").slice(0, 80) +
+            (check.content.length > 80 ? "..." : "");
 
           return (
             <Link
-              key={sheet._id}
-              href={`/menu/sheetmusic/bowing/${sheet._id}`}
+              key={check._id}
+              href={`/menu/sheetmusic/bowing/${check._id}`}
               className="block bg-white p-4 rounded-lg shadow-sm hover:bg-gray-50 transition"
             >
               <div className="flex justify-between items-start mb-1">
-                <h3 className="font-semibold text-sm">{sheet.title}</h3>
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <Music size={16} className="text-[#7E6363]" />
+                  <h3 className="font-semibold text-sm truncate">
+                    {check.title}
+                  </h3>
+                </div>
                 <span className="text-xs text-gray-400 whitespace-nowrap">
                   {createdAt.toLocaleDateString("ko-KR")}
                 </span>
               </div>
 
-              <div className="text-xs text-gray-600 mt-1">
-                파트: {sheet.parts.join(", ")}
+              <div className="text-xs text-gray-500 mb-3">{check.author}</div>
+
+              <div className="text-xs text-[#7e6a5c] mt-2 leading-relaxed line-clamp-2">
+                {contentPreview}
               </div>
-              <div className="text-xs text-gray-400 mt-2">{sheet.author}</div>
+              {/* 파트 태그 */}
+              {check.parts && check.parts.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-4 ml-1">
+                  {check.parts.map((part, idx) => (
+                    <span
+                      key={idx}
+                      className="text-xs text-[#7e6a5c] bg-[#f4ece7] px-2 py-1 rounded-full"
+                    >
+                      #{part}
+                    </span>
+                  ))}
+                </div>
+              )}
             </Link>
           );
         })

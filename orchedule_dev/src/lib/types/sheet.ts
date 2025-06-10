@@ -25,3 +25,19 @@ export interface Sheet {
   parts: string[];
   comments: Comment[]; // ✅ 댓글 필드 추가
 }
+
+export interface ScoreCheck {
+  _id: string;
+  seasonId: string;
+  title: string;
+  author: string;
+  content: string;
+  parts: string[];
+  date: string;
+  attachments?: {
+    url: string;
+    publicId: string;
+    pageCount: number;
+    type: string;
+  }[];
+}

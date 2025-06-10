@@ -7,7 +7,6 @@ import { useUserStore } from "@/lib/store/user";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import Linkify from "linkify-react";
 import ActionButtons from "@/components/common/ActionButtons";
-import PDFPreview from "@/components/common/PDFPreview";
 import ImagePreview from "@/components/common/ImagePreview";
 import Comments from "@/components/comments/Comments";
 import type { Sheet } from "@/src/lib/types/sheet";
@@ -66,14 +65,34 @@ export default function SeasonSheetDetailPage() {
 
   const dateObj = new Date(sheet.date);
 
-  const pdfAttachment = sheet.attachments.find(
+  const pdfFiles = sheet.attachments.filter(
     (file) => file.type === "application/pdf"
+  );
+  const imageFiles = sheet.attachments.filter((file) =>
+    file.type?.startsWith("image/")
   );
 
   const linkifyOptions = {
     target: "_blank",
     rel: "noopener noreferrer",
     className: "text-blue-600 hover:underline break-words",
+  };
+
+  const getFileNameFromUrl = (url: string) => {
+    try {
+      const decodedUrl = decodeURIComponent(url);
+      const parts = decodedUrl.split("/");
+      const last = parts[parts.length - 1]; // v숫자-파일명.확장자
+
+      // "v숫자-" 제거
+      const dashIndex = last.indexOf("-");
+      if (dashIndex !== -1) {
+        return last.substring(dashIndex + 1);
+      }
+      return last;
+    } catch {
+      return "파일명 없음";
+    }
   };
 
   return (
@@ -91,6 +110,9 @@ export default function SeasonSheetDetailPage() {
           />
         )}
       </div>
+      <h2 className="text-lg font-bold text-[#3E3232] leading-snug mt-1 pb-1">
+        {sheet.title}
+      </h2>
 
       {/* 제목 + 날짜 + 작성자 */}
       <div className="text-xs text-gray-400 flex items-center gap-2 ml-2">
@@ -115,43 +137,62 @@ export default function SeasonSheetDetailPage() {
       {/* 본문 영역 */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4 -mt-1">
         <Linkify options={linkifyOptions}>
-          <div className="whitespace-pre-line text-sm text-gray-700">
+          <div className="whitespace-pre-line text-sm text-gray-700 pb-7">
             {sheet.content || "파트보를 확인해주세요."}
           </div>
         </Linkify>
 
-        {/* PDF 다운로드 버튼 */}
-        {pdfAttachment && (
-          <a
-            href={pdfAttachment.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 bg-[#7E6363] text-white text-sm px-4 py-2 rounded-md hover:bg-[#5c4f4f] transition"
-          >
-            <span>📄</span> 악보 다운로드
-          </a>
+        {/* 이미지 프리뷰 */}
+        {imageFiles.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            {imageFiles.map((file, idx) => (
+              <ImagePreview key={idx} src={file.url} onDelete={undefined} />
+            ))}
+          </div>
         )}
 
-        {/* 첨부 파일 프리뷰 */}
-        {sheet.attachments.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-            {sheet.attachments.map((file, idx) =>
-              file.type === "application/pdf" ? (
-                <PDFPreview
+        {/* PDF 다운로드 박스 */}
+        {pdfFiles.length > 0 && (
+          <div>
+            <span className="block text-sm font-semibold text-[#3E3232] mb-3">
+              첨부파일
+            </span>
+            <div className="space-y-4">
+              {pdfFiles.map((file, idx) => (
+                <div
                   key={idx}
-                  publicId={file.publicId}
-                  pdfUrl={file.url}
-                  pageCount={file.pageCount ?? 1}
-                  onDelete={undefined}
-                />
-              ) : (
-                <ImagePreview key={idx} src={file.url} onDelete={undefined} />
-              )
-            )}
+                  className="flex items-center justify-between border border-[#e0dada] rounded-lg p-3 bg-[#fcfbf9]"
+                >
+                  <div>
+                    <div className="text-sm text-[#3E3232] mt-1">
+                      📃 {getFileNameFromUrl(file.url)}
+                    </div>
+                  </div>
+
+                  <a
+                    href={file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 border border-gray-300 rounded-md hover:bg-gray-100"
+                    title="다운로드"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.6A1 1 0 0 0 2.5 14h11a1 1 0 0 0 1-1v-2.6a.5.5 0 0 1 1 0v2.6A2 2 0 0 1 13.5 15h-11A2 2 0 0 1 .5 13v-2.6a.5.5 0 0 1 .5-.5z" />
+                      <path d="M7.646 10.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 1 0-.708-.708L8.5 9.293V1.5a.5.5 0 0 0-1 0v7.793L5.354 7.146a.5.5 0 1 0-.708.708l3 3z" />
+                    </svg>
+                  </a>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
-
       {/* 파트 태그 */}
       {sheet.parts && sheet.parts.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-4 ml-1">

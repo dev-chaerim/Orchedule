@@ -1,28 +1,30 @@
 // app/api/score-checks/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import {connectDB} from "@/src/lib/mongoose";
-import Score from "@/src/models/score";
 
-export async function GET() {
+import { NextRequest, NextResponse } from "next/server";
+import { connectDB } from "@/src/lib/mongoose";
+import ScoreCheck from "@/src/models/scoreCheck";
+
+export async function GET(req: NextRequest) {
   await connectDB();
 
-  const scoreChecks = await Score.find({ type: "bowing" }).sort({ date: -1 });
+  const { searchParams } = new URL(req.url);
+  const seasonId = searchParams.get("season");
+
+  const query = seasonId ? { seasonId } : {};
+
+  const scoreChecks = await ScoreCheck.find(query).sort({ date: -1 });
+
   return NextResponse.json(scoreChecks);
 }
 
 export async function POST(req: NextRequest) {
   await connectDB();
-  const body = await req.json();
 
-  if (!body.title || !body.author || !body.fileUrl || !body.parts) {
-    return NextResponse.json({ error: "필수 값 누락" }, { status: 400 });
-  }
+  const data = await req.json();
 
-  const newScore = await Score.create({
-    ...body,
-    type: "bowing",
-    isNewScore: true, // ← 초기 등록 시 true
-  });
+  const newScoreCheck = new ScoreCheck(data);
 
-  return NextResponse.json(newScore, { status: 201 });
+  await newScoreCheck.save();
+
+  return NextResponse.json(newScoreCheck, { status: 201 });
 }

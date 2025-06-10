@@ -1,64 +1,46 @@
+// app/api/score-checks/[id]/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/src/lib/mongoose";
-import Score from "@/src/models/score";
+import ScoreCheck from "@/src/models/scoreCheck";
 
-// GET: 특정 보잉체크 조회
-export async function GET(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   await connectDB();
   const { id } = await context.params;
 
-  const score = await Score.findById(id);
+  const scoreCheck = await ScoreCheck.findById(id).exec();
 
-  if (!score || score.type !== "bowing") {
-    return NextResponse.json(
-      { error: "보잉체크 악보를 찾을 수 없습니다." },
-      { status: 404 }
-    );
+  if (!scoreCheck) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  return NextResponse.json(score);
+  return NextResponse.json(scoreCheck);
 }
 
-// DELETE: 삭제
-export async function DELETE(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   await connectDB();
   const { id } = await context.params;
 
-  const score = await Score.findById(id);
-  if (!score || score.type !== "bowing") {
-    return NextResponse.json(
-      { error: "보잉체크 악보를 찾을 수 없습니다." },
-      { status: 404 }
-    );
-  }
+  const data = await req.json();
 
-  await Score.findByIdAndDelete(id);
-  return NextResponse.json({ message: "삭제 완료" });
-}
-
-// PUT: 수정
-export async function PUT(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
-  await connectDB();
-  const { id } = await context.params;
-  const body = await req.json();
-
-  const updated = await Score.findByIdAndUpdate(id, body, {
-    new: true,
-    runValidators: true,
-  });
+  const updated = await ScoreCheck.findByIdAndUpdate(id, data, { new: true }).exec();
 
   if (!updated) {
-    return NextResponse.json({ error: "수정 실패" }, { status: 404 });
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   return NextResponse.json(updated);
+}
+
+export async function DELETE(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+  await connectDB();
+  const { id } = await context.params;
+
+  const deleted = await ScoreCheck.findByIdAndDelete(id).exec();
+
+  if (!deleted) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ success: true });
 }
