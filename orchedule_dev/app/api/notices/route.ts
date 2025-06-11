@@ -11,10 +11,14 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const season = searchParams.get('season');
+    const isSeatNotice = searchParams.get('isSeatNotice'); // ✅ 추가
 
     const filter: FilterQuery<typeof Notice> = {};
 
-    if (season) {
+    if (isSeatNotice === 'true') {
+      // 자리배치 공지만 조회
+      filter.isSeatNotice = true;
+    } else if (season) {
       filter.$or = [
         { season },
         { isGlobal: true },

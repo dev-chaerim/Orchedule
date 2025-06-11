@@ -8,6 +8,7 @@ const noticeSchema = new Schema({
   author: { type: String, required: true },
   season: { type: Schema.Types.ObjectId, ref: 'Season', required: true },
   isGlobal: { type: Boolean, default: false },
+  isSeatNotice: { type: Boolean, default: false },
   attachments: {
     type: [
       {

@@ -18,6 +18,8 @@ export default function EditNoticePage() {
   const [season, setSeason] = useState("2024");
   const [isGlobal, setIsGlobal] = useState(false);
   const [pinned, setPinned] = useState(false);
+  const [isSeatNotice, setIsSeatNotice] = useState(false);
+
   const [attachments, setAttachments] = useState<UploadResult[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,6 +37,7 @@ export default function EditNoticePage() {
         setSeason(data.season);
         setIsGlobal(data.isGlobal);
         setPinned(data.pinned);
+        setIsSeatNotice(data.isSeatNotice);
         setAttachments(data.attachments || []);
         setIsLoading(false);
       } catch (err) {
@@ -66,6 +69,7 @@ export default function EditNoticePage() {
           season,
           isGlobal,
           pinned,
+          isSeatNotice,
           attachments,
         }),
       });
@@ -118,6 +122,15 @@ export default function EditNoticePage() {
             onChange={(e) => setPinned(e.target.checked)}
           />
           상단 고정
+        </label>
+
+        <label className="flex items-center gap-2 text-sm text-[#3E3232]">
+          <input
+            type="checkbox"
+            checked={isSeatNotice}
+            onChange={(e) => setIsSeatNotice(e.target.checked)}
+          />
+          <span>자리배치 공지</span>
         </label>
       </div>
 

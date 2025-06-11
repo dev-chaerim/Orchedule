@@ -17,6 +17,7 @@ export default function CreateNoticePage() {
   const [content, setContent] = useState("");
   const [isGlobal, setIsGlobal] = useState(false);
   const [pinned, setPinned] = useState(false);
+  const [isSeatNotice, setIsSeatNotice] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<UploadResult[]>([]);
@@ -50,6 +51,7 @@ export default function CreateNoticePage() {
           season: selectedSeason._id,
           isGlobal,
           pinned,
+          isSeatNotice,
           date: new Date().toISOString().split("T")[0],
           author: "관리자",
           attachments: uploadedFiles,
@@ -93,6 +95,15 @@ export default function CreateNoticePage() {
             onChange={(e) => setPinned(e.target.checked)}
           />
           상단 고정
+        </label>
+
+        <label className="flex items-center gap-2 text-sm text-[#3E3232]">
+          <input
+            type="checkbox"
+            checked={isSeatNotice}
+            onChange={(e) => setIsSeatNotice(e.target.checked)}
+          />
+          <span>자리배치 공지</span>
         </label>
       </div>
 
