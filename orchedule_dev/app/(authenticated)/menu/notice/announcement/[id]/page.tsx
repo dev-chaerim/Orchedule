@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams, notFound } from "next/navigation";
-import Link from "next/link";
 import BackButton from "@/components/BackButton";
 import ImagePreview from "@/components/common/ImagePreview";
 import PDFPreview from "@/components/common/PDFPreview";
@@ -10,6 +9,7 @@ import ConfirmModal from "@/components/modals/ConfirmModal";
 import { useUserStore } from "@/lib/store/user";
 import LinkifiedContent from "@/components/common/LinkifiedContent";
 import LoadingText from "@/components/common/LoadingText";
+import ActionButtons from "@/components/common/ActionButtons";
 
 interface Attachment {
   url: string;
@@ -78,19 +78,10 @@ export default function NoticeDetailPage() {
         <BackButton fallbackHref="/menu/notice/announcement" label="목록" />
 
         {user?.role === "admin" && (
-          <div className="flex gap-2 mb-3">
-            <Link href={`/admin/notice/${notice._id}/edit`}>
-              <button className="text-xs font-semibold bg-[#F4ECE7] text-[#3E3232] px-3 py-1 rounded-md hover:bg-[#e3dcd7] transition">
-                수정
-              </button>
-            </Link>
-            <button
-              onClick={() => setShowConfirm(true)}
-              className="text-xs font-semibold bg-[#fbeeee] text-[#b64646] px-3 py-1 rounded-md hover:bg-[#f8e2e2] transition"
-            >
-              삭제
-            </button>
-          </div>
+          <ActionButtons
+            onEdit={() => router.push(`/admin/notice/${notice._id}/edit`)}
+            onDelete={() => setShowConfirm(true)}
+          />
         )}
       </div>
 

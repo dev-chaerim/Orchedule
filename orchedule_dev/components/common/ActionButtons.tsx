@@ -18,13 +18,13 @@ export default function ActionButtons({
     <div className="flex gap-2 mb-3">
       <button
         onClick={onEdit}
-        className="text-xs font-semibold bg-[#F4ECE7] text-[#3E3232] border border-[#E0DADA] px-3 py-1 rounded-md hover:bg-[#e3dcd7] transition"
+        className="text-xs font-semibold cursor-pointer bg-[#ffffff] text-[#7E6363] border border-[#E0DADA] px-3 py-1 rounded-md hover:bg-[#F4ECE7] transition"
       >
         {editLabel}
       </button>
       <button
         onClick={onDelete}
-        className="text-xs font-semibold bg-[#FBEAEA] text-[#A04B4B] border border-[#E5BFBF] px-3 py-1 rounded-md hover:bg-[#F6DADA] transition"
+        className="text-xs font-semibold cursor-pointer bg-[#ffffff] text-[#A04B4B] border border-[#E5BFBF] px-3 py-1 rounded-md hover:bg-[#F6DADA] transition"
       >
         {deleteLabel}
       </button>
