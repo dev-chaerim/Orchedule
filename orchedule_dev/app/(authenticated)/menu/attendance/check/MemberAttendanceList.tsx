@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AttendanceStatus } from "@/src/lib/mock/attendance";
-import { AttendanceRecord, AttendanceData } from "@/src/lib/types/attendance";
+import {
+  AttendanceStatus,
+  AttendanceRecord,
+  AttendanceData,
+} from "@/src/lib/types/attendance";
 import { useSeasonStore } from "@/lib/store/season";
 import { getNearestDate } from "@/src/lib/utils/getNearestDate";
 
