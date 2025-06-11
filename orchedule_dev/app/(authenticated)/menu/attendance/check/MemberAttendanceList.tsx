@@ -146,9 +146,9 @@ export default function MemberAttendanceList({
             })}
 
             {absentOrLate.length === 0 && (
-              <div className="text-center text-sm text-gray-500">
-                오늘 결원이 없습니다.
-              </div>
+              <p className="mb-6 text-sm text-[#7e6a5c] text-center py-10 border border-[#e0dada] rounded-md">
+                결석한 단원이 없습니다.
+              </p>
             )}
           </div>
         )}

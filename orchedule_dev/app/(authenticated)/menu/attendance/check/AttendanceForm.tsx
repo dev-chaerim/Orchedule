@@ -22,7 +22,7 @@ interface AttendanceFormProps {
   setAttendanceRecords: React.Dispatch<
     React.SetStateAction<AttendanceRecord[]>
   >;
-  setRefreshTrigger: React.Dispatch<React.SetStateAction<number>>; // ⭐️ 추가
+  setRefreshTrigger: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function AttendanceForm({
@@ -34,7 +34,8 @@ export default function AttendanceForm({
 
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>(statuses[0]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // 버튼 클릭용
+  const [attendanceLoading, setAttendanceLoading] = useState(true); // ✅ 추가: 출결 상태 fetch용
   const [seasonId, setSeasonId] = useState<string | null>(null);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
 
@@ -52,22 +53,27 @@ export default function AttendanceForm({
     if (!user || !seasonId || !selectedDate) return;
 
     const fetchAttendance = async () => {
-      const response = await fetch(
-        `/api/attendances?date=${format(
-          selectedDate,
-          "yyyy-MM-dd"
-        )}&seasonId=${seasonId}`
-      );
-      const data: AttendanceData = await response.json();
+      setAttendanceLoading(true); // ✅ 시작
+      try {
+        const response = await fetch(
+          `/api/attendances?date=${format(
+            selectedDate,
+            "yyyy-MM-dd"
+          )}&seasonId=${seasonId}`
+        );
+        const data: AttendanceData = await response.json();
 
-      const userRecord = data.records.find((r) => r.memberId === user.id);
+        const userRecord = data.records.find((r) => r.memberId === user.id);
 
-      if (isFirstLoad) {
-        setSelectedStatus(userRecord?.status || "출석");
-        setIsFirstLoad(false);
+        if (isFirstLoad) {
+          setSelectedStatus(userRecord?.status || "출석");
+          setIsFirstLoad(false);
+        }
+
+        setAttendanceRecords(data.records);
+      } finally {
+        setAttendanceLoading(false); // ✅ 끝
       }
-
-      setAttendanceRecords(data.records);
     };
 
     fetchAttendance();
@@ -145,7 +151,7 @@ export default function AttendanceForm({
         type: "success",
       });
 
-      // ⭐️ 출석 변경 후 refreshTrigger 갱신 → MemberAttendanceList에서 다시 fetch 유도
+      // refreshTrigger 증가 → MemberAttendanceList가 다시 fetch
       setRefreshTrigger((prev) => prev + 1);
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -166,42 +172,48 @@ export default function AttendanceForm({
       <div className="w-full max-w-[640px]">
         <h2 className="text-m font-bold text-[#3e3232] mb-6 mx-4">출결 등록</h2>
 
-        <div className="p-4 py-6 mx-4">
-          <div className="flex justify-center items-center gap-4 flex-wrap w-full">
-            {selectedDate && (
-              <div className="flex flex-col items-center justify-center w-[100px] h-[90px] bg-white rounded-xl shadow">
-                <div className="text-[13px] text-[#7e6a5c]">
-                  {format(new Date(selectedDate), "MMM")}
+        {attendanceLoading ? (
+          <div className="flex justify-center py-10 text-[#a79c90] text-sm">
+            ⏳ 출결 데이터를 불러오는 중이에요...
+          </div>
+        ) : (
+          <div className="p-4 py-6 mx-4">
+            <div className="flex justify-center items-center gap-4 flex-wrap w-full">
+              {selectedDate && (
+                <div className="flex flex-col items-center justify-center w-[100px] h-[90px] bg-white rounded-xl shadow">
+                  <div className="text-[13px] text-[#7e6a5c]">
+                    {format(new Date(selectedDate), "MMM")}
+                  </div>
+                  <div className="text-[20px] font-bold text-[#3e3232e7]">
+                    {format(new Date(selectedDate), "d")}
+                  </div>
                 </div>
-                <div className="text-[20px] font-bold text-[#3e3232e7]">
-                  {format(new Date(selectedDate), "d")}
-                </div>
+              )}
+
+              <div className="w-[100px] h-[90px] flex items-center justify-center bg-[#D7C0AE] text-white text-sm font-semibold rounded-xl shadow">
+                {selectedStatus}
               </div>
-            )}
 
-            <div className="w-[100px] h-[90px] flex items-center justify-center bg-[#D7C0AE] text-white text-sm font-semibold rounded-xl shadow">
-              {selectedStatus}
-            </div>
-
-            <div className="flex flex-col gap-2 items-center">
-              <FilterDropdown
-                options={statuses}
-                selected={selectedStatus}
-                onChange={setSelectedStatus}
-                buttonClassName="w-[100px] bg-[#f8f6f2] text-[#3e3232d4]"
-              />
-              <button
-                onClick={handleSave}
-                disabled={loading}
-                className={`w-[100px] bg-[#e5d5ae] text-white rounded-xl py-2 text-sm font-semibold shadow hover:opacity-90 transition text-center ${
-                  loading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-              >
-                {loading ? "저장 중..." : "변경"}
-              </button>
+              <div className="flex flex-col gap-2 items-center">
+                <FilterDropdown
+                  options={statuses}
+                  selected={selectedStatus}
+                  onChange={setSelectedStatus}
+                  buttonClassName="w-[100px] bg-[#f8f6f2] text-[#3e3232d4]"
+                />
+                <button
+                  onClick={handleSave}
+                  disabled={loading}
+                  className={`w-[100px] bg-[#e5d5ae] text-white rounded-xl py-2 text-sm font-semibold shadow hover:opacity-90 transition text-center ${
+                    loading ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {loading ? "저장 중..." : "변경"}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
