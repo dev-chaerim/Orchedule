@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AttendanceStatus } from "@/src/lib/mock/attendance"; // 또는 실제 enum/type
+import { AttendanceStatus } from "@/src/lib/mock/attendance";
+import { AttendanceRecord, AttendanceData } from "@/src/lib/types/attendance";
 import { useSeasonStore } from "@/lib/store/season";
-import { getNearestDate } from "@/lib/utils/getNearestDate";
+import { getNearestDate } from "@/src/lib/utils/getNearestDate";
 
 interface Member {
   _id: string;
@@ -11,14 +12,12 @@ interface Member {
   part: string;
 }
 
-interface AttendanceRecord {
-  memberId: string;
-  status: AttendanceStatus;
-}
-
-interface AttendanceData {
-  date: string;
-  records: AttendanceRecord[];
+interface MemberAttendanceListProps {
+  attendanceRecords: AttendanceRecord[];
+  refreshTrigger: number;
+  setAttendanceRecords: React.Dispatch<
+    React.SetStateAction<AttendanceRecord[]>
+  >;
 }
 
 const getStatusColor = (status: AttendanceStatus) => {
@@ -47,15 +46,15 @@ const getPartBgColor = (part: string) => {
   }
 };
 
-export default function MemberAttendanceList() {
+export default function MemberAttendanceList({
+  attendanceRecords,
+  refreshTrigger,
+  setAttendanceRecords,
+}: MemberAttendanceListProps) {
   const { selectedSeason } = useSeasonStore();
   const [members, setMembers] = useState<Member[]>([]);
-  const [attendanceMap, setAttendanceMap] = useState<
-    Map<string, AttendanceStatus>
-  >(new Map());
-  const [isLoading, setIsLoading] = useState(true); // ⭐️ 추가
-
-  const [date, setDate] = useState(""); // 가장 가까운 연습일
+  const [isLoading, setIsLoading] = useState(true);
+  const [date, setDate] = useState("");
 
   // ✅ 날짜 계산
   useEffect(() => {
@@ -74,41 +73,29 @@ export default function MemberAttendanceList() {
       const res = await fetch("/api/members");
       const data: Member[] = await res.json();
       setMembers(data);
+      setIsLoading(false);
     };
     fetchMembers();
   }, []);
 
-  // ✅ 출석 상태 불러오기
+  // ✅ 출석 상태 다시 fetch → refreshTrigger 변경 시 재실행
   useEffect(() => {
-    if (!date || !selectedSeason?._id || members.length === 0) return;
+    if (!selectedSeason?._id || !date) return;
 
     const fetchAttendance = async () => {
-      setIsLoading(true); // ⭐️ 로딩 시작
-      try {
-        const res = await fetch(
-          `/api/attendances?date=${date}&seasonId=${selectedSeason._id}`
-        );
-        const data: AttendanceData = await res.json();
-
-        const map = new Map<string, AttendanceStatus>();
-        members.forEach((m) => {
-          const found = data.records?.find((r) => r.memberId === m._id);
-          map.set(m._id, found?.status || "출석");
-        });
-        setAttendanceMap(map);
-      } catch (err) {
-        console.error("출석 데이터 불러오기 오류:", err);
-      } finally {
-        setIsLoading(false); // ⭐️ 로딩 끝
-      }
+      const res = await fetch(
+        `/api/attendances?date=${date}&seasonId=${selectedSeason._id}`
+      );
+      const data: AttendanceData = await res.json();
+      setAttendanceRecords(data.records);
     };
 
     fetchAttendance();
-  }, [date, selectedSeason, members]);
+  }, [refreshTrigger, selectedSeason, date, setAttendanceRecords]);
 
-  // ✅ 결원 (지각/불참만)
   const absentOrLate = members.filter((m) => {
-    const status = attendanceMap.get(m._id) ?? "출석";
+    const found = (attendanceRecords || []).find((r) => r.memberId === m._id);
+    const status = found?.status ?? "출석";
     return status !== "출석";
   });
 
@@ -117,14 +104,18 @@ export default function MemberAttendanceList() {
       <div className="w-full max-w-[640px] p-4">
         <div className="text-sm font-semibold text-[#7e6a5c] mb-4">결원</div>
 
-        {isLoading ? ( // ⭐️ 로딩 표시
+        {isLoading ? (
           <div className="text-center text-[#a79c90] text-sm py-6">
             ⏳ 결원 리스트를 불러오는 중이에요...
           </div>
         ) : (
           <div className="space-y-3">
             {absentOrLate.map((member) => {
-              const status = attendanceMap.get(member._id)!;
+              const found = (attendanceRecords || []).find(
+                (r) => r.memberId === member._id
+              );
+              const status = found?.status ?? "출석";
+
               return (
                 <div
                   key={member._id}
