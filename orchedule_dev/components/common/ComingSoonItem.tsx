@@ -65,7 +65,7 @@ export function ComingSoonItem({ label, icon }: Props) {
           <div className="relative bg-[#FDF5E6] text-[#3E3232] text-xs px-3 py-[6px] rounded-md shadow-md whitespace-nowrap">
             오픈 예정입니다
             {/* 꼬리 */}
-            <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-r-8 border-r-[#FDF5E6]" />
+            <div className="absolute -left-[6px] top-1/2 -translate-y-1/2 w-[12px] h-[12px] bg-[#FDF5E6] rotate-45 shadow-md" />
           </div>
         </div>
       )}

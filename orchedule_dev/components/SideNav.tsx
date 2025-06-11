@@ -9,7 +9,7 @@ import { useState } from "react";
 import SettingDropdown from "./dropdown/SettingDropdown";
 import { ShieldCheck } from "lucide-react";
 import { partLabels, PartKey } from "@/src/constants/parts";
-import { ComingSoonItem } from "./home/ComingSoonItem";
+import { ComingSoonItem } from "./common/ComingSoonItem";
 
 const navItems = [
   { href: "/", label: "홈", icon: "home", match: "^/$" },
