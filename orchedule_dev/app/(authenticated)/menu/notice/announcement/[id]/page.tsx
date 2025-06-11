@@ -8,6 +8,7 @@ import ImagePreview from "@/components/common/ImagePreview";
 import PDFPreview from "@/components/common/PDFPreview";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import { useUserStore } from "@/lib/store/user";
+import LinkifiedContent from "@/components/common/LinkifiedContent";
 
 interface Attachment {
   url: string;
@@ -104,9 +105,7 @@ export default function NoticeDetailPage() {
           {notice.date} · {notice.author}
         </div>
 
-        <p className="text-sm text-gray-800 whitespace-pre-line">
-          {notice.content}
-        </p>
+        <LinkifiedContent text={notice.content} />
 
         {/* 첨부파일 프리뷰 */}
         {notice.attachments && notice.attachments.length > 0 && (

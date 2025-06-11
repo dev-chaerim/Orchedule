@@ -5,10 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import BackButton from "@/components/BackButton";
 import { useUserStore } from "@/lib/store/user";
 import ConfirmModal from "@/components/modals/ConfirmModal";
-import Linkify from "linkify-react";
 import ActionButtons from "@/components/common/ActionButtons";
 import ImagePreview from "@/components/common/ImagePreview";
 import type { Sheet } from "@/src/lib/types/sheet";
+import LinkifiedContent from "@/components/common/LinkifiedContent";
 
 export default function ScoreCheckDetailPage() {
   const { id } = useParams();
@@ -71,12 +71,6 @@ export default function ScoreCheckDetailPage() {
     file.type?.startsWith("image/")
   );
 
-  const linkifyOptions = {
-    target: "_blank",
-    rel: "noopener noreferrer",
-    className: "text-blue-600 hover:underline break-words",
-  };
-
   const getFileNameFromUrl = (url: string) => {
     try {
       const decodedUrl = decodeURIComponent(url);
@@ -135,11 +129,7 @@ export default function ScoreCheckDetailPage() {
 
       {/* 본문 영역 */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4 -mt-1">
-        <Linkify options={linkifyOptions}>
-          <div className="whitespace-pre-line text-sm text-gray-700 pb-7">
-            {sheet.content || "파트보를 확인해주세요."}
-          </div>
-        </Linkify>
+        <LinkifiedContent text={sheet.content} />
 
         {/* 이미지 프리뷰 */}
         {imageFiles.length > 0 && (
