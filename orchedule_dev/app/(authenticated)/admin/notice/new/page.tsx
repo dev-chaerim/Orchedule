@@ -52,7 +52,6 @@ export default function CreateNoticePage() {
           pinned,
           date: new Date().toISOString().split("T")[0],
           author: "관리자",
-          isNew: true,
           attachments: uploadedFiles,
         }),
       });

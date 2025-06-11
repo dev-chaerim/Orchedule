@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSeasonStore } from "@/lib/store/season";
+import { isNew } from "@/lib/utils/isNew";
+import { useUserStore } from "@/lib/store/user";
+import RegisterButton from "@/components/common/RegisterButton";
+import NewBadge from "@/components/common/NewBadge";
 
 interface Notice {
   _id: string;
@@ -11,12 +15,12 @@ interface Notice {
   pinned: boolean;
   content: string;
   author: string;
-  isNew: boolean;
 }
 
 export default function NoticeListPage() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(false);
+  const user = useUserStore((state) => state.user);
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
   const seasonId = selectedSeason?._id;
 
@@ -66,7 +70,12 @@ export default function NoticeListPage() {
   ];
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3  -mt-2">
+      {/* 관리자 전용 등록 버튼 */}
+      {user?.role === "admin" && (
+        <RegisterButton href="/admin/notice/new">공지 등록</RegisterButton>
+      )}
+
       {sortedNotices.map((notice) => (
         <Link
           key={notice._id}
@@ -76,14 +85,10 @@ export default function NoticeListPage() {
           <div className="flex justify-between items-start mb-1">
             <div className="flex items-center gap-1">
               {notice.pinned && <span>📌</span>}
-              <h3 className="font-semibold text-sm">
-                {notice.title}
-                {notice.isNew && (
-                  <span className="ml-2 relative -top-[1px] inline-flex items-center justify-center bg-red-500 text-white text-[9px] px-2 py-[2px] rounded-full leading-none h-[16px] min-w-[30px]">
-                    NEW
-                  </span>
-                )}
-              </h3>
+              <div className="flex items-center gap-1 font-semibold text-sm">
+                <span className="text-sm font-semibold">{notice.title}</span>
+                {isNew(notice.date) && <NewBadge />}
+              </div>
             </div>
             <span className="text-xs text-gray-400 whitespace-nowrap">
               {notice.date}

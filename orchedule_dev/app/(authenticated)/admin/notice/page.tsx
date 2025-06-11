@@ -14,7 +14,6 @@ interface Notice {
   date: string;
   pinned: boolean;
   author: string;
-  isNew: boolean;
   season: string;
   isGlobal: boolean;
   imageUrls?: string[];

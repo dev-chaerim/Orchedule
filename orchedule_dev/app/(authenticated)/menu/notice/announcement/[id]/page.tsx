@@ -10,6 +10,8 @@ import { useUserStore } from "@/lib/store/user";
 import LinkifiedContent from "@/components/common/LinkifiedContent";
 import LoadingText from "@/components/common/LoadingText";
 import ActionButtons from "@/components/common/ActionButtons";
+import { isNew } from "@/src/lib/utils/isNew";
+import NewBadge from "@/components/common/NewBadge";
 
 interface Attachment {
   url: string;
@@ -25,7 +27,6 @@ interface Notice {
   date: string;
   author: string;
   pinned: boolean;
-  isNew: boolean;
   season: string;
   isGlobal: boolean;
   attachments?: Attachment[];
@@ -87,8 +88,9 @@ export default function NoticeDetailPage() {
 
       {/* 공지 본문 영역 */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
-        <div className="flex justify-between items-start">
+        <div className="flex items-center gap-2 mb-2">
           <h1 className="text-lg font-bold text-[#3E3232]">{notice.title}</h1>
+          {isNew(notice.date) && <NewBadge size={16} fontSize={10} />}
         </div>
 
         <div className="text-sm text-gray-500">

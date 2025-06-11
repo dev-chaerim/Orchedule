@@ -5,13 +5,14 @@ import Image from "next/image";
 import Link from "next/link";
 import MoreLink from "../MoreLink";
 import LoadingSkeleton from "../common/LoadingSkeleton";
+import { isNew } from "@/src/lib/utils/isNew";
+import NewBadge from "../common/NewBadge";
 
 interface Notice {
   _id: string;
   title: string;
   date: string;
   pinned: boolean;
-  isNew: boolean;
 }
 
 export function NoticeList() {
@@ -66,9 +67,7 @@ export function NoticeList() {
                   height={14}
                 />
                 <span>{notice.title}</span>
-                {notice.isNew && (
-                  <span className="text-xs text-red-500 ml-1">N</span>
-                )}
+                {isNew(notice.date) && <NewBadge />}
               </div>
               <span className="text-xs text-gray-400">{notice.date}</span>
             </Link>
