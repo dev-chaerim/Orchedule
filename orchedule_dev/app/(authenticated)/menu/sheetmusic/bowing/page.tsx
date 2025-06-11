@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ScoreCheck } from "@/src/lib/types/sheet";
 import RegisterButton from "@/components/common/RegisterButton";
+import FilterDropdown from "@/components/dropdown/FilterDropdown"; // ✅ 추가
 import { Music } from "lucide-react";
+import { parts } from "@/constants/parts"; // ✅ Part 목록 가져오기 (기존에 사용하던 parts)
 
 export default function SheetScoreCheckList() {
   const [scoreChecks, setScoreChecks] = useState<ScoreCheck[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPart, setSelectedPart] = useState<string>("전체"); // ✅ 추가
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,26 +23,42 @@ export default function SheetScoreCheckList() {
     fetchData();
   }, []);
 
+  // ✅ 필터링된 악보 목록 계산
+  const filteredScoreChecks =
+    selectedPart === "전체"
+      ? scoreChecks
+      : scoreChecks.filter((check) => check.parts.includes(selectedPart));
+
   return (
     <div className="max-w-3xl mx-auto px-4 space-y-4 -mt-2">
-      {/* 추가 버튼 */}
+      {/* 상단 필터 + 등록 버튼 */}
+      <div className="flex justify-between items-center mb-4">
+        <FilterDropdown
+          options={["전체", ...parts.map((p) => p.key)]}
+          selected={selectedPart}
+          onChange={setSelectedPart}
+          buttonClassName="mb-4 min-w-[80px] max-w-[100px] bg-white text-[#3e3232d4] truncate"
+          optionClassName="bg-[#ede5de] hover:bg-[#dfd7d0] text-[#3e3232]"
+        />
 
-      <RegisterButton href="/menu/sheetmusic/bowing/new">
-        악보 등록
-      </RegisterButton>
+        <RegisterButton href="/menu/sheetmusic/bowing/new">
+          악보 등록
+        </RegisterButton>
+      </div>
 
+      {/* 리스트 영역 */}
       {loading ? (
         <div className="text-center text-[#a79c90] text-sm py-10">
           ⏳ 악보체크를 불러오는 중이에요...
         </div>
-      ) : scoreChecks.length === 0 ? (
+      ) : filteredScoreChecks.length === 0 ? (
         <div className="bg-[#fdfbf9] border border-[#e8e0d9] rounded-xl p-6 text-center w-full">
           <p className="text-sm text-[#7e6a5c] font-semibold">
             아직 등록된 악보가 없어요.
           </p>
         </div>
       ) : (
-        scoreChecks.map((check) => {
+        filteredScoreChecks.map((check) => {
           const createdAt = new Date(check.date);
           const contentPreview =
             check.content.replace(/\n/g, " ").slice(0, 80) +
@@ -68,6 +87,7 @@ export default function SheetScoreCheckList() {
               <div className="text-xs text-[#7e6a5c] mt-2 leading-relaxed line-clamp-2">
                 {contentPreview}
               </div>
+
               {/* 파트 태그 */}
               {check.parts && check.parts.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-4 ml-1">

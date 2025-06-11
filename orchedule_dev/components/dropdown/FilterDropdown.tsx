@@ -21,7 +21,7 @@ export default function FilterDropdown({
 }: FilterDropdownProps) {
   return (
     <Listbox value={selected} onChange={onChange}>
-      <div className="relative w-full">
+      <div className="relative w-auto">
         <Listbox.Button
           className={`relative w-full cursor-pointer rounded-xl py-2 pl-4 pr-8 text-sm text-center shadow font-semibold ${buttonClassName}`}
         >
@@ -39,7 +39,7 @@ export default function FilterDropdown({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <Listbox.Options className="absolute mt-1 w-full rounded-xl bg-white shadow-lg z-10 text-sm">
+          <Listbox.Options className="absolute  max-h-60 overflow-y-auto w-full rounded-xl bg-white shadow-lg z-10 text-sm">
             {options.map((option) => (
               <Listbox.Option
                 key={option}

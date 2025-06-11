@@ -22,7 +22,7 @@ export default function RegisterButton({
     <div className="text-right mb-4">
       <Link href={href}>
         <button
-          className="inline-flex items-center gap-1 text-sm font-semibold text-[#3E3232] px-4 py-1.5 rounded-full transition border cursor-pointer"
+          className="inline-flex whitespace-nowrap items-center gap-1 text-sm font-semibold text-[#3E3232] px-4 py-1.5 rounded-full transition border cursor-pointer"
           style={{
             backgroundColor: bgColor,
             borderColor: borderColor,
