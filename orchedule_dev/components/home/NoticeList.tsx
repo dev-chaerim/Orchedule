@@ -25,7 +25,7 @@ export function NoticeList() {
         const res = await fetch("/api/notices");
         if (!res.ok) throw new Error("공지사항 불러오기 실패");
         const data = await res.json();
-        setNotices(data.slice(0, 4)); // 홈 화면에서는 최대 3개만 표시
+        setNotices(data.slice(0, 4)); // 홈 화면에서는 최대 4개만 표시
       } catch (err) {
         console.error("공지사항 불러오기 오류:", err);
       } finally {
