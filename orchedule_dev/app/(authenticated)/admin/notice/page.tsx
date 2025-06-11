@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useSeasonStore } from "@/lib/store/season";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import { Trash2 } from "lucide-react";
+import { isNew } from "@/src/lib/utils/isNew";
+import NewBadge from "@/components/common/NewBadge";
 
 interface Notice {
   _id: string;
@@ -112,8 +114,15 @@ export default function AdminNoticePage() {
             >
               <div>
                 <h3 className="text-sm font-semibold text-[#3E3232]">
-                  {notice.pinned && <span className="mr-1">📌</span>}
-                  {notice.title}
+                  <div className="flex items-center gap-1">
+                    {notice.pinned && <span>📌</span>}
+                    <div className="flex items-center gap-1 font-semibold text-sm">
+                      <span className="text-sm font-semibold">
+                        {notice.title}
+                      </span>
+                      {isNew(notice.date) && <NewBadge />}
+                    </div>
+                  </div>
                 </h3>
                 <p className="text-xs text-gray-400 mt-1">
                   {notice.date} · {notice.author}
