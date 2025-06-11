@@ -56,7 +56,6 @@ export default function MemberAttendanceList({
   const [isLoading, setIsLoading] = useState(true);
   const [date, setDate] = useState("");
 
-  // ✅ 날짜 계산
   useEffect(() => {
     const fetchDates = async () => {
       const res = await fetch("/api/schedules/dates");
@@ -67,7 +66,6 @@ export default function MemberAttendanceList({
     fetchDates();
   }, []);
 
-  // ✅ 멤버 불러오기
   useEffect(() => {
     const fetchMembers = async () => {
       const res = await fetch("/api/members");
@@ -78,7 +76,6 @@ export default function MemberAttendanceList({
     fetchMembers();
   }, []);
 
-  // ✅ 출석 상태 다시 fetch → refreshTrigger 변경 시 재실행
   useEffect(() => {
     if (!selectedSeason?._id || !date) return;
 
@@ -91,6 +88,12 @@ export default function MemberAttendanceList({
     };
 
     fetchAttendance();
+
+    const interval = setInterval(() => {
+      fetchAttendance();
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, [refreshTrigger, selectedSeason, date, setAttendanceRecords]);
 
   const absentOrLate = members.filter((m) => {
