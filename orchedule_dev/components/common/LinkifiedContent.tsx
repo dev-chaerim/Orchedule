@@ -60,7 +60,11 @@ export default function LinkifiedContent({ text }: LinkifiedContentProps) {
       }
 
       // 기본 링크는 그대로 표시 (className은 linkifyOptions에서 자동 적용됨 → 여기서 다시 지정 X)
-      return <a {...attributes}>{content}</a>;
+      return (
+        <a {...attributes} className={attributes.class || undefined}>
+          {content}
+        </a>
+      );
     },
   };
 

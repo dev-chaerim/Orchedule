@@ -9,7 +9,7 @@ interface NewBadgeProps {
 
 export default function NewBadge({
   size = 12,
-  fontSize = 9,
+  fontSize = 8,
   bgColor = "#e85454",
   textColor = "#fff",
 }: NewBadgeProps) {
@@ -23,6 +23,8 @@ export default function NewBadge({
         color: textColor,
         fontSize: `${fontSize}px`,
         fontWeight: "bold",
+        lineHeight: `${size}px`,
+        flexShrink: 0,
       }}
     >
       N

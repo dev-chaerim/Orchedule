@@ -8,6 +8,8 @@ import type { Sheet, ScoreCheck } from "@/src/lib/types/sheet";
 import { useSeasonStore } from "@/lib/store/season";
 import { Music } from "lucide-react"; //
 import type { Comment } from "@/src/lib/types/sheet";
+import { isNew } from "@/src/lib/utils/isNew";
+import NewBadge from "../common/NewBadge";
 
 interface UnifiedSheet {
   _id: string;
@@ -110,11 +112,14 @@ export default function SheetPreviewList() {
                 <div className="flex justify-between items-start mb-1">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
                     <Music size={16} className="text-[#7E6363]" />
-                    <h3 className="font-semibold text-sm truncate">
-                      {sheet.title}
-                    </h3>
+                    <div className="flex items-center gap-1 truncate pr-3">
+                      <div className="font-semibold text-sm truncate">
+                        {sheet.title}
+                      </div>
+                      {isNew(sheet.date) && <NewBadge />}
+                    </div>
                   </div>
-                  <span className="text-xs text-gray-400 whitespace-nowrap">
+                  <span className="text-xs text-gray-400 whitespace-nowrap mt-0.5">
                     {createdAt.toLocaleDateString("ko-KR")}
                   </span>
                 </div>

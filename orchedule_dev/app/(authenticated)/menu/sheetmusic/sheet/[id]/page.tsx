@@ -10,6 +10,8 @@ import ImagePreview from "@/components/common/ImagePreview";
 import Comments from "@/components/comments/Comments";
 import type { Sheet } from "@/src/lib/types/sheet";
 import LinkifiedContent from "@/components/common/LinkifiedContent";
+import { isNew } from "@/src/lib/utils/isNew";
+import NewBadge from "@/components/common/NewBadge";
 
 export default function SeasonSheetDetailPage() {
   const { id } = useParams();
@@ -104,9 +106,12 @@ export default function SeasonSheetDetailPage() {
           />
         )}
       </div>
-      <h2 className="text-lg font-bold text-[#3E3232] leading-snug mt-1 pb-1">
-        {sheet.title}
-      </h2>
+      <div className="flex items-center gap-2 mt-1 pb-1">
+        <span className="inline-flex text-lg font-bold text-[#3E3232] leading-snug mt-1 pb-1 items-center gap-1 flex-wrap">
+          {sheet.title}
+          {isNew(sheet.date) && <NewBadge size={16} fontSize={10} />}
+        </span>
+      </div>
 
       {/* 제목 + 날짜 + 작성자 */}
       <div className="text-xs text-gray-400 flex items-center gap-2 ml-2">

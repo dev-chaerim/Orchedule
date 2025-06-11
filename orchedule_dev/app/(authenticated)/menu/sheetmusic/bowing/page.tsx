@@ -7,6 +7,8 @@ import RegisterButton from "@/components/common/RegisterButton";
 import FilterDropdown from "@/components/dropdown/FilterDropdown"; // ✅ 추가
 import { Music } from "lucide-react";
 import { parts } from "@/constants/parts"; // ✅ Part 목록 가져오기 (기존에 사용하던 parts)
+import { isNew } from "@/src/lib/utils/isNew";
+import NewBadge from "@/components/common/NewBadge";
 
 export default function SheetScoreCheckList() {
   const [scoreChecks, setScoreChecks] = useState<ScoreCheck[]>([]);
@@ -73,9 +75,12 @@ export default function SheetScoreCheckList() {
               <div className="flex justify-between items-start mb-1">
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   <Music size={16} className="text-[#7E6363]" />
-                  <h3 className="font-semibold text-sm truncate">
-                    {check.title}
-                  </h3>
+                  <div className="flex items-center gap-1 truncate pr-3">
+                    <div className="font-semibold text-sm truncate">
+                      {check.title}
+                    </div>
+                    {isNew(check.date) && <NewBadge />}
+                  </div>
                 </div>
                 <span className="text-xs text-gray-400 whitespace-nowrap">
                   {createdAt.toLocaleDateString("ko-KR")}
