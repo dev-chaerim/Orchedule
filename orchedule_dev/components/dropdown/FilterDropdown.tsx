@@ -21,7 +21,7 @@ export default function FilterDropdown({
 }: FilterDropdownProps) {
   return (
     <Listbox value={selected} onChange={onChange}>
-      <div className="relative w-auto">
+      <div className="relative w-[100px]">
         <Listbox.Button
           className={`relative w-full cursor-pointer rounded-xl py-2 pl-4 pr-8 text-sm text-center shadow font-semibold ${buttonClassName}`}
         >

@@ -57,6 +57,7 @@ export default function MemberAttendanceList({
   const { selectedSeason } = useSeasonStore();
   const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [attendanceLoading, setAttendanceLoading] = useState(true);
   const [date, setDate] = useState("");
 
   useEffect(() => {
@@ -82,18 +83,22 @@ export default function MemberAttendanceList({
   useEffect(() => {
     if (!selectedSeason?._id || !date) return;
 
-    const fetchAttendance = async () => {
+    const fetchAttendance = async (showLoading = false) => {
+      if (showLoading) setAttendanceLoading(true);
       const res = await fetch(
         `/api/attendances?date=${date}&seasonId=${selectedSeason._id}`
       );
       const data: AttendanceData = await res.json();
       setAttendanceRecords(data.records);
+      if (showLoading) setAttendanceLoading(false);
     };
 
-    fetchAttendance();
+    // ✅ 최초 로딩 시에만 loading 표시
+    fetchAttendance(true);
 
     const interval = setInterval(() => {
-      fetchAttendance();
+      // ✅ polling 시에는 loading 없이 부드럽게 업데이트
+      fetchAttendance(false);
     }, 5000);
 
     return () => clearInterval(interval);
@@ -105,15 +110,30 @@ export default function MemberAttendanceList({
     return status !== "출석";
   });
 
+  // ✅ 로딩 중에는 로딩 문구만 표시
+  if (isLoading || attendanceLoading) {
+    return (
+      <div className="w-full flex justify-center">
+        <div className="w-full max-w-[640px] p-4">
+          <div className="text-sm font-semibold text-[#7e6a5c] mb-4">결원</div>
+          <div className="text-center text-[#a79c90] text-sm py-6">
+            ⏳ 결원 리스트를 불러오는 중이에요...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ 정상 렌더링
   return (
     <div className="w-full flex justify-center">
       <div className="w-full max-w-[640px] p-4">
         <div className="text-sm font-semibold text-[#7e6a5c] mb-4">결원</div>
 
-        {isLoading ? (
-          <div className="text-center text-[#a79c90] text-sm py-6">
-            ⏳ 결원 리스트를 불러오는 중이에요...
-          </div>
+        {absentOrLate.length === 0 ? (
+          <p className="mb-6 text-sm text-[#7e6a5c] text-center py-10 border border-[#e0dada] rounded-md">
+            결석한 단원이 없습니다.
+          </p>
         ) : (
           <div className="space-y-3">
             {absentOrLate.map((member) => {
@@ -147,12 +167,6 @@ export default function MemberAttendanceList({
                 </div>
               );
             })}
-
-            {absentOrLate.length === 0 && (
-              <p className="mb-6 text-sm text-[#7e6a5c] text-center py-10 border border-[#e0dada] rounded-md">
-                결석한 단원이 없습니다.
-              </p>
-            )}
           </div>
         )}
       </div>
