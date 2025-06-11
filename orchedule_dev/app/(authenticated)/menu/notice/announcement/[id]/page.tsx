@@ -9,6 +9,7 @@ import PDFPreview from "@/components/common/PDFPreview";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import { useUserStore } from "@/lib/store/user";
 import LinkifiedContent from "@/components/common/LinkifiedContent";
+import LoadingText from "@/components/common/LoadingText";
 
 interface Attachment {
   url: string;
@@ -65,9 +66,7 @@ export default function NoticeDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="text-center text-sm text-gray-500">불러오는 중...</div>
-    );
+    return <LoadingText message="공지를 불러오는 중이에요..." />;
   }
 
   if (!notice) return notFound();

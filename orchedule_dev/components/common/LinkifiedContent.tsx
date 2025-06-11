@@ -51,12 +51,7 @@ export default function LinkifiedContent({ text }: LinkifiedContentProps) {
             </div>
             <div className="text-xs text-gray-500 break-all mt-1">
               <span className="mr-1 text-gray-400">원본 링크:</span>
-              <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:underline"
-              >
+              <a href={url} target="_blank" rel="noopener noreferrer">
                 {url}
               </a>
             </div>
