@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSeasonStore } from "@/lib/store/season";
@@ -8,6 +7,8 @@ import ConfirmModal from "@/components/modals/ConfirmModal";
 import { Trash2 } from "lucide-react";
 import { isNew } from "@/src/lib/utils/isNew";
 import NewBadge from "@/components/common/NewBadge";
+import RegisterButton from "@/components/common/RegisterButton";
+import Image from "next/image";
 
 interface Notice {
   _id: string;
@@ -88,12 +89,8 @@ export default function AdminNoticePage() {
     <main className="max-w-3xl mx-auto p-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold text-[#3E3232]">공지 관리</h1>
-        <Link href="/admin/notice/new">
-          <button className="bg-[#F4ECE7] text-[#3E3232] text-sm font-medium px-4 py-2 rounded-md hover:bg-[#e3dcd7]">
-            + 공지 작성
-          </button>
-        </Link>
       </div>
+      <RegisterButton href="/admin/notice/new">공지 등록</RegisterButton>
 
       {/* ✅ 로딩 상태 표시 */}
       {isLoading ? (
@@ -114,8 +111,19 @@ export default function AdminNoticePage() {
             >
               <div>
                 <h3 className="text-sm font-semibold text-[#3E3232]">
-                  <div className="flex items-center gap-1">
-                    {notice.pinned && <span>📌</span>}
+                  <div className="flex items-center gap-2">
+                    {notice.pinned && (
+                      <Image
+                        src={
+                          notice.pinned
+                            ? "/icons/pin-filled.svg"
+                            : "/icons/pin.svg"
+                        }
+                        alt="pinned"
+                        width={14}
+                        height={14}
+                      />
+                    )}
                     <div className="flex items-center gap-1 font-semibold text-sm">
                       <span className="text-sm font-semibold">
                         {notice.title}
