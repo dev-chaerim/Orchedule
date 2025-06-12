@@ -1,8 +1,17 @@
 "use client";
 
-import Link from "next/link";
+import AdminMenuButton from "@/components/admin/AdminMenuButton";
 
 export default function AdminHome() {
+  const menus = [
+    { href: "/admin/notice", label: "공지 관리", emoji: "📢" },
+    { href: "/admin/schedule", label: "연습일정 관리", emoji: "🗓️" },
+    { href: "/admin/member", label: "단원 관리", emoji: "👥" },
+    { href: "/admin/attendance", label: "출석 현황 관리", emoji: "✅" },
+    { href: "/admin/seatAssignment", label: "자리배치 관리", emoji: "🪑" },
+    { href: "/admin/season", label: "시즌 관리", emoji: "📆" },
+  ];
+
   return (
     <main className="p-6 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold mb-3 text-[#3E3232]">관리자 페이지</h1>
@@ -12,35 +21,14 @@ export default function AdminHome() {
       </p>
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <Link href="/admin/notice">
-          <button className="w-full bg-[#F4ECE7] text-[#3E3232] text-sm font-semibold py-2 px-4 rounded-xl hover:bg-[#e3dcd7] transition">
-            📢 공지 관리
-          </button>
-        </Link>
-
-        <Link href="/admin/schedule">
-          <button className="w-full bg-[#F4ECE7] text-[#3E3232] text-sm font-semibold py-2 px-4 rounded-xl hover:bg-[#e3dcd7] transition">
-            🗓️ 연습일정 관리
-          </button>
-        </Link>
-
-        <Link href="/admin/member">
-          <button className="w-full bg-[#F4ECE7] text-[#3E3232] text-sm font-semibold py-2 px-4 rounded-xl hover:bg-[#e3dcd7] transition">
-            👥 단원 관리
-          </button>
-        </Link>
-
-        <Link href="/admin/attendance">
-          <button className="w-full bg-[#F4ECE7] text-[#3E3232] text-sm font-semibold py-2 px-4 rounded-xl hover:bg-[#e3dcd7] transition">
-            ✅ 출석 현황 관리
-          </button>
-        </Link>
-
-        <Link href="/admin/season">
-          <button className="w-full bg-[#F4ECE7] text-[#3E3232] text-sm font-semibold py-2 px-4 rounded-xl hover:bg-[#e3dcd7] transition">
-            📆 시즌 관리
-          </button>
-        </Link>
+        {menus.map((menu) => (
+          <AdminMenuButton
+            key={menu.href}
+            href={menu.href}
+            label={menu.label}
+            emoji={menu.emoji}
+          />
+        ))}
       </div>
     </main>
   );
