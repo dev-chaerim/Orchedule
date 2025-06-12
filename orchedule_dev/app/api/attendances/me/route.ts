@@ -31,6 +31,8 @@ export async function GET(req: NextRequest) {
     }
 
     const joinedAt = new Date(userDoc.joinedAt);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // 오늘 기준 시간 초기화
 
     // ✅ 1. 유효한 연습일 가져오기 (isCancelled 제외)
     const scheduleDocs = await PracticeSchedule.find({
@@ -43,6 +45,7 @@ export async function GET(req: NextRequest) {
         date: schedule.date,
         dateObj: new Date(schedule.date),
       }))
+      .filter((s) => s.dateObj <= today) // ✅ 오늘 이전/오늘 날짜만 포함
       .sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
 
     // ✅ 2. Attendance 데이터 가져오기
@@ -53,7 +56,6 @@ export async function GET(req: NextRequest) {
     let absent = 0;
     let tardy = 0;
     let notParticipated = 0;
-    let notMarked = 0;
 
     // ✅ 4. 출석 계산
     for (const { date, dateObj } of scheduleDates) {
@@ -64,18 +66,12 @@ export async function GET(req: NextRequest) {
 
       const doc = attendanceDocs.find((doc) => doc.date === date);
 
-      if (!doc) {
-        // 출석부 없음 → notMarked 처리
-        notMarked += 1;
-        continue;
-      }
-
-      const record = doc.records.find(
+      const record = doc?.records.find(
         (r: AttendanceRecord) => String(r.memberId) === String(userId)
       );
 
       if (!record) {
-        notMarked += 1;
+        attended += 1; // ✅ 기록 없으면 출석으로 간주
       } else {
         if (record.status === '출석') {
           attended += 1;
@@ -93,8 +89,8 @@ export async function GET(req: NextRequest) {
     const effectiveTotal = total - notParticipated;
 
     const rate =
-      effectiveTotal - notMarked > 0
-        ? Math.round(((attended) / (effectiveTotal - notMarked)) * 100)
+      effectiveTotal > 0
+        ? Math.round((attended / effectiveTotal) * 100)
         : 0;
 
     return NextResponse.json({
@@ -102,7 +98,6 @@ export async function GET(req: NextRequest) {
       absent,
       tardy,
       notParticipated,
-      notMarked,
       total,
       effectiveTotal,
       rate,
