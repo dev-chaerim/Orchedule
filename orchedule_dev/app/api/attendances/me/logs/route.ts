@@ -2,8 +2,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/src/lib/mongoose';
 import Attendance from '@/src/models/attendance';
-import {Schedule} from '@/src/models/schedule';
 import { getTokenDataFromRequest } from '@/src/lib/auth';
+import { PracticeSchedule } from '@/src/models/practiceSchedule';
+
 
 interface AttendanceRecord {
   memberId: string;
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
     }
 
     // ✅ 1. 현재 시즌의 유효한 스케줄 날짜들 가져오기
-    const schedules = await Schedule.find({ seasonId }).select('date');
+    const schedules = await PracticeSchedule.find({ seasonId }).select('date');
     const validDates = schedules.map((s) => s.date); // 이미 문자열 형식
 
     // ✅ 2. 출석 데이터 불러오기

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongoose';
-import { Schedule } from '@/src/models/schedule';
+import { PracticeSchedule } from '@/src/models/practiceSchedule';
 
 // 무조건 추가
 export const dynamic = "force-dynamic";
@@ -15,7 +15,7 @@ export async function GET(
   const { id } = await context.params; // ✅ 여기서 await 해줘야 해!
 
   try {
-    const schedule = await Schedule.findById(id);
+    const schedule = await PracticeSchedule.findById(id);
     if (!schedule) {
       return NextResponse.json({ message: 'Not found' }, { status: 404 });
     }
@@ -37,7 +37,7 @@ export async function PATCH(
 
   try {
     const updateData = await req.json();
-    const updated = await Schedule.findByIdAndUpdate(id, updateData, { new: true });
+    const updated = await PracticeSchedule.findByIdAndUpdate(id, updateData, { new: true });
 
     if (!updated) {
       return NextResponse.json({ message: 'Not found' }, { status: 404 });
@@ -59,7 +59,7 @@ export async function DELETE(
   const { id } = await context.params; // ✅
 
   try {
-    const deleted = await Schedule.findByIdAndDelete(id);
+    const deleted = await PracticeSchedule.findByIdAndDelete(id);
     if (!deleted) {
       return NextResponse.json({ message: 'Not found' }, { status: 404 });
     }

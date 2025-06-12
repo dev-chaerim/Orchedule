@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongoose";
-import { Schedule } from "@/src/models/schedule";
+import { PracticeSchedule } from '@/src/models/practiceSchedule';
 
 export async function GET() {
   try {
     await connectDB();
 
     // 날짜만 추출하고, 오름차순 정렬
-    const dates = await Schedule.find().sort({ date: 1 }).distinct("date");
+    const dates = await PracticeSchedule.find().sort({ date: 1 }).distinct("date");
 
     return NextResponse.json(dates);
   } catch (err) {

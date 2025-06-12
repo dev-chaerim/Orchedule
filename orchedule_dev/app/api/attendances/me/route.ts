@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
     const userId = tokenData.id;
 
     const attendanceDocs = await Attendance.find({ seasonId });
+    console.log("@@@attendanceDocs", attendanceDocs)
 
     let attended = 0;
     let absent = 0;
