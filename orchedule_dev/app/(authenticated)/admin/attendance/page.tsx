@@ -5,7 +5,6 @@ import { PartKey, orderedParts, partLabels } from "@/src/constants/parts";
 import { useToastStore } from "@/lib/store/toast";
 import { getNearestDate } from "@/lib/utils/getNearestDate";
 import { useSeasonStore } from "@/lib/store/season";
-import { Schedule } from "@/src/lib/types/schedule";
 
 type AttendanceStatus = "출석" | "지각" | "불참";
 
@@ -15,7 +14,6 @@ export default function AttendanceDashboardPage() {
   );
   const [scheduleDates, setScheduleDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState("");
-  const [scheduleDetail, setScheduleDetail] = useState<Schedule | null>(null);
   const [selectedPart, setSelectedPart] = useState<PartKey | "전체">("전체");
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -26,8 +24,6 @@ export default function AttendanceDashboardPage() {
   >([]);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isScheduleLoading, setIsScheduleLoading] = useState(false);
-  const [isScheduleFirstLoad, setIsScheduleFirstLoad] = useState(true);
 
   const showToast = useToastStore((state) => state.showToast);
 
@@ -63,28 +59,6 @@ export default function AttendanceDashboardPage() {
     };
     fetchDates();
   }, []);
-
-  useEffect(() => {
-    const fetchSchedule = async () => {
-      setIsScheduleFirstLoad(true);
-      setIsScheduleLoading(true);
-      try {
-        const res = await fetch("/api/schedules");
-        const all = await res.json();
-        const matched = all.find((s: Schedule) => s.date === selectedDate);
-        setScheduleDetail(matched || null);
-      } catch (err) {
-        console.error("스케줄 로딩 실패:", err);
-      } finally {
-        setIsScheduleFirstLoad(false);
-        setIsScheduleLoading(false);
-      }
-    };
-
-    if (selectedDate) {
-      fetchSchedule();
-    }
-  }, [selectedDate]);
 
   useEffect(() => {
     if (!selectedDate || !selectedSeason) return;
@@ -195,33 +169,6 @@ export default function AttendanceDashboardPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-lg font-bold text-[#3E3232] mb-6">출석현황 관리</h1>
-
-      {isScheduleFirstLoad || isScheduleLoading ? ( // ⭐️ 첫 로딩 중에는 무조건 로딩 표시
-        <div className="text-center text-[#a79c90] text-sm py-6">
-          ⏳ 연습일정을 불러오는 중이에요...
-        </div>
-      ) : scheduleDetail ? (
-        <div className="mb-6 p-5 border border-[#dfd8d2] rounded-xl bg-white text-sm text-[#3E3232]">
-          <div className="font-semibold text-base mb-2 flex items-center gap-2">
-            <span className="text-[#2c2c2c]">다음 연습일</span>
-          </div>
-          <div className="text-sm font-medium">
-            🎼 {selectedDate || "날짜 없음"}
-          </div>
-          {scheduleDetail.orchestraSession?.pieces?.length > 0 && (
-            <ul className="list-disc list-inside text-xs mt-2 text-[#7E6363] space-y-0.5">
-              {scheduleDetail.orchestraSession.pieces.map((piece, i) => (
-                <li key={i}>{piece.title}</li>
-              ))}
-            </ul>
-          )}
-        </div>
-      ) : (
-        <p className="mb-6 text-sm text-[#7e6a5c] text-center py-10 border border-[#e0dada] rounded-md">
-          등록된 다음 연습일이 없습니다.
-        </p>
-      )}
-
       {/* 필터 */}
       <div className="flex items-center gap-4 mb-4 text-sm">
         <div className="flex items-center gap-2">

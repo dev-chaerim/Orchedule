@@ -48,6 +48,11 @@ export default function ScheduleCard({
         {/* 날짜 표시 */}
         <h3 className="text-sm font-semibold text-[#3E3232] mb-4">
           {format(new Date(schedule.date), "yyyy.MM.dd (EEE)", { locale: ko })}
+          {schedule.isCancelled && (
+            <span className="px-2 py-0.5 ml-2 rounded-full border border-[#e4b3b3] bg-[#ffffff] text-[#B00020] text-[11px] font-semibold">
+              연습취소
+            </span>
+          )}
         </h3>
 
         {/* 특이사항 */}
