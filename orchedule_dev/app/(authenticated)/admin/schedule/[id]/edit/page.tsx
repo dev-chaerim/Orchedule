@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import ScheduleForm from "@/components/admin/ScheduleForm";
 import { Switch } from "@headlessui/react";
 import type { Schedule } from "@/src/lib/types/schedule"; // ✅ 공통 Schedule 타입 사용
+import LoadingText from "@/components/common/LoadingText";
 
 export default function EditSchedulePage({
   params,
@@ -68,7 +69,7 @@ export default function EditSchedulePage({
   };
 
   if (loading) {
-    return <div className="p-6 text-[#7E6363]">불러오는 중...</div>;
+    return <LoadingText message="불러오는 중입니다.." />;
   }
 
   if (!schedule) {
@@ -88,7 +89,7 @@ export default function EditSchedulePage({
           checked={isCancelledState}
           onChange={setIsCancelledState}
           className={`${
-            isCancelledState ? "bg-red-500" : "bg-gray-300"
+            isCancelledState ? "bg-[#7E6363]" : "bg-gray-300"
           } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
         >
           <span
