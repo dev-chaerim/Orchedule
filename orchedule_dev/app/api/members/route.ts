@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
       part,
       email,
       password: hashedPassword,
+      joinedAt: new Date(),
     });
 
     return NextResponse.json(newMember, { status: 201 });

@@ -10,8 +10,13 @@ import { format } from "date-fns";
 interface MyAttendanceSummary {
   attended: number;
   absent: number;
+  tardy: number;
+  notParticipated: number;
+  notMarked: number;
   total: number;
+  effectiveTotal: number;
   rate: number;
+  joinedAt: string;
 }
 
 interface AttendanceLog {
@@ -108,20 +113,20 @@ export default function MyAttendancePage() {
           </div>
           <div className="flex-1 grid grid-cols-3 text-center bg-white rounded-xl shadow p-3">
             <div>
-              <div className="text-sm text-[#7e6a5c]">출석</div>
+              <div className="text-sm text-[#3E3232] font-semibold">출석</div>
               <div className="text-2xl font-bold text-[#2F76FF]">
-                {attended}
+                {summary?.attended ?? 0}
               </div>
             </div>
             <div>
-              <div className="text-sm text-[#7e6a5c]">결석</div>
-              <div className="text-2xl font-bold text-[#3e3232b1]">
-                {absent}
+              <div className="text-sm text-[#3E3232]  font-semibold">지각</div>
+              <div className="text-2xl font-bold text-[#C8B28E]">
+                {summary?.tardy ?? 0}
               </div>
             </div>
             <div>
-              <div className="text-sm text-[#7e6a5c]">총 연습일</div>
-              <div className="text-2xl font-bold text-[#3e3232dc]">{total}</div>
+              <div className="text-sm text-[#3E3232] font-semibold">결석</div>
+              <div className="text-2xl font-bold text-[#A9A9A9]">{absent}</div>
             </div>
           </div>
         </div>
@@ -189,6 +194,33 @@ export default function MyAttendancePage() {
           </div>
         </div>
 
+        <div className="bg-white rounded-xl shadow p-4 text-sm text-[#3e3232] space-y-2">
+          {summary?.joinedAt && (
+            <div className="flex justify-between">
+              <span className="text-[#7e6a5c]">가입일</span>
+              <span>
+                {new Date(summary.joinedAt).toLocaleDateString("ko-KR", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </span>
+            </div>
+          )}
+          <div className="flex justify-between">
+            <span className="text-[#7e6a5c]">시즌 전체 연습 횟수</span>
+            <span>{total} 회</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-[#7e6a5c]">가입 기준 연습 횟수</span>
+            <span>{summary?.effectiveTotal ?? 0} 회</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-[#7e6a5c]">제외된 연습 횟수</span>
+            <span>{summary?.notParticipated ?? 0} 회</span>
+          </div>
+        </div>
+
         {/* 이전 출결 */}
         <div>
           <div className="text-sm font-semibold text-[#7e6a5c] mb-3">
@@ -213,7 +245,7 @@ export default function MyAttendancePage() {
                           ? "text-[#6a94ce]"
                           : log.status === "지각"
                           ? "text-[#d2a955]"
-                          : "text-[#cc5c5c]"
+                          : "text-[#777676]"
                       }
                     >
                       {log.status}

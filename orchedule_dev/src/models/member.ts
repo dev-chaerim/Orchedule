@@ -14,7 +14,8 @@ const MemberSchema = new Schema({
     type: String,
     enum: ["admin", "user"],
     default: "user"
-  }
+  },
+  joinedAt: { type: Date, required: true }
 });
 
 const Member = models.Member || model("Member", MemberSchema);

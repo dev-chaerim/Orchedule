@@ -37,6 +37,7 @@ const ScheduleSchema = new Schema(
   {
     seasonId: { type: String, required: true },
     date: { type: String, required: true }, // "2025-06-01"
+    isCancelled: { type: Boolean, default: false },
 
     auditionSessions: [PracticeSessionSchema],
     partSessions: [PracticeSessionSchema],
