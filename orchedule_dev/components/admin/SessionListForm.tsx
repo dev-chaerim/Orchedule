@@ -85,7 +85,7 @@ export default function SessionListForm({
                 />
 
                 <input
-                  placeholder="세션 제목 (예: 첼로 자리오디션)"
+                  placeholder={`세션 제목 (예: 첼로 ${label})`}
                   value={session.title}
                   onChange={(e) => handleChange(idx, "title", [e.target.value])}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"

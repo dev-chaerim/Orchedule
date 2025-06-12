@@ -6,7 +6,11 @@ import { useSeasonStore } from "@/lib/store/season";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import { useState } from "react";
 import BackButton from "@/components/BackButton";
-import { PracticeSession, OrchestraSession } from "@/src/lib/types/schedule";
+import {
+  PracticeSession,
+  OrchestraSession,
+  SpecialNotice,
+} from "@/src/lib/types/schedule";
 
 export default function NewSchedulePage() {
   const router = useRouter();
@@ -20,6 +24,7 @@ export default function NewSchedulePage() {
     auditionSessions: PracticeSession[];
     partSessions: PracticeSession[];
     orchestraSession: OrchestraSession;
+    specialNotices?: SpecialNotice[];
   }) => {
     if (!selectedSeason) {
       alert("시즌이 선택되지 않았습니다.");

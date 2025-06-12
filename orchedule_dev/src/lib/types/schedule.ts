@@ -40,4 +40,5 @@ export interface PracticeScheduleInput {
 export interface Schedule extends PracticeScheduleInput {
   _id: string;
   seasonId: string;
+  isCancelled: boolean;
 }

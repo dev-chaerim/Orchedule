@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongoose';
 import { PracticeSchedule } from '@/src/models/practiceSchedule';
+import Attendance from '@/src/models/attendance'; // ✅ Attendance import 추가
 
 // 무조건 추가
 export const dynamic = "force-dynamic";
@@ -36,8 +37,28 @@ export async function PATCH(
   const { id } = await context.params; // ✅
 
   try {
-    const updateData = await req.json();
-    const updated = await PracticeSchedule.findByIdAndUpdate(id, updateData, { new: true });
+    // ✅ 명시적으로 업데이트할 필드만 추출
+    const {
+      date,
+      auditionSessions,
+      partSessions,
+      orchestraSession,
+      specialNotices,
+      isCancelled, // ✅ isCancelled 명시적으로 받기
+    } = await req.json();
+
+    const updated = await PracticeSchedule.findByIdAndUpdate(
+      id,
+      {
+        date,
+        auditionSessions,
+        partSessions,
+        orchestraSession,
+        specialNotices,
+        isCancelled,
+      },
+      { new: true }
+    );
 
     if (!updated) {
       return NextResponse.json({ message: 'Not found' }, { status: 404 });
@@ -49,7 +70,7 @@ export async function PATCH(
   }
 }
 
-// ✅ 일정 삭제
+// ✅ 일정 삭제 (PracticeSchedule + Attendance 같이 삭제)
 export async function DELETE(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -60,9 +81,17 @@ export async function DELETE(
 
   try {
     const deleted = await PracticeSchedule.findByIdAndDelete(id);
+
     if (!deleted) {
       return NextResponse.json({ message: 'Not found' }, { status: 404 });
     }
+
+    // ✅ Attendance 같이 삭제
+    await Attendance.deleteOne({
+      seasonId: deleted.seasonId,
+      date: deleted.date,
+    });
+
     return NextResponse.json({ message: 'Deleted successfully' });
   } catch (err) {
     console.error('Failed to delete schedule:', err);
