@@ -12,6 +12,11 @@ const seatAssignmentSchema = new Schema(
       type: Number,
       required: true,
     },
+    seatSide: {
+      type: String,
+      enum: ["left", "right"],   // 좌/우 구분
+      required: true,
+    },
     seasonId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Season",
@@ -20,6 +25,7 @@ const seatAssignmentSchema = new Schema(
   },
   { timestamps: true }
 );
+
 
 const SeatAssignment =
   models.SeatAssignment || model("SeatAssignment", seatAssignmentSchema);

@@ -93,20 +93,21 @@ export default function AttendanceDashboardPage() {
     const fetchMembers = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch("/api/members");
-        if (!res.ok) throw new Error("멤버 데이터를 불러오는데 실패했습니다.");
+        const res = await fetch(`/api/seasons/${selectedSeason?._id}`);
+        if (!res.ok) throw new Error("시즌 정보를 불러오는데 실패했습니다.");
         const data = await res.json();
-        setMembers(data);
+        setMembers(data.members);
       } catch (error) {
-        console.error("멤버 데이터 로딩 오류:", error);
+        console.error("시즌 정보 로딩 오류:", error);
         showToast({
-          message: "멤버 데이터를 불러오는데 실패했습니다.",
+          message: "시즌 정보를 불러오는데 실패했습니다.",
           type: "error",
         });
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchMembers();
   }, []);
 
