@@ -1,14 +1,17 @@
-// /app/(authenticated)/admin/season/[id]/page.tsx
-
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useParams } from "next/navigation";
-import { notFound } from "next/navigation";
+import { useRouter, useParams, notFound } from "next/navigation";
 import BackButton from "@/components/BackButton";
 import ConfirmModal from "@/components/modals/ConfirmModal";
-import Link from "next/link";
+import ActionButtons from "@/components/common/ActionButtons";
+import LoadingText from "@/components/common/LoadingText";
+
+interface Member {
+  _id: string;
+  name: string;
+  part: string;
+}
 
 interface Season {
   _id: string;
@@ -16,17 +19,17 @@ interface Season {
   startDate: string;
   endDate?: string;
   pieces: string[];
+  members: Member[];
 }
 
 export default function SeasonDetailPage() {
-  // ✅ useParams로 URL 파라미터 가져오기
   const { id } = useParams();
   const router = useRouter();
   const [season, setSeason] = useState<Season | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // ✅ 시즌 상세 데이터 가져오기
+  // 시즌 상세 데이터 가져오기
   useEffect(() => {
     if (!id) return;
 
@@ -46,7 +49,7 @@ export default function SeasonDetailPage() {
     fetchSeason();
   }, [id]);
 
-  // ✅ 삭제 요청 처리
+  // 삭제 요청 처리
   const handleDelete = async () => {
     try {
       const res = await fetch(`/api/seasons/${id}`, {
@@ -60,54 +63,82 @@ export default function SeasonDetailPage() {
     }
   };
 
-  // ✅ 로딩 중 표시
+  // 로딩 중 표시
   if (isLoading) {
     return (
       <main className="max-w-3xl mx-auto p-6">
-        <p className="text-gray-500">로딩 중...</p>
+        <LoadingText message="시즌 정보를 불러오는 중이에요..." />
       </main>
     );
   }
 
-  // ✅ 시즌이 없을 때 처리
+  // 시즌이 없을 때 처리
   if (!season) return notFound();
 
   return (
     <main className="max-w-3xl mx-auto p-6 space-y-4">
-      <BackButton fallbackHref="/admin/season" label="목록" />
+      <div className="flex justify-between items-center">
+        <BackButton fallbackHref="/admin/season" label="목록" />
+        <ActionButtons
+          onEdit={() => router.push(`/admin/season/${season._id}/edit`)}
+          onDelete={() => setShowConfirm(true)}
+        />
+      </div>
 
       <div className="bg-white border border-[#E0D6CD] rounded-lg p-5 space-y-3">
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-lg font-bold text-[#3E3232]">{season.name}</h1>
             <p className="text-sm text-gray-500">
-              기간: {season.startDate} ~ {season.endDate || "미정"}
+              기간: {new Date(season.startDate).toLocaleDateString()} ~{" "}
+              {season.endDate
+                ? new Date(season.endDate).toLocaleDateString()
+                : "미정"}
             </p>
-          </div>
-          <div className="flex gap-2">
-            <Link href={`/admin/season/${season._id}/edit`}>
-              <button className="text-xs font-semibold bg-[#F4ECE7] text-[#3E3232] px-3 py-1 rounded-md hover:bg-[#e3dcd7] transition">
-                수정
-              </button>
-            </Link>
-            <button
-              onClick={() => setShowConfirm(true)}
-              className="text-xs font-semibold bg-red-50 text-red-400 px-3 py-1 rounded-md hover:bg-red-100 transition"
-            >
-              삭제
-            </button>
           </div>
         </div>
 
+        {/* 등록된 곡 */}
         <div className="mt-4">
           <h2 className="text-sm font-semibold text-[#3E3232] mb-2">
             🎵 등록된 곡
           </h2>
-          <ul className="list-disc list-inside text-sm text-gray-700">
-            {season.pieces.map((piece, i) => (
-              <li key={i}>{piece}</li>
-            ))}
-          </ul>
+          {season.pieces.length > 0 ? (
+            <ul className="list-none text-sm text-gray-700">
+              {season.pieces.map((piece, i) => (
+                <li key={i} className="flex items-center gap-2 mb-1 ml-1">
+                  <span className="text-[#645858] text-base">•</span>
+                  <span>{piece}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-gray-500">등록된 곡이 없습니다.</p>
+          )}
+        </div>
+
+        {/* 참여 단원 */}
+        <div className="mt-4">
+          <h2 className="text-sm font-semibold text-[#3E3232] mb-2">
+            👥 참여 단원 ({season.members?.length ?? 0}명)
+          </h2>
+          {season.members && season.members.length > 0 ? (
+            <ul className="list-none text-sm text-gray-700">
+              {season.members.map((member) => (
+                <li
+                  key={member._id}
+                  className="flex items-center gap-2 mb-1 ml-1"
+                >
+                  <span className="text-[#645858] text-base">•</span>
+                  <span>
+                    {member.name} ({member.part})
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-gray-500">아직 참여 단원이 없습니다.</p>
+          )}
         </div>
       </div>
 

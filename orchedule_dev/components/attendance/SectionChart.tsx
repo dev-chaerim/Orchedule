@@ -44,16 +44,19 @@ const isPartKey = (key: string): key is keyof typeof partLabels => {
 
 const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
   const { selectedSeason } = useSeasonStore();
-  const [members, setMembers] = useState<
-    (MemberType & { attendanceStatus: string })[]
+
+  const [members, setMembers] = useState<MemberType[]>([]);
+  const [attendanceRecords, setAttendanceRecords] = useState<
+    AttendanceRecord[]
   >([]);
-  const [isLoading, setIsLoading] = useState(true); // ⭐️ 추가
+  const [isLoading, setIsLoading] = useState(true);
+  const [attendanceLoading, setAttendanceLoading] = useState(true);
 
+  // ✅ 1. 좌석 배치 멤버는 최초 한번만 고정 세팅
   useEffect(() => {
-    const fetchData = async () => {
-      if (!selectedSeason?._id || !selectedDate) return;
-
-      setIsLoading(true); // ⭐️ 로딩 시작
+    const fetchMembers = async () => {
+      if (!selectedSeason?._id) return;
+      setIsLoading(true);
 
       try {
         const seatRes = await fetch(
@@ -61,39 +64,56 @@ const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
         );
         const seatData: SeatAssignment[] = await seatRes.json();
 
-        const attendanceRes = await fetch(
-          `/api/attendances?seasonId=${selectedSeason._id}&date=${selectedDate}`
-        );
-        const attendanceData: AttendanceData = await attendanceRes.json();
-
         const assignedMembers = seatData
           .filter((assignment) => assignment?.memberId?.part === part)
-          .map((assignment) => {
-            const record = attendanceData.records.find(
-              (r) => r.memberId === assignment.memberId._id
-            );
-            return {
-              ...assignment.memberId,
-              attendanceStatus: record?.status || "출석",
-            };
-          });
+          .map((assignment) => assignment.memberId);
 
         setMembers(assignedMembers);
       } catch (error) {
-        console.error("자리배치 또는 출석 데이터 불러오기 실패", error);
+        console.error("자리배치 데이터 불러오기 실패", error);
       } finally {
-        setIsLoading(false); // ⭐️ 로딩 끝
+        setIsLoading(false);
       }
     };
 
-    fetchData();
+    fetchMembers();
+  }, [selectedSeason?._id, part]);
+
+  // ✅ 2. 출석 데이터는 별도 상태로 polling
+  useEffect(() => {
+    if (!selectedSeason?._id || !selectedDate) return;
+
+    const fetchAttendance = async (showLoading = false) => {
+      if (showLoading) setAttendanceLoading(true);
+
+      try {
+        const res = await fetch(
+          `/api/attendances?seasonId=${selectedSeason._id}&date=${selectedDate}`
+        );
+        const data: AttendanceData = await res.json();
+
+        setAttendanceRecords(data.records);
+      } catch (error) {
+        console.error("출석 데이터 불러오기 실패", error);
+      } finally {
+        if (showLoading) setAttendanceLoading(false);
+      }
+    };
+
+    fetchAttendance(true);
 
     const interval = setInterval(() => {
-      fetchData();
+      fetchAttendance(false);
     }, 5000);
 
     return () => clearInterval(interval);
   }, [selectedSeason?._id, selectedDate, part]);
+
+  // ✅ 3. 렌더링 시 해당 member 의 출석 상태만 attendanceRecords 에서 찾아서 표시
+  const getMemberStatus = (memberId: string): "출석" | "지각" | "불참" => {
+    const found = attendanceRecords.find((r) => r.memberId === memberId);
+    return found?.status ?? "출석";
+  };
 
   const rows = Math.ceil(members.length / 2);
 
@@ -105,7 +125,7 @@ const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
         </h3>
       </div>
 
-      {isLoading ? ( // ⭐️ 로딩 표시
+      {isLoading || attendanceLoading ? (
         <div className="text-center text-[#a79c90] text-sm py-6">
           ⏳ 정보를 불러오는 중이에요...
         </div>
@@ -119,8 +139,14 @@ const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
               <div key={rowIdx} className="flex justify-center">
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-[#7e6a5c]">{rowIdx + 1}</span>
-                  <SeatCell member={left} />
-                  <SeatCell member={right} />
+                  <SeatCell
+                    member={left}
+                    status={left ? getMemberStatus(left._id) : undefined}
+                  />
+                  <SeatCell
+                    member={right}
+                    status={right ? getMemberStatus(right._id) : undefined}
+                  />
                 </div>
               </div>
             );
@@ -132,10 +158,9 @@ const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
 };
 
 const SeatCell: React.FC<{
-  member?: MemberType & { attendanceStatus?: string };
-}> = ({ member }) => {
-  const status = member?.attendanceStatus;
-
+  member?: MemberType;
+  status?: "출석" | "지각" | "불참";
+}> = ({ member, status }) => {
   let bgColor = "#FAF9F6";
   let border = "1px solid #DDD5CC";
   let color = "#3e3232";

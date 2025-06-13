@@ -3,12 +3,19 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
-interface Season {
-  _id: number;
+interface Member {
+  _id: string;
   name: string;
-  startDate: string;
-  endDate?: string;
+  part: string;
+}
+
+interface Season {
+  _id: string;
+  name: string;
+  startDate: Date | string;
+  endDate?: Date | string;
   pieces: string[];
+  members: Member[];
 }
 
 export default function AdminSeasonPage() {
@@ -75,10 +82,17 @@ export default function AdminSeasonPage() {
                     {season.name}
                   </h3>
                   <p className="text-xs text-gray-500">
-                    {season.startDate} ~ {season.endDate || "미정"}
+                    {new Date(season.startDate).toLocaleDateString()} ~{" "}
+                    {season.endDate
+                      ? new Date(season.endDate).toLocaleDateString()
+                      : "미정"}
                   </p>
+
                   <p className="text-xs text-gray-400 mt-1">
                     🎵 등록된 곡 {season.pieces.length}개
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    👥 참여 단원 {season.members?.length ?? 0}명
                   </p>
                 </Link>
 
