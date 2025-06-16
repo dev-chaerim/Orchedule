@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useSeasonStore } from "@/lib/store/season";
 import { orderedParts, partLabels } from "@/constants/parts";
+import ConfirmModal from "@/components/modals/ConfirmModal";
+import AlertModal from "@/components/modals/AlertModal";
 
 interface Member {
   _id: string;
@@ -36,6 +38,8 @@ export default function AdminSeatAssignmentsPage() {
   >({});
   const [isLoading, setIsLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   // 시즌 멤버 가져오기
   useEffect(() => {
@@ -109,35 +113,37 @@ export default function AdminSeatAssignmentsPage() {
       [memberId]: isDuplicate,
     }));
   };
+
+  const handlePreCheck = () => {
+    const updatedAssignments = Object.values(assignments);
+
+    for (const assignment of updatedAssignments) {
+      const hasSide = assignment.seatSide != null;
+      const hasNumber =
+        assignment.seatNumber != null && !Number.isNaN(assignment.seatNumber);
+
+      if (hasSide && !hasNumber) {
+        setAlertMessage("풀트와 좌/우는\n둘 다 입력해야 저장할 수 있습니다.");
+
+        return;
+      }
+      if (hasNumber && !hasSide) {
+        setAlertMessage("풀트와 좌/우는\n둘 다 입력해야 저장할 수 있습니다.");
+
+        return;
+      }
+    }
+
+    // 유효성 통과 시 확인 모달 띄움
+    setShowConfirmModal(true);
+  };
+
   const handleSaveAll = async () => {
     if (!seasonId) return;
 
     try {
       const updatedAssignments = Object.values(assignments);
 
-      // 먼저 유효성 검사
-      for (const assignment of updatedAssignments) {
-        // 좌우만 선택했는데 seatNumber 비었으면 alert
-        if (
-          assignment.seatSide != null &&
-          (assignment.seatNumber == null || Number.isNaN(assignment.seatNumber))
-        ) {
-          alert("Seat Number와 좌/우는 둘 다 입력해야 저장할 수 있습니다.");
-          return;
-        }
-
-        // seatNumber만 입력했는데 좌우 안 선택 → alert
-        if (
-          assignment.seatNumber != null &&
-          !Number.isNaN(assignment.seatNumber) &&
-          assignment.seatSide == null
-        ) {
-          alert("Seat Number와 좌/우는 둘 다 입력해야 저장할 수 있습니다.");
-          return;
-        }
-      }
-
-      // 저장 처리
       await Promise.all(
         updatedAssignments.map((assignment) => {
           // PATCH
@@ -152,7 +158,7 @@ export default function AdminSeatAssignmentsPage() {
             });
           }
 
-          // POST (둘 다 입력된 경우만 저장)
+          // POST (유효성 검사는 이미 통과했으므로 바로 저장)
           if (
             assignment.seatNumber != null &&
             !Number.isNaN(assignment.seatNumber) &&
@@ -167,7 +173,7 @@ export default function AdminSeatAssignmentsPage() {
                 memberId:
                   typeof assignment.memberId === "string"
                     ? assignment.memberId
-                    : assignment.memberId && "_id" in assignment.memberId
+                    : "_id" in assignment.memberId
                     ? assignment.memberId._id
                     : "",
                 seatNumber: assignment.seatNumber,
@@ -176,17 +182,73 @@ export default function AdminSeatAssignmentsPage() {
             });
           }
 
-          // 아무것도 안 하는 경우는 resolve
+          // 저장 대상 아님 → resolve 처리
           return Promise.resolve();
         })
       );
 
-      alert("자리배치가 저장되었습니다.");
       setIsDirty(false);
     } catch (error) {
       console.error("자리배치 저장 오류:", error);
-      alert("자리배치 저장 실패!");
+      throw error; // ConfirmModal에서 catch 후 토스트 띄우기 위해
     }
+  };
+
+  const handleSeatNumberChange = (
+    memberId: string,
+    value: string,
+    currentSeatSide?: "left" | "right"
+  ) => {
+    if (value === "") {
+      setAssignments((prev) => ({
+        ...prev,
+        [memberId]: {
+          ...prev[memberId],
+          memberId,
+          seatNumber: undefined,
+          seatSide: prev[memberId]?.seatSide,
+        },
+      }));
+      checkForDuplicates(memberId, undefined, currentSeatSide);
+      setIsDirty(true);
+      return;
+    }
+
+    const newSeatNumber = parseInt(value, 10);
+    if (isNaN(newSeatNumber) || newSeatNumber < 1 || newSeatNumber > 20) return;
+
+    setAssignments((prev) => ({
+      ...prev,
+      [memberId]: {
+        ...prev[memberId],
+        memberId,
+        seatNumber: newSeatNumber,
+        seatSide: prev[memberId]?.seatSide,
+      },
+    }));
+    checkForDuplicates(memberId, newSeatNumber, currentSeatSide);
+    setIsDirty(true);
+  };
+
+  const handleSeatSideChange = (
+    memberId: string,
+    selectedSide: "left" | "right",
+    currentSeatNumber?: number,
+    currentSeatSide?: "left" | "right"
+  ) => {
+    const newSeatSide =
+      currentSeatSide === selectedSide ? undefined : selectedSide;
+
+    setAssignments((prev) => ({
+      ...prev,
+      [memberId]: {
+        ...prev[memberId],
+        seatSide: newSeatSide,
+      },
+    }));
+
+    checkForDuplicates(memberId, currentSeatNumber, newSeatSide);
+    setIsDirty(true);
   };
 
   return (
@@ -194,15 +256,15 @@ export default function AdminSeatAssignmentsPage() {
       <h2 className="text-lg font-bold mb-6 text-[#3e3232]">자리배치 관리</h2>
       <div className="flex justify-end pt-4">
         <button
-          onClick={handleSaveAll}
+          onClick={handlePreCheck}
           disabled={!isDirty}
-          className={`text-sm px-6 py-2 rounded transition ${
+          className={`text-sm px-6 py-2 rounded transition font-medium ${
             isDirty
-              ? "bg-[#F4ECE7] text-[#3E3232] hover:bg-[#e3dcd7]"
-              : "bg-gray-200 text-gray-500 cursor-not-allowed"
+              ? "bg-[#EEE4DA] text-[#3E3232] hover:bg-[#E3D7CC]"
+              : "bg-[#E0DBD6] text-[#A79C90] cursor-not-allowed"
           }`}
         >
-          전체 저장
+          저장
         </button>
       </div>
 
@@ -221,14 +283,14 @@ export default function AdminSeatAssignmentsPage() {
                 🎻 {partLabels[part]}
               </h3>
 
-              <table className="w-full table-auto border border-[#e0dada] text-sm mb-4">
+              <table className="w-full table-auto border border-[#e0dada] bg-white text-sm mb-4">
                 <thead className="bg-[#f9f7f5] text-[#7e6a5c]">
                   <tr>
                     <th className="border border-[#e0dada] px-3 py-2 text-left">
                       이름
                     </th>
                     <th className="border border-[#e0dada] px-3 py-2 text-left">
-                      Seat Number
+                      풀트
                     </th>
                     <th className="border border-[#e0dada] px-3 py-2 text-left">
                       좌/우
@@ -252,32 +314,16 @@ export default function AdminSeatAssignmentsPage() {
                         <td className="px-3 py-2">
                           <input
                             type="number"
+                            min="1"
+                            max="20"
                             value={assignment?.seatNumber ?? ""}
-                            onChange={(e) => {
-                              const newSeatNumber = parseInt(
-                                e.target.value,
-                                10
-                              );
-                              setAssignments((prev) => ({
-                                ...prev,
-                                [member._id]: {
-                                  ...prev[member._id],
-                                  memberId: member._id, // 항상 유지
-                                  seatNumber: isNaN(newSeatNumber)
-                                    ? undefined
-                                    : newSeatNumber,
-                                  seatSide: prev[member._id]?.seatSide, // 기존 유지
-                                },
-                              }));
-                              checkForDuplicates(
+                            onChange={(e) =>
+                              handleSeatNumberChange(
                                 member._id,
-                                isNaN(newSeatNumber)
-                                  ? undefined
-                                  : newSeatNumber,
+                                e.target.value,
                                 assignment.seatSide
-                              );
-                              setIsDirty(true); // 추가
-                            }}
+                              )
+                            }
                             className="w-16 border border-[#ccc] rounded px-2 py-1 text-right"
                           />
                           {duplicateAssignments[member._id] && (
@@ -296,32 +342,14 @@ export default function AdminSeatAssignmentsPage() {
                                 <input
                                   type="checkbox"
                                   checked={assignment?.seatSide === side}
-                                  onChange={() => {
-                                    setAssignments((prev) => {
-                                      const currentSeatSide =
-                                        prev[member._id]?.seatSide;
-                                      const newSeatSide =
-                                        currentSeatSide === side
-                                          ? undefined
-                                          : side;
-
-                                      return {
-                                        ...prev,
-                                        [member._id]: {
-                                          ...prev[member._id],
-                                          seatSide: newSeatSide,
-                                        },
-                                      };
-                                    });
-                                    checkForDuplicates(
+                                  onChange={() =>
+                                    handleSeatSideChange(
                                       member._id,
+                                      side,
                                       assignment.seatNumber,
-                                      assignment.seatSide === side
-                                        ? undefined
-                                        : side
-                                    );
-                                    setIsDirty(true);
-                                  }}
+                                      assignment.seatSide
+                                    )
+                                  }
                                 />
                                 {side === "left" ? "In (Left)" : "Out (Right)"}
                               </label>
@@ -337,6 +365,22 @@ export default function AdminSeatAssignmentsPage() {
           );
         })
       )}
+      {alertMessage && (
+        <AlertModal
+          message={alertMessage}
+          onClose={() => setAlertMessage("")}
+        />
+      )}
+      <ConfirmModal
+        open={showConfirmModal}
+        message="변경사항을 저장할까요?"
+        onConfirm={handleSaveAll}
+        onCancel={() => setShowConfirmModal(false)}
+        confirmLabel="저장"
+        cancelLabel="취소"
+        successMessage="자리배치가 저장되었습니다."
+        errorMessage="자리배치 저장 실패!"
+      />
     </div>
   );
 }
