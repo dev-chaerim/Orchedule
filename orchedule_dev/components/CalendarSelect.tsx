@@ -26,7 +26,7 @@ const CalendarSelect = () => {
         const data = await res.json();
         setSchedules(data);
       } catch (err) {
-        console.log("err", err);
+        console.error("err", err);
         setError("연습 일정을 불러오는 중 문제가 발생했어요 😢");
       } finally {
         setLoading(false);
@@ -101,13 +101,13 @@ const CalendarSelect = () => {
               </p>
 
               {/* 특이사항 */}
-              {schedule.specialNotices &&
-                schedule.specialNotices?.length > 0 && (
+              {Array.isArray(schedule.specialNotices) &&
+                schedule.specialNotices.length > 0 && (
                   <div>
                     <h3 className="font-semibold text-[#3E3232] mb-1">
                       📌 특이사항
                     </h3>
-                    <ul className="space-y-1 ml-2 text-sm ">
+                    <ul className="space-y-1 ml-2 text-sm">
                       {schedule.specialNotices.map((notice, i) => (
                         <li
                           key={i}
@@ -127,37 +127,43 @@ const CalendarSelect = () => {
                 )}
 
               {/* 파트레슨 */}
-              {schedule.partSessions && schedule.partSessions?.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-[#3E3232] mb-1">
-                    👥 파트레슨
-                  </h3>
-                  <div className="space-y-2">
-                    {schedule.partSessions.map((s, i) => (
-                      <ScheduleCard
-                        key={i}
-                        time={s.time}
-                        description={
-                          `${s.title} #${s.location}` +
-                          (s.conductor ? ` #${s.conductor}` : "")
-                        }
-                      />
-                    ))}
+              {Array.isArray(schedule.partSessions) &&
+                schedule.partSessions?.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-[#3E3232] mb-1">
+                      👥 파트레슨
+                    </h3>
+                    <div className="space-y-2">
+                      {schedule.partSessions.map((s, i) => (
+                        <ScheduleCard
+                          key={i}
+                          time={s.time}
+                          description={
+                            `${s.title} #${s.location}` +
+                            (s.conductor ? ` #${s.conductor}` : "")
+                          }
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* 오케스트라 */}
-              {schedule.orchestraSession && (
+              {schedule.orchestraSessions?.length > 0 && (
                 <div>
                   <h3 className="font-semibold text-[#3E3232] mb-1">
                     🎼 오케스트라
                   </h3>
-                  <ScheduleCard
-                    time={schedule.orchestraSession.time}
-                    description={`${schedule.orchestraSession.conductor} #${schedule.orchestraSession.location}`}
-                    pieces={schedule.orchestraSession.pieces}
-                  />
+                  <div className="space-y-2">
+                    {schedule.orchestraSessions.map((s, i) => (
+                      <ScheduleCard
+                        key={i}
+                        time={s.time}
+                        description={`${s.conductor} #${s.location}`}
+                        pieces={s.pieces}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

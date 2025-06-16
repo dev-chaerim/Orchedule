@@ -25,6 +25,7 @@ export default function AdminMembersPage() {
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // ✅ 로딩 상태 추가
+  const [joinLoading, setJoinLoading] = useState(false);
   const showToast = useToastStore((state) => state.showToast);
 
   // ✅ 단원 목록 불러오기
@@ -48,8 +49,9 @@ export default function AdminMembersPage() {
     }
   };
 
-  // ✅ 가입 요청 목록 불러오기
+  // 가입 요청 목록 불러오기
   const fetchJoinRequests = async () => {
+    setJoinLoading(true); // ✅ 로딩 시작
     try {
       const res = await fetch("/api/join-requests");
       if (!res.ok) throw new Error("가입 요청 목록 불러오기 실패");
@@ -62,6 +64,8 @@ export default function AdminMembersPage() {
     } catch (error) {
       console.error("가입 요청 목록 불러오기 오류:", error);
       showToast({ message: "가입 요청 목록 불러오기 실패", type: "error" });
+    } finally {
+      setJoinLoading(false); // ✅ 로딩 종료
     }
   };
 
@@ -193,6 +197,7 @@ export default function AdminMembersPage() {
       {/* 가입 요청 테이블 */}
       <JoinRequestsTable
         requests={joinRequests}
+        loading={joinLoading} // ✅ 전달
         onApprove={handleApproveRequest}
         onReject={handleRejectRequest}
       />

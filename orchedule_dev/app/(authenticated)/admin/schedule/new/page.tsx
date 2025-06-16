@@ -23,7 +23,7 @@ export default function NewSchedulePage() {
     date: string;
     auditionSessions: PracticeSession[];
     partSessions: PracticeSession[];
-    orchestraSession: OrchestraSession;
+    orchestraSessions: OrchestraSession[];
     specialNotices?: SpecialNotice[];
   }) => {
     if (!selectedSeason) {

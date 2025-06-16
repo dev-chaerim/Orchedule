@@ -41,7 +41,7 @@ const ScheduleSchema = new Schema(
 
     auditionSessions: [PracticeSessionSchema],
     partSessions: [PracticeSessionSchema],
-    orchestraSession: OrchestraSessionSchema,
+    orchestraSessions: [OrchestraSessionSchema], // ✅ 변경된 부분
     specialNotices: [SpecialNoticeSchema],
   },
   { timestamps: true }

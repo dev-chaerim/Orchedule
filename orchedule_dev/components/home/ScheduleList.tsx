@@ -75,22 +75,22 @@ export default function ScheduleList() {
             className="relative rounded-xl shadow-sm bg-white p-5 mb-4 pt-15  text-sm text-[#3E3232]"
           >
             <div className="absolute top-4 left-4 flex gap-2 items-center">
-              {/* 날짜 태그 */}
               <div className="bg-[#a08e8e] text-white text-xs font-semibold rounded-full px-3 py-1 leading-tight">
                 {format(new Date(schedule.date), "MMM d", { locale: enUS })}
               </div>
-
-              {/* 요일 태그 */}
               <div className="bg-[#e9e6e3] text-[#5c5048] text-xs font-medium rounded-full px-3 py-1 leading-tight">
                 {format(new Date(schedule.date), "EEE", { locale: enUS })}
               </div>
+              {schedule.isCancelled && (
+                <div className="px-3 py-1 ml-0.5 rounded-full border border-[#f8e5e5] bg-[#f8e5e5] text-[#B00020] text-[11px] font-semibold  leading-tight">
+                  휴강일
+                </div>
+              )}
             </div>
-
-            {/* <div className="border-t border-dashed border-[#D5CAC3] mt-1 mb-3" /> */}
 
             {/* 특이사항 */}
             {schedule.specialNotices && schedule.specialNotices.length > 0 && (
-              <div className="mb-5">
+              <div className="mb-1">
                 <p className="font-semibold flex items-center mb-1 text-[#3E3232]">
                   <span className="mr-1 text-gray-400 text-sm">📌</span>
                   특이사항
@@ -135,44 +135,49 @@ export default function ScheduleList() {
             )}
 
             {/* 오케스트라 */}
-            {schedule.orchestraSession && (
-              <div className="mb-2">
-                <p className="font-semibold flex items-center mb-1 text-[#3E3232]">
-                  <span className="mr-1 text-gray-400 text-sm">🎼</span>
-                  오케스트라
-                </p>
-                <div className="ml-4">
-                  <p className="mb-1">
-                    {schedule.orchestraSession.time} –{" "}
-                    <span className="text-[#3E3232] font-medium">
-                      {schedule.orchestraSession.conductor}
-                    </span>{" "}
-                    <span className="text-[#7e6a5c]">
-                      #{schedule.orchestraSession.location}
-                    </span>
+            {schedule.orchestraSessions &&
+              schedule.orchestraSessions.length > 0 && (
+                <div className="mb-2">
+                  <p className="font-semibold flex items-center mb-1 text-[#3E3232]">
+                    <span className="mr-1 text-gray-400 text-sm">🎼</span>
+                    오케스트라
                   </p>
-                  <ul className="space-y-2">
-                    {schedule.orchestraSession.pieces.map((piece, idx) => (
-                      <li key={idx}>
-                        <p className="italic">
-                          ▸ {piece.title}
-                          {piece.movements && piece.movements.length > 0 && (
-                            <span className="ml-1 text-[#b36b5e] font-semibold">
-                              ({piece.movements.join(", ")})
-                            </span>
-                          )}
-                        </p>
-                        {piece.note && (
-                          <p className="text-xs text-[#7e6a5c] italic mt-0.5 ml-4">
-                            {piece.note}
-                          </p>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
+
+                  {schedule.orchestraSessions.map((session, i) => (
+                    <div key={i} className="ml-4 mb-3">
+                      <p className="mb-1">
+                        {session.time} –{" "}
+                        <span className="text-[#3E3232] font-medium">
+                          {session.conductor}
+                        </span>{" "}
+                        <span className="text-[#7e6a5c]">
+                          #{session.location}
+                        </span>
+                      </p>
+                      <ul className="space-y-2">
+                        {session.pieces.map((piece, idx) => (
+                          <li key={idx}>
+                            <p className="italic">
+                              ▸ {piece.title}
+                              {piece.movements &&
+                                piece.movements.length > 0 && (
+                                  <span className="ml-1 text-[#b36b5e] font-semibold">
+                                    ({piece.movements.join(", ")})
+                                  </span>
+                                )}
+                            </p>
+                            {piece.note && (
+                              <p className="text-xs text-[#7e6a5c] italic mt-0.5 ml-4">
+                                {piece.note}
+                              </p>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            )}
+              )}
           </div>
         ))
       )}

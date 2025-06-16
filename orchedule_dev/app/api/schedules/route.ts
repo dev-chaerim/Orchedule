@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       specialNotices,
     } = body;
 
-    if (!seasonId || !date || !orchestraSession) {
+    if (!seasonId || !date) {
       return NextResponse.json({ message: "필수 필드 누락" }, { status: 400 });
     }
 

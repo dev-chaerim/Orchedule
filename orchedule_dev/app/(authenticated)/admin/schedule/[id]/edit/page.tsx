@@ -4,7 +4,7 @@ import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import ScheduleForm from "@/components/admin/ScheduleForm";
 import { Switch } from "@headlessui/react";
-import type { Schedule } from "@/src/lib/types/schedule"; // ✅ 공통 Schedule 타입 사용
+import type { Schedule } from "@/src/lib/types/schedule";
 import LoadingText from "@/components/common/LoadingText";
 
 export default function EditSchedulePage({
@@ -17,7 +17,7 @@ export default function EditSchedulePage({
 
   const [schedule, setSchedule] = useState<Schedule | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isCancelledState, setIsCancelledState] = useState<boolean>(false); // ✅ 추가
+  const [isCancelledState, setIsCancelledState] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchSchedule = async () => {
@@ -26,7 +26,7 @@ export default function EditSchedulePage({
         if (!res.ok) throw new Error("일정 불러오기 실패");
         const data = await res.json();
         setSchedule(data);
-        setIsCancelledState(data.isCancelled); // ✅ 초기값 세팅
+        setIsCancelledState(data.isCancelled);
       } catch (err) {
         console.error(err);
         alert("일정 정보를 불러오지 못했습니다.");
@@ -42,9 +42,11 @@ export default function EditSchedulePage({
     date,
     auditionSessions,
     partSessions,
-    orchestraSession,
+    orchestraSessions,
     specialNotices,
-  }: Omit<Schedule, "_id" | "seasonId" | "isCancelled">) => {
+  }: Omit<Schedule, "_id" | "seasonId" | "isCancelled"> & {
+    orchestraSessions: Schedule["orchestraSessions"];
+  }) => {
     try {
       const res = await fetch(`/api/schedules/${id}`, {
         method: "PATCH",
@@ -53,9 +55,9 @@ export default function EditSchedulePage({
           date,
           auditionSessions,
           partSessions,
-          orchestraSession,
+          orchestraSessions,
           specialNotices,
-          isCancelled: isCancelledState, // ✅ state 사용
+          isCancelled: isCancelledState,
         }),
       });
 
@@ -80,7 +82,6 @@ export default function EditSchedulePage({
     <div className="p-6 max-w-2xl mx-auto">
       <h2 className="text-lg font-bold text-[#3E3232] mb-4">연습일정 수정</h2>
 
-      {/* ⭐️ 연습 취소 여부 스위치 → 상단 우측 정렬 */}
       <div className="flex justify-end mb-4 items-center gap-2">
         <span className="text-sm font-medium text-[#3E3232]">
           연습 취소 여부
@@ -104,7 +105,7 @@ export default function EditSchedulePage({
         defaultDate={schedule.date}
         auditionSessions={schedule.auditionSessions}
         partSessions={schedule.partSessions}
-        orchestraSession={schedule.orchestraSession}
+        orchestraSessions={schedule.orchestraSessions} // ✅ 배열로 전달
         specialNotices={schedule.specialNotices}
         onSubmit={handleSubmit}
         submitLabel="수정 저장"

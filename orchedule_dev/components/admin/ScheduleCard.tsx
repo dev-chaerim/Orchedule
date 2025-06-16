@@ -50,7 +50,7 @@ export default function ScheduleCard({
           {format(new Date(schedule.date), "yyyy.MM.dd (EEE)", { locale: ko })}
           {schedule.isCancelled && (
             <span className="px-2 py-0.5 ml-2 rounded-full border border-[#e4b3b3] bg-[#ffffff] text-[#B00020] text-[11px] font-semibold">
-              연습취소
+              휴강일
             </span>
           )}
         </h3>
@@ -119,42 +119,47 @@ export default function ScheduleCard({
             </div>
           )}
 
-        {/* 오케스트라 세션 */}
-        {schedule.orchestraSession && (
-          <div className="mt-2 mb-1 text-xs text-[#7E6363]">
-            <strong className="text-[#3E3232] font-bold">오케스트라</strong>
-            <ul className="list-disc pl-5 mt-1 space-y-1">
-              <li>
-                {schedule.orchestraSession.time} –{" "}
-                {schedule.orchestraSession.conductor} @{" "}
-                {schedule.orchestraSession.location}
-              </li>
-            </ul>
-            <ul className="pl-6 mt-1 space-y-0.5">
-              {schedule.orchestraSession.pieces.map((p, idx) => (
-                <li key={idx} className="flex items-start gap-1">
-                  <span className="text-sm text-[#3E3232] leading-5">▸</span>
-                  <div>
-                    <span>
-                      {p.title}
-                      {p.movements && p.movements.length > 0 && (
-                        <span className="text-[#D97706] font-semibold">
-                          ({p.movements.join(", ")})
+        {/* 오케스트라 세션들 */}
+        {Array.isArray(schedule.orchestraSessions) &&
+          schedule.orchestraSessions.length > 0 && (
+            <div className="mt-2 mb-1 text-xs text-[#7E6363]">
+              <strong className="text-[#3E3232] font-bold">오케스트라</strong>
+              {schedule.orchestraSessions.map((session, sIdx) => (
+                <div key={sIdx} className="mt-2">
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>
+                      {session.time} – {session.conductor} @ {session.location}
+                    </li>
+                  </ul>
+                  <ul className="pl-6 mt-1 space-y-0.5">
+                    {session.pieces.map((p, idx) => (
+                      <li key={idx} className="flex items-start gap-1">
+                        <span className="text-sm text-[#3E3232] leading-5">
+                          ▸
                         </span>
-                      )}
-                    </span>
+                        <div>
+                          <span>
+                            {p.title}
+                            {p.movements && p.movements.length > 0 && (
+                              <span className="text-[#D97706] font-semibold">
+                                ({p.movements.join(", ")})
+                              </span>
+                            )}
+                          </span>
 
-                    {p.note && (
-                      <div className="text-gray-400 italic mt-1 ml-2">
-                        {p.note}
-                      </div>
-                    )}
-                  </div>
-                </li>
+                          {p.note && (
+                            <div className="text-gray-400 italic mt-1 ml-2">
+                              {p.note}
+                            </div>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </ul>
-          </div>
-        )}
+            </div>
+          )}
       </div>
 
       <ConfirmModal

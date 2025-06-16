@@ -10,20 +10,26 @@ interface Request {
 
 interface JoinRequestsTableProps {
   requests: Request[];
+  loading: boolean;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
 }
 
 export default function JoinRequestsTable({
   requests,
+  loading,
   onApprove,
   onReject,
 }: JoinRequestsTableProps) {
   return (
-    <section className="mb-10 ">
+    <section className="mb-10">
       <h2 className="text-base font-semibold text-[#3E3232] mb-3">가입 요청</h2>
 
-      {requests.length === 0 ? (
+      {loading ? (
+        <div className="text-sm text-[#a79c90] text-center py-6">
+          ⏳ 가입 요청을 불러오는 중이에요...
+        </div>
+      ) : requests.length === 0 ? (
         <div className="text-sm text-[#7E6363] p-4 border border-[#e0dada] rounded-md bg-[#fdfcfa] text-center">
           가입 요청이 없습니다.
         </div>

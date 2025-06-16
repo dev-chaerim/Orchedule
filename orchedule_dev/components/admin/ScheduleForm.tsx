@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import SessionListForm from "./SessionListForm";
-import OrchestraSessionForm from "./OrchestraSessionForm";
+import OrchestraSessionListForm from "./OrchestraSessionListForm";
 import {
   PracticeSession,
   OrchestraSession,
@@ -14,13 +14,13 @@ interface ScheduleFormProps {
   defaultDate?: string;
   auditionSessions?: PracticeSession[];
   partSessions?: PracticeSession[];
-  orchestraSession?: OrchestraSession;
+  orchestraSessions?: OrchestraSession[]; // ✅ 수정됨
   specialNotices?: SpecialNotice[];
   onSubmit: (data: {
     date: string;
     auditionSessions: PracticeSession[];
     partSessions: PracticeSession[];
-    orchestraSession: OrchestraSession;
+    orchestraSessions: OrchestraSession[]; // ✅ 수정됨
     specialNotices: SpecialNotice[];
   }) => void;
   submitLabel?: string;
@@ -30,12 +30,7 @@ export default function ScheduleForm({
   defaultDate = "",
   auditionSessions = [],
   partSessions = [],
-  orchestraSession = {
-    time: "",
-    location: "",
-    conductor: "",
-    pieces: [],
-  },
+  orchestraSessions = [], // ✅ 기본값도 배열
   specialNotices = [],
   onSubmit,
   submitLabel = "저장",
@@ -44,19 +39,24 @@ export default function ScheduleForm({
   const [auditionList, setAuditionList] =
     useState<PracticeSession[]>(auditionSessions);
   const [partList, setPartList] = useState<PracticeSession[]>(partSessions);
-  const [orchestra, setOrchestra] =
-    useState<OrchestraSession>(orchestraSession);
+  const [orchestraList, setOrchestraList] =
+    useState<OrchestraSession[]>(orchestraSessions); // ✅ 상태 변경
   const [notices, setNotices] = useState<SpecialNotice[]>(specialNotices);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     onSubmit({
       date,
       auditionSessions: auditionList,
       partSessions: partList,
-      orchestraSession: orchestra,
+      orchestraSessions: orchestraList, // ✅ 이름 변경됨
       specialNotices: notices,
     });
+
+    // 저장 후 setIsSubmitting(false) 필요시 적용
   };
 
   const updateNotice = (
@@ -101,29 +101,28 @@ export default function ScheduleForm({
       </div>
 
       {/* 자리오디션 */}
-      <div>
-        <SessionListForm
-          label="자리오디션"
-          sessions={auditionList}
-          onChange={setAuditionList}
-        />
-      </div>
+      <SessionListForm
+        label="자리오디션"
+        sessions={auditionList}
+        onChange={setAuditionList}
+      />
 
       <hr className="border-t border-dashed border-[#D5CAC3]" />
 
       {/* 파트레슨 */}
-      <div>
-        <SessionListForm
-          label="파트 레슨"
-          sessions={partList}
-          onChange={setPartList}
-        />
-      </div>
+      <SessionListForm
+        label="파트 레슨"
+        sessions={partList}
+        onChange={setPartList}
+      />
 
       <hr className="border-t border-dashed border-[#D5CAC3]" />
 
-      {/* 오케스트라 */}
-      <OrchestraSessionForm session={orchestra} onChange={setOrchestra} />
+      {/* 오케스트라 전체연습 */}
+      <OrchestraSessionListForm
+        sessions={orchestraList}
+        onChange={setOrchestraList}
+      />
 
       <hr className="border-t border-dashed border-[#D5CAC3]" />
 
@@ -180,9 +179,10 @@ export default function ScheduleForm({
       <div className="pt-6 flex justify-end">
         <button
           type="submit"
-          className="px-5 py-2 bg-[#3E3232] text-white text-sm font-semibold rounded-md hover:bg-[#2e2626] transition"
+          disabled={isSubmitting}
+          className="px-5 py-2 bg-[#3E3232] text-white text-sm font-semibold rounded-md hover:bg-[#2e2626] transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {submitLabel}
+          {isSubmitting ? "저장 중..." : submitLabel}
         </button>
       </div>
     </form>
