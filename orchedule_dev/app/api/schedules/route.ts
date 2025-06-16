@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       date,
       auditionSessions,
       partSessions,
-      orchestraSession,
+      orchestraSessions,
       specialNotices,
     } = body;
 
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
       date,
       auditionSessions,
       partSessions,
-      orchestraSession,
+      orchestraSessions,
       specialNotices,
       isCancelled: false, // ✅ 명시적으로 넣어주는 걸 추천
     });

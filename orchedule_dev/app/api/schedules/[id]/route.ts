@@ -42,7 +42,7 @@ export async function PATCH(
       date,
       auditionSessions,
       partSessions,
-      orchestraSession,
+      orchestraSessions,
       specialNotices,
       isCancelled, // ✅ isCancelled 명시적으로 받기
     } = await req.json();
@@ -53,7 +53,7 @@ export async function PATCH(
         date,
         auditionSessions,
         partSessions,
-        orchestraSession,
+        orchestraSessions,
         specialNotices,
         isCancelled,
       },
