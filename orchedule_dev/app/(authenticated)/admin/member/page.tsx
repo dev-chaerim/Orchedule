@@ -158,6 +158,34 @@ export default function AdminMembersPage() {
     fetchJoinRequests();
   }, []);
 
+  const handleUpdateMember = async (
+    id: string,
+    updatedData: { name: string; part: string }
+  ) => {
+    try {
+      const res = await fetch(`/api/members/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData),
+      });
+      if (!res.ok) throw new Error("단원 정보 수정 실패");
+
+      // 수정 성공 시 상태도 반영
+      setMembers((prev) =>
+        prev.map((m) =>
+          m._id === id
+            ? { ...m, name: updatedData.name, part: updatedData.part }
+            : m
+        )
+      );
+
+      showToast({ message: "단원 정보가 수정되었습니다.", type: "success" });
+    } catch (error) {
+      console.error("단원 수정 오류:", error);
+      showToast({ message: "단원 정보 수정 실패", type: "error" });
+    }
+  };
+
   return (
     <div className="relative p-6 max-w-5xl mx-auto">
       <h1 className="text-lg font-bold text-[#3E3232] mb-6">단원 관리</h1>
@@ -196,15 +224,7 @@ export default function AdminMembersPage() {
         /* 단원 목록 테이블 */
         <MemberListTable
           members={members}
-          onUpdate={(id, updatedData) => {
-            setMembers((prev) =>
-              prev.map((m) =>
-                m._id === id
-                  ? { ...m, name: updatedData.name, part: updatedData.part }
-                  : m
-              )
-            );
-          }}
+          onUpdate={handleUpdateMember}
           onDelete={handleDeleteMember}
         />
       )}

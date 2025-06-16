@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { PartKey, orderedParts, partLabels } from "@/src/constants/parts";
+import { useSeasonStore } from "@/lib/store/season"; // 시즌 전역 상태 가져오기
 
 interface Member {
   _id: string;
@@ -11,25 +12,30 @@ interface Member {
 }
 
 const MemberListPage = () => {
+  const { selectedSeason } = useSeasonStore(); // ✅ 현재 선택된 시즌
+  const seasonId = selectedSeason?._id;
+
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMembers = async () => {
+    if (!seasonId) return;
+
+    const fetchSeasonMembers = async () => {
       try {
-        const res = await fetch("/api/members");
+        const res = await fetch(`/api/seasons/${seasonId}/members`);
         if (!res.ok) throw new Error("서버 응답 실패");
         const data = await res.json();
         setMembers(data);
       } catch (err) {
-        console.error("단원 데이터를 불러오지 못했습니다", err);
+        console.error("시즌 단원 데이터를 불러오지 못했습니다", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMembers();
-  }, []);
+    fetchSeasonMembers();
+  }, [seasonId]);
 
   return (
     <div className="px-4 pb-24 bg-[#FAF9F6]">

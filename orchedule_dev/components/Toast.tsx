@@ -8,7 +8,7 @@ export default function Toast() {
 
   useEffect(() => {
     if (isVisible) {
-      const timer = setTimeout(() => hideToast(), 2000);
+      const timer = setTimeout(() => hideToast(), 3000);
       return () => clearTimeout(timer);
     }
   }, [isVisible, hideToast]);
@@ -22,7 +22,7 @@ export default function Toast() {
 
   return (
     <div
-      className={`fixed top-6 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-md text-sm font-medium z-50 border ${backgroundColor} ${textColor} ${borderColor}`}
+      className={`fixed top-1/4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-md text-sm font-medium z-50 border ${backgroundColor} ${textColor} ${borderColor}`}
     >
       {message}
     </div>

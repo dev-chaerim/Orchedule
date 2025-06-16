@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { parts } from "@/src/constants/parts";
 import ConfirmModal from "../modals/ConfirmModal";
+import { useToastStore } from "@/lib/store/toast";
 
 interface Member {
   _id: string;
@@ -12,7 +13,10 @@ interface Member {
 
 interface MemberListTableProps {
   members: Member[];
-  onUpdate: (id: string, updatedData: { name: string; part: string }) => void;
+  onUpdate: (
+    id: string,
+    updatedData: { name: string; part: string }
+  ) => Promise<void>;
   onDelete: (id: string) => void;
 }
 
@@ -27,15 +31,33 @@ export default function MemberListTable({
     part: "",
   });
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [savingMemberId, setSavingMemberId] = useState<string | null>(null); // ✅ 추가
+
+  const showToast = useToastStore((state) => state.showToast);
 
   const startEdit = (member: Member) => {
     setEditingMemberId(member._id);
     setEditForm({ name: member.name, part: member.part });
   };
 
-  const saveEdit = (id: string) => {
-    onUpdate(id, editForm);
-    setEditingMemberId(null);
+  const saveEdit = async (id: string) => {
+    const original = members.find((m) => m._id === id);
+    if (!original) return;
+
+    if (original.part !== editForm.part) {
+      showToast({
+        message: "파트가 변경되면 좌석 배정이 초기화됩니다.",
+        type: "error",
+      });
+
+      // ✅ 다음 토스트를 띄우기 전에 잠깐 대기
+      await new Promise((res) => setTimeout(res, 1500));
+    }
+
+    setSavingMemberId(id); // ✅ 저장 중 시작
+    await onUpdate(id, editForm);
+    setSavingMemberId(null); // ✅ 저장 완료
+    setEditingMemberId(null); // ✅ 편집 종료
   };
 
   const handleDeleteConfirm = () => {
@@ -62,6 +84,8 @@ export default function MemberListTable({
         <tbody className="bg-[#fdfcfa]">
           {members.map((member, index) => {
             const isEditing = editingMemberId === member._id;
+            const isSaving = savingMemberId === member._id;
+
             return (
               <tr
                 key={`${member._id}-${index}`}
@@ -104,12 +128,18 @@ export default function MemberListTable({
                     <>
                       <button
                         onClick={() => saveEdit(member._id)}
-                        className="text-xs text-[#7E6363] hover:text-[#3E3232]"
+                        disabled={isSaving}
+                        className={`text-xs ${
+                          isSaving
+                            ? "text-[#a79c90] cursor-not-allowed"
+                            : "text-[#7E6363] hover:text-[#3E3232]"
+                        }`}
                       >
-                        저장
+                        {isSaving ? "저장 중..." : "저장"}
                       </button>
                       <button
                         onClick={() => setEditingMemberId(null)}
+                        disabled={isSaving}
                         className="text-xs text-[#b14040] hover:underline"
                       >
                         취소
