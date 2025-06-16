@@ -95,7 +95,7 @@ const CalendarSelect = () => {
           ) : error ? (
             <div className="text-center text-red-500 text-sm py-6">{error}</div>
           ) : schedule ? (
-            <div className="space-y-6">
+            <div className="space-y-4">
               <p className="text-base font-semibold text-[#3E3232]">
                 📅 {schedule.date} 연습일정
               </p>
@@ -104,7 +104,12 @@ const CalendarSelect = () => {
               {Array.isArray(schedule.specialNotices) &&
                 schedule.specialNotices.length > 0 && (
                   <div>
-                    <h3 className="font-semibold text-[#3E3232] mb-1">
+                    {schedule.isCancelled && (
+                      <div className="w-14 text-center px-3 py-1 mb-3 ml-0.5 rounded-full border border-[#f8e5e5] bg-[#f8e5e5] text-[#B00020] text-[11px] font-semibold  leading-tight">
+                        휴강일
+                      </div>
+                    )}
+                    <h3 className=" font-semibold text-[#3E3232] mb-2">
                       📌 특이사항
                     </h3>
                     <ul className="space-y-1 ml-2 text-sm">
