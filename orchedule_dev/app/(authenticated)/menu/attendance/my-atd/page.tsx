@@ -6,6 +6,7 @@ import { useSeasonStore } from "@/lib/store/season";
 import { useUserStore } from "@/lib/store/user";
 import MonthlyAttendanceChart from "@/components/attendance/MonthlyAttendanceChart";
 import { format } from "date-fns";
+import { getNearestDate } from "@/src/lib/utils/getNearestDate";
 
 interface MyAttendanceSummary {
   attended: number;
@@ -28,8 +29,9 @@ export default function MyAttendancePage() {
   const [summary, setSummary] = useState<MyAttendanceSummary | null>(null);
   const [logs, setLogs] = useState<AttendanceLog[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // ⭐️ 전체 로딩 추가
-  const [isChartLoading, setIsChartLoading] = useState(false); // ⭐️ chart 로딩 추가
+  const [isLoading, setIsLoading] = useState(true);
+  const [isChartLoading, setIsChartLoading] = useState(false);
+  const [nextDateText, setNextDateText] = useState("");
 
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
   const seasonId = selectedSeason?._id;
@@ -41,6 +43,17 @@ export default function MyAttendancePage() {
   const attendanceRate = summary?.rate ?? 0;
 
   useEffect(() => {
+    const fetchNextDate = async () => {
+      const res = await fetch("/api/schedules/dates");
+      const dates: string[] = await res.json();
+      const nearest = getNearestDate(dates);
+      const formatted = format(new Date(nearest), "M월 d일");
+      setNextDateText(formatted);
+    };
+    fetchNextDate();
+  }, []);
+
+  useEffect(() => {
     if (!seasonId || !user) return;
 
     const fetchSummary = async () => {
@@ -48,6 +61,7 @@ export default function MyAttendancePage() {
         const res = await fetch(`/api/attendances/me?seasonId=${seasonId}`);
         if (!res.ok) throw new Error("출석 요약 불러오기 실패");
         const data = await res.json();
+        console.log("출석요약", data);
         setSummary(data);
       } catch (error) {
         console.error(error);
@@ -61,6 +75,7 @@ export default function MyAttendancePage() {
         );
         if (!res.ok) throw new Error("출결 로그 불러오기 실패");
         const data = await res.json();
+        console.log("출석로그", data);
         setLogs(data);
       } catch (error) {
         console.error(error);
@@ -68,27 +83,29 @@ export default function MyAttendancePage() {
     };
 
     const loadData = async () => {
-      setIsLoading(true); // ⭐️ 전체 로딩 시작
+      setIsLoading(true);
       await Promise.all([fetchSummary(), fetchLogs()]);
-      setIsLoading(false); // ⭐️ 전체 로딩 끝
+      setIsLoading(false);
     };
 
     loadData();
   }, [seasonId, user]);
 
-  // ⭐️ chart 로딩 효과 처리 (attended 0 이상일 때만 chart 보여주므로 기준으로 사용)
   useEffect(() => {
     if (attended > 0) {
       setIsChartLoading(true);
       const timeout = setTimeout(() => {
         setIsChartLoading(false);
-      }, 300); // 약간의 delay로 UX 자연스럽게
-
+      }, 300);
       return () => clearTimeout(timeout);
     }
   }, [attended, seasonId, user?.id]);
 
-  const visibleLogs = isExpanded ? logs : logs.slice(0, 3);
+  const today = new Date();
+  const filteredLogs = logs
+    .filter((log) => new Date(log.date) < today)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const visibleLogs = isExpanded ? filteredLogs : filteredLogs.slice(0, 3);
 
   if (isLoading) {
     return (
@@ -101,7 +118,6 @@ export default function MyAttendancePage() {
   return (
     <div className="w-full flex justify-center">
       <div className="w-full max-w-[640px] px-4 py-3 space-y-8">
-        {/* 유저 프로필 + 카운트 */}
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-[#f0f0f0] rounded-full overflow-hidden">
             <Image
@@ -115,7 +131,7 @@ export default function MyAttendancePage() {
             <div>
               <div className="text-sm text-[#3E3232] font-semibold">출석</div>
               <div className="text-2xl font-bold text-[#2F76FF]">
-                {summary?.attended ?? 0}
+                {attended}
               </div>
             </div>
             <div>
@@ -131,9 +147,15 @@ export default function MyAttendancePage() {
           </div>
         </div>
 
-        {/* 출석 통계 */}
         <div className="space-y-4">
-          <div className="text-sm font-semibold text-[#7e6a5c]">출석 통계</div>
+          <div className="text-sm font-semibold text-[#7e6a5c]">
+            출석 통계
+            {nextDateText && (
+              <span className="text-xs text-[#a79c90] ml-2">
+                ({nextDateText} 기준)
+              </span>
+            )}
+          </div>
           <div className="flex gap-4">
             <div className="w-1/2 bg-white rounded-xl shadow p-6 grid place-items-center">
               <div>
@@ -227,7 +249,7 @@ export default function MyAttendancePage() {
             이전 출결
           </div>
           <div className="bg-white rounded-xl shadow p-4 space-y-2 text-sm">
-            {logs.length === 0 ? (
+            {filteredLogs.length === 0 ? (
               <div className="text-[#bbb] text-sm text-center py-6">
                 출결 기록이 없습니다
               </div>
@@ -252,7 +274,7 @@ export default function MyAttendancePage() {
                     </span>
                   </div>
                 ))}
-                {logs.length > 3 && (
+                {filteredLogs.length > 3 && (
                   <button
                     onClick={() => setIsExpanded(!isExpanded)}
                     className="mt-4 w-full bg-[#D7C0AE] text-white rounded-xl py-2 font-semibold hover:opacity-90 transition"

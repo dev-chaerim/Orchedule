@@ -6,6 +6,7 @@ import { useAttendance } from "@/context/AttendanceContext";
 import SectionChart from "@/components/attendance/SectionChart";
 import { orderedParts, partFamilies } from "@/constants/parts";
 import { getNearestDate } from "@/src/lib/utils/getNearestDate";
+import { format } from "date-fns";
 
 function AttendanceLegend() {
   const items = [
@@ -15,7 +16,7 @@ function AttendanceLegend() {
   ];
 
   return (
-    <div className="flex justify-end mt-4 mb-2 pr-2">
+    <div className="flex justify-end mt-4 pr-2">
       <div className="flex gap-4">
         {items.map(({ label, color }) => (
           <div
@@ -38,6 +39,10 @@ export default function AttendanceStatusPage() {
   const { selectedFamily } = useAttendance();
   const [selectedDate, setSelectedDate] = useState("");
 
+  const formattedDate = selectedDate
+    ? format(new Date(selectedDate), "yyyy년 M월 d일")
+    : "";
+
   useEffect(() => {
     const fetchDates = async () => {
       const res = await fetch("/api/schedules/dates");
@@ -50,8 +55,16 @@ export default function AttendanceStatusPage() {
 
   return (
     <div className="px-4 bg-[#FAF9F6]">
-      {/* 🎯 출석 / 지각 / 불참 표시 */}
-      <AttendanceLegend />
+      <div className="flex items-end justify-between px-1 mt-4 mb-2">
+        {/* 왼쪽 날짜 */}
+        <p className="text-sm text-[#7e6a5c] flex items-center gap-1">
+          <span className="relative top-[1px]">📅</span>
+          <strong>{formattedDate}</strong>
+        </p>
+
+        {/* 오른쪽 범례 */}
+        <AttendanceLegend />
+      </div>
 
       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
         {selectedDate &&

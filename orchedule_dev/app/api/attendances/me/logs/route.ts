@@ -1,10 +1,10 @@
-// app/api/attendances/me/logs/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/src/lib/mongoose';
 import Attendance from '@/src/models/attendance';
 import { getTokenDataFromRequest } from '@/src/lib/auth';
 import { PracticeSchedule } from '@/src/models/practiceSchedule';
-
+import Member from '@/src/models/member';
+import { getNearestDate } from '@/src/lib/utils/getNearestDate';
 
 interface AttendanceRecord {
   memberId: string;
@@ -26,23 +26,31 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'seasonId is required' }, { status: 400 });
     }
 
-    // ✅ 1. 현재 시즌의 유효한 스케줄 날짜들 가져오기
-    const schedules = await PracticeSchedule.find({ seasonId }).select('date');
-    const validDates = schedules.map((s) => s.date); // 이미 문자열 형식
+    const user = await Member.findById(userId);
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+    const joinedAt = new Date(user.joinedAt);
 
-    // ✅ 2. 출석 데이터 불러오기
+    const scheduleDocs = await PracticeSchedule.find({ seasonId }).select('date');
+    const allDates = scheduleDocs.map((s) => s.date); // string[]
+    const nextDate = getNearestDate(allDates);
+
+    const validDates = allDates
+      .filter((d) => d <= nextDate && new Date(d) >= joinedAt);
+
     const attendances = await Attendance.find({ seasonId });
 
-    const userLogs = attendances
-      .filter((doc) => validDates.includes(doc.date))
-      .map((doc) => {
-        const record = doc.records.find(
+    const userLogs = validDates
+      .map((date) => {
+        const doc = attendances.find((a) => a.date === date);
+        const record = doc?.records.find(
           (r: AttendanceRecord) => r.memberId === userId
         );
-        if (!record) return null;
+
         return {
-          date: doc.date,
-          status: record.status,
+          date,
+          status: record?.status ?? '출석',
         };
       })
       .filter(Boolean)
