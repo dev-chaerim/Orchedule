@@ -283,7 +283,14 @@ export default function AdminSeatAssignmentsPage() {
         </div>
       ) : (
         orderedParts.map((part) => {
-          const partMembers = members.filter((m) => m.part === part);
+          const partMembers = members
+            .filter((m) => m.part === part)
+            .sort((a, b) => {
+              const seatA = assignments[a._id]?.seatNumber ?? Infinity;
+              const seatB = assignments[b._id]?.seatNumber ?? Infinity;
+              return seatA - seatB;
+            });
+
           if (partMembers.length === 0) return null;
 
           return (
