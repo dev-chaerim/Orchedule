@@ -98,9 +98,18 @@ export default function AdminSeatAssignmentsPage() {
     seatNumber?: number,
     seatSide?: "left" | "right"
   ) => {
+    const memberPart = members.find((m) => m._id === memberId)?.part;
+    if (!memberPart) return;
+
     const isDuplicate = Object.entries(assignments).some(
       ([otherMemberId, otherAssignment]) => {
         if (otherMemberId === memberId) return false;
+
+        const otherMemberPart = members.find(
+          (m) => m._id === otherMemberId
+        )?.part;
+        if (otherMemberPart !== memberPart) return false; // 👈 파트 다르면 제외
+
         return (
           otherAssignment.seatNumber === seatNumber &&
           otherAssignment.seatSide === seatSide
