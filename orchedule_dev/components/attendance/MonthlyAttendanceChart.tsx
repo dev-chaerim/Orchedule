@@ -22,11 +22,13 @@ interface Props {
 
 export default function MonthlyAttendanceChart({ seasonId, userId }: Props) {
   const [monthlyData, setMonthlyData] = useState<ChartData[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // 🔹 로딩 상태 추가
 
   useEffect(() => {
     if (!seasonId || !userId) return;
 
     const fetchMonthlyData = async () => {
+      setIsLoading(true); // 🔹 로딩 시작
       try {
         const res = await fetch(
           `/api/attendances/me/monthly?seasonId=${seasonId}`
@@ -35,7 +37,6 @@ export default function MonthlyAttendanceChart({ seasonId, userId }: Props) {
 
         const data: ChartData[] = await res.json();
 
-        // ✅ 현재 월 기준 최근 5개월 구성
         const now = new Date();
         const currentMonth = now.getMonth() + 1;
 
@@ -52,11 +53,22 @@ export default function MonthlyAttendanceChart({ seasonId, userId }: Props) {
         setMonthlyData(finalChartData);
       } catch (error) {
         console.error(error);
+      } finally {
+        setIsLoading(false); // 🔹 로딩 끝
       }
     };
 
     fetchMonthlyData();
   }, [seasonId, userId]);
+
+  // ✅ 로딩 중일 때 별도 메시지 출력
+  if (isLoading) {
+    return (
+      <div className="text-[#a79c90] text-sm text-center py-6 w-full">
+        ⏳ 출석 통계를 불러오는 중이에요...
+      </div>
+    );
+  }
 
   return (
     <ResponsiveContainer width="100%" height={160}>
