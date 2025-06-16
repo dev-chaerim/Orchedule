@@ -16,6 +16,7 @@ interface SeatAssignment {
   _id: string;
   memberId: MemberType;
   seatNumber: number;
+  seatSide: "left" | "right";
   seasonId: string;
 }
 
@@ -45,30 +46,65 @@ const isPartKey = (key: string): key is keyof typeof partLabels => {
 const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
   const { selectedSeason } = useSeasonStore();
 
-  const [members, setMembers] = useState<MemberType[]>([]);
+  const [seatRows, setSeatRows] = useState<
+    { seatNumber: number; left?: MemberType; right?: MemberType }[]
+  >([]);
   const [attendanceRecords, setAttendanceRecords] = useState<
     AttendanceRecord[]
   >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [attendanceLoading, setAttendanceLoading] = useState(true);
 
-  // ✅ 1. 좌석 배치 멤버는 최초 한번만 고정 세팅
+  // ✅ 1. 좌석 배치
   useEffect(() => {
-    const fetchMembers = async () => {
-      if (!selectedSeason?._id) return;
-      setIsLoading(true);
+    if (!selectedSeason?._id) return;
+    setIsLoading(true);
 
+    const fetchSeatAssignments = async () => {
       try {
-        const seatRes = await fetch(
+        const res = await fetch(
           `/api/seat-assignments?seasonId=${selectedSeason._id}`
         );
-        const seatData: SeatAssignment[] = await seatRes.json();
+        const seatData: SeatAssignment[] = await res.json();
 
-        const assignedMembers = seatData
-          .filter((assignment) => assignment?.memberId?.part === part)
-          .map((assignment) => assignment.memberId);
+        const partAssignments = seatData.filter(
+          (a) => a.memberId?.part === part
+        );
 
-        setMembers(assignedMembers);
+        // 좌석이 아예 없을 때는 안내 메시지
+        if (partAssignments.length === 0) {
+          setSeatRows([]);
+          setIsLoading(false);
+          return;
+        }
+
+        // 좌석 데이터 정리
+        const seatMap: Record<
+          number,
+          { seatNumber: number; left?: MemberType; right?: MemberType }
+        > = {};
+
+        partAssignments.forEach((assignment) => {
+          const { seatNumber, seatSide, memberId } = assignment;
+          if (!seatMap[seatNumber]) {
+            seatMap[seatNumber] = { seatNumber };
+          }
+          seatMap[seatNumber][seatSide] = memberId;
+        });
+
+        const maxSeat = Math.max(...partAssignments.map((a) => a.seatNumber));
+
+        for (let i = 1; i <= maxSeat; i++) {
+          if (!seatMap[i]) {
+            seatMap[i] = { seatNumber: i };
+          }
+        }
+
+        const sortedRows = Object.values(seatMap).sort(
+          (a, b) => a.seatNumber - b.seatNumber
+        );
+
+        setSeatRows(sortedRows);
       } catch (error) {
         console.error("자리배치 데이터 불러오기 실패", error);
       } finally {
@@ -76,10 +112,10 @@ const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
       }
     };
 
-    fetchMembers();
+    fetchSeatAssignments();
   }, [selectedSeason?._id, part]);
 
-  // ✅ 2. 출석 데이터는 별도 상태로 polling
+  // ✅ 2. 출석 데이터 polling
   useEffect(() => {
     if (!selectedSeason?._id || !selectedDate) return;
 
@@ -91,7 +127,6 @@ const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
           `/api/attendances?seasonId=${selectedSeason._id}&date=${selectedDate}`
         );
         const data: AttendanceData = await res.json();
-
         setAttendanceRecords(data.records);
       } catch (error) {
         console.error("출석 데이터 불러오기 실패", error);
@@ -101,7 +136,6 @@ const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
     };
 
     fetchAttendance(true);
-
     const interval = setInterval(() => {
       fetchAttendance(false);
     }, 5000);
@@ -109,13 +143,11 @@ const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
     return () => clearInterval(interval);
   }, [selectedSeason?._id, selectedDate, part]);
 
-  // ✅ 3. 렌더링 시 해당 member 의 출석 상태만 attendanceRecords 에서 찾아서 표시
+  // ✅ 3. 출석 상태 조회
   const getMemberStatus = (memberId: string): "출석" | "지각" | "불참" => {
     const found = attendanceRecords.find((r) => r.memberId === memberId);
     return found?.status ?? "출석";
   };
-
-  const rows = Math.ceil(members.length / 2);
 
   return (
     <div className="w-full max-w-[640px] bg-white rounded-xl p-4 border border-[#ece7e2] mx-auto">
@@ -129,28 +161,29 @@ const SectionChart: React.FC<Props> = ({ part, selectedDate }) => {
         <div className="text-center text-[#a79c90] text-sm py-6">
           ⏳ 정보를 불러오는 중이에요...
         </div>
+      ) : !seatRows.length ? (
+        <p className="text-sm text-[#a79c90] text-center py-6">
+          아직 이 파트의 자리 배치가 등록되지 않았어요.
+        </p>
       ) : (
         <div className="space-y-3">
-          {Array.from({ length: rows }, (_, rowIdx) => {
-            const left = members[rowIdx * 2];
-            const right = members[rowIdx * 2 + 1];
-
-            return (
-              <div key={rowIdx} className="flex justify-center">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-[#7e6a5c]">{rowIdx + 1}</span>
-                  <SeatCell
-                    member={left}
-                    status={left ? getMemberStatus(left._id) : undefined}
-                  />
-                  <SeatCell
-                    member={right}
-                    status={right ? getMemberStatus(right._id) : undefined}
-                  />
-                </div>
+          {seatRows.map((row) => (
+            <div key={row.seatNumber} className="flex justify-center">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-[#7e6a5c]">{row.seatNumber}</span>
+                <SeatCell
+                  member={row.left}
+                  status={row.left ? getMemberStatus(row.left._id) : undefined}
+                />
+                <SeatCell
+                  member={row.right}
+                  status={
+                    row.right ? getMemberStatus(row.right._id) : undefined
+                  }
+                />
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       )}
     </div>
