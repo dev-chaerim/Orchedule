@@ -92,7 +92,7 @@ export default function AttendanceCheckPage() {
   if (isCancelled) {
     return (
       <div className="bg-[#ffffff] border border-[#e0dada] rounded-xl p-5 py-10 text-center w-full">
-        <p className="text-[#5e5246] text-base leading-relaxed">
+        <p className="text-[#5e5246] text-sm leading-relaxed">
           다음 연습일은{" "}
           <strong className="font-semibold text-[#dd6b60]">휴강일</strong>
           입니다.

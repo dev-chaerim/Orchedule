@@ -4,7 +4,7 @@ import { connectDB } from '@/src/lib/mongoose';
 import Attendance from '@/src/models/attendance';
 import { PracticeSchedule } from '@/src/models/practiceSchedule';
 import { getMonth } from 'date-fns';
-import { getNearestDate } from '@/src/lib/utils/getNearestDate'; // ✅ 유틸 임포트
+import { getLastOpenSchedule } from '@/src/lib/utils/getLastOpenSchedule';
 
 interface AttendanceRecord {
   memberId: string;
@@ -27,16 +27,22 @@ export async function GET(req: NextRequest) {
 
     const userId = tokenData.id;
 
-    // ✅ 모든 일정 중 다음 연습일까지만 필터링
+    // ✅ 모든 일정 불러오기 (휴강 제외)
     const scheduleDocs = await PracticeSchedule.find({
       seasonId,
       isCancelled: { $ne: true },
     });
 
-    const allDates = scheduleDocs.map((s) => s.date); // string[]
-    const nextDate = getNearestDate(allDates); // string, 예: "2025-06-22"
+    // ✅ 출석부가 열려 있는 마지막 일정 계산
+    const lastOpen = getLastOpenSchedule(scheduleDocs);
+    if (!lastOpen) {
+      return NextResponse.json([]);
+    }
 
-    const validDates = allDates.filter((d) => d <= nextDate);
+    // ✅ lastOpen 이전까지의 연습일 필터
+    const validDates = scheduleDocs
+      .filter((s) => s.date <= lastOpen)
+      .map((s) => s.date); // string[]
 
     // ✅ 해당 날짜에 해당하는 출석부만 가져오기
     const attendanceDocs = await Attendance.find({

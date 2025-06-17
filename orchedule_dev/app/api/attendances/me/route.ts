@@ -4,7 +4,8 @@ import { connectDB } from '@/src/lib/mongoose';
 import Attendance from '@/src/models/attendance';
 import { PracticeSchedule } from '@/src/models/practiceSchedule';
 import Member from '@/src/models/member';
-import { getNearestDate } from '@/src/lib/utils/getNearestDate';
+import { getLastOpenSchedule } from '@/src/lib/utils/getLastOpenSchedule';
+import { Schedule } from '@/src/lib/types/schedule';
 
 interface AttendanceRecord {
   memberId: string;
@@ -33,21 +34,35 @@ export async function GET(req: NextRequest) {
 
     const joinedAt = new Date(userDoc.joinedAt);
 
-    // ✅ 전체 연습일 → 다음 연습일까지 필터
-    const scheduleDocs = await PracticeSchedule.find({
+    // ✅ 전체 연습일 (취소된 일정 제외)
+    const scheduleDocs: Schedule[] = await PracticeSchedule.find({
       seasonId,
       isCancelled: { $ne: true },
     });
 
-    const allDates = scheduleDocs.map((s) => s.date); // string[]
-    const nextDate = getNearestDate(allDates);
-    const validDates = allDates
-      .filter((d) => d <= nextDate)
-      .map((d) => ({
-        date: d,
-        dateObj: new Date(d),
+    // ✅ 오늘 이전에 출석부가 열렸던 가장 마지막 일정
+    const lastOpen = getLastOpenSchedule(scheduleDocs);
+    if (!lastOpen) {
+      return NextResponse.json({
+        attended: 0,
+        absent: 0,
+        tardy: 0,
+        notParticipated: 0,
+        total: 0,
+        effectiveTotal: 0,
+        rate: 0,
+        joinedAt: userDoc.joinedAt,
+      });
+    }
+
+    // ✅ lastOpen 날짜까지만 필터링
+    const validDates = scheduleDocs
+      .filter((s) => s.date <= lastOpen)
+      .map((s) => ({
+        date: s.date,
+        dateObj: new Date(s.date),
       }))
-      .filter((s) => s.dateObj >= joinedAt) // 가입일 이후만
+      .filter((s) => s.dateObj >= joinedAt)
       .sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
 
     const attendanceDocs = await Attendance.find({ seasonId });

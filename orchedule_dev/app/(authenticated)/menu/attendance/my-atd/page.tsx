@@ -6,7 +6,6 @@ import { useSeasonStore } from "@/lib/store/season";
 import { useUserStore } from "@/lib/store/user";
 import MonthlyAttendanceChart from "@/components/attendance/MonthlyAttendanceChart";
 import { format } from "date-fns";
-import { getNearestDate } from "@/src/lib/utils/getNearestDate";
 
 interface MyAttendanceSummary {
   attended: number;
@@ -42,16 +41,28 @@ export default function MyAttendancePage() {
   const total = summary?.total ?? 0;
   const attendanceRate = summary?.rate ?? 0;
 
+  function getLastOpenDate(dates: string[]): string | null {
+    const today = new Date();
+    const pastDates = dates
+      .filter((d) => new Date(d) <= today)
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+
+    return pastDates.length > 0 ? pastDates[0] : null;
+  }
+
   useEffect(() => {
-    const fetchNextDate = async () => {
-      const res = await fetch("/api/schedules/dates");
+    const fetchLastDate = async () => {
+      if (!seasonId) return;
+      const res = await fetch(`/api/schedules/dates?seasonId=${seasonId}`);
       const dates: string[] = await res.json();
-      const nearest = getNearestDate(dates);
-      const formatted = format(new Date(nearest), "M월 d일");
-      setNextDateText(formatted);
+      const last = getLastOpenDate(dates);
+      if (last) {
+        const formatted = format(new Date(last), "yyyy년 M월 d일");
+        setNextDateText(formatted);
+      }
     };
-    fetchNextDate();
-  }, []);
+    fetchLastDate();
+  }, [seasonId]);
 
   useEffect(() => {
     if (!seasonId || !user) return;
