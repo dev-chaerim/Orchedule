@@ -96,7 +96,9 @@ export default function SheetPreviewList() {
         {loading ? (
           <LoadingSkeleton lines={4} className="mt-2 mb-6" />
         ) : sheets.length === 0 ? (
-          <p className="text-sm text-gray-400">등록된 악보가 없습니다.</p>
+          <p className="text-sm text-[#7e6a5c] text-center py-10 border border-dashed border-[#e0dada] rounded-md bg-white">
+            등록된 악보가 없습니다.
+          </p>
         ) : (
           sheets.map((sheet) => {
             const createdAt = new Date(sheet.date);

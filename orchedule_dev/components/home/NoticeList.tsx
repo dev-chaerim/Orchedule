@@ -8,6 +8,7 @@ import LoadingSkeleton from "../common/LoadingSkeleton";
 import { isNew } from "@/src/lib/utils/isNew";
 import NewBadge from "../common/NewBadge";
 import ErrorMessage from "../common/ErrorMessage";
+import { useSeasonStore } from "@/src/lib/store/season";
 
 interface Notice {
   _id: string;
@@ -21,10 +22,14 @@ export function NoticeList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  const selectedSeason = useSeasonStore((state) => state.selectedSeason);
+
   useEffect(() => {
+    if (!selectedSeason?._id) return;
+
     const fetchNotices = async () => {
       try {
-        const res = await fetch("/api/notices");
+        const res = await fetch(`/api/notices?season=${selectedSeason._id}`);
         if (!res.ok) throw new Error("공지사항 불러오기 실패");
         const data = await res.json();
         setNotices(data.slice(0, 4)); // 홈 화면에서는 최대 4개만 표시
@@ -37,7 +42,7 @@ export function NoticeList() {
     };
 
     fetchNotices();
-  }, []);
+  }, [selectedSeason?._id]);
 
   if (error) return <ErrorMessage />;
 
@@ -51,9 +56,9 @@ export function NoticeList() {
       {loading ? (
         <LoadingSkeleton lines={4} className="mt-2 mb-6" />
       ) : notices.length === 0 ? (
-        <div className="bg-white rounded-xl shadow p-2 space-y-1">
-          <p className="text-sm text-gray-400">등록된 공지사항이 없습니다.</p>
-        </div>
+        <p className="text-sm text-[#7e6a5c] text-center py-10 border border-dashed border-[#e0dada] rounded-md bg-white">
+          등록된 공지사항이 없습니다.
+        </p>
       ) : (
         <div className="bg-white rounded-xl shadow p-2 space-y-1">
           {notices.map((notice) => (
