@@ -137,18 +137,18 @@ export default function ScheduleForm({
           </p>
         )}
         {notices.map((notice, index) => (
-          <div key={index} className="flex items-start gap-2 mb-3">
-            <input
-              type="text"
+          <div key={index} className="flex items-center gap-2 mb-3">
+            <textarea
               placeholder="내용 입력"
               value={notice.content}
               onChange={(e) => updateNotice(index, "content", e.target.value)}
-              className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm"
+              className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm h-[40px] resize-none leading-[1.6]"
+              rows={1}
             />
             <select
               value={notice.level}
               onChange={(e) => updateNotice(index, "level", e.target.value)}
-              className="text-sm border border-gray-300 rounded-md px-2 py-2"
+              className="text-sm border border-gray-300 rounded-md px-3 h-[40px]"
             >
               <option value="default">일반</option>
               <option value="warning">주의</option>
@@ -157,7 +157,7 @@ export default function ScheduleForm({
             <button
               type="button"
               onClick={() => removeNotice(index)}
-              className="mt-2 w-6 h-6 flex items-center justify-center rounded-full bg-[#f3f0ed] text-[#7E6363] hover:bg-[#e2dbd7] transition"
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-[#f3f0ed] text-[#7E6363] hover:bg-[#e2dbd7] transition"
             >
               <X size={14} />
             </button>

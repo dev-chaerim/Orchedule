@@ -64,13 +64,13 @@ export default function ScheduleCard({
                 {schedule.specialNotices.map((notice, idx) => (
                   <li
                     key={idx}
-                    className={
+                    className={`whitespace-pre-line ${
                       notice.level === "important"
-                        ? "text-red-500 font-bold"
+                        ? "text-[#b54949] font-semibold"
                         : notice.level === "warning"
-                        ? "text-yellow-600"
-                        : ""
-                    }
+                        ? "text-[#cc9900]"
+                        : "text-[#3E3232]"
+                    }`}
                   >
                     {notice.content}
                   </li>

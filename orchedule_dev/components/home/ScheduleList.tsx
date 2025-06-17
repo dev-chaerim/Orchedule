@@ -99,13 +99,13 @@ export default function ScheduleList() {
                   {schedule.specialNotices.map((notice, i) => (
                     <li
                       key={i}
-                      className={
+                      className={`whitespace-pre-line ${
                         notice.level === "important"
                           ? "text-[#b54949] font-semibold"
                           : notice.level === "warning"
                           ? "text-[#cc9900]"
                           : "text-[#3E3232]"
-                      }
+                      }`}
                     >
                       {notice.content}
                     </li>
