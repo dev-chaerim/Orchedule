@@ -120,7 +120,7 @@ export default function SheetPreviewList() {
               >
                 <div className="flex justify-between items-start mb-1">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <Music size={14} className="text-[#7E6363]" />
+                    <Music size={14} className="text-[#483d3d]" />
                     <div className="flex items-center gap-1 truncate pr-3">
                       <div className="font-medium text-xs truncate">
                         {sheet.title}
