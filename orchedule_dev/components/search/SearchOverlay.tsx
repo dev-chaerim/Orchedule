@@ -178,24 +178,26 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             <p className="text-sm">검색결과가 없습니다.</p>
           </div>
         ) : (
-          <ul className="mt-4 divide-y divide-[#D5CAC3]">
-            {results.map((item) => (
-              <li
-                key={item._id}
-                onClick={() => handleClick(item)}
-                className="py-3 px-2 flex justify-between items-center cursor-pointer hover:bg-[#f5efdd]"
-              >
-                <span className="text-sm text-[#3E3232]">{item.title}</span>
-                <span className="text-xs text-[#A5796E] border border-[#b69678] px-2 py-0.5 rounded-full font-medium">
-                  {item.type === "notice"
-                    ? "공지"
-                    : item.type === "score-check"
-                    ? "악보체크"
-                    : "시즌악보"}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <div className="overflow-y-auto max-h-[300px] scrollbar-thin scrollbar-thumb-[#d5cac3] scrollbar-track-transparent">
+            <ul className="divide-y divide-[#D5CAC3]">
+              {results.map((item) => (
+                <li
+                  key={item._id}
+                  onClick={() => handleClick(item)}
+                  className="py-3 px-2 flex justify-between items-center cursor-pointer hover:bg-[#f5efdd]"
+                >
+                  <span className="text-sm text-[#3E3232]">{item.title}</span>
+                  <span className="text-xs text-[#A5796E] border border-[#b69678] px-2 py-0.5 rounded-full font-medium">
+                    {item.type === "notice"
+                      ? "공지"
+                      : item.type === "score-check"
+                      ? "악보체크"
+                      : "시즌악보"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </div>
