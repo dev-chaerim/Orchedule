@@ -7,6 +7,7 @@ import { useUserStore } from "@/lib/store/user";
 import { getNearestDate } from "@/lib/utils/getNearestDate";
 import FilterDropdown from "@/components/dropdown/FilterDropdown";
 import { AttendanceRecord, AttendanceData } from "@/src/lib/types/attendance";
+import ErrorMessage from "@/components/common/ErrorMessage";
 
 const statuses = ["출석", "지각", "불참"];
 
@@ -35,6 +36,7 @@ export default function AttendanceForm({
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>(statuses[0]);
   const [loading, setLoading] = useState(false); // 버튼 클릭용
+  const [error, setError] = useState(false);
   const [attendanceLoading, setAttendanceLoading] = useState(true); // ✅ 추가: 출결 상태 fetch용
   const [seasonId, setSeasonId] = useState<string | null>(null);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
@@ -71,6 +73,9 @@ export default function AttendanceForm({
         }
 
         setAttendanceRecords(data.records);
+      } catch (err) {
+        console.log(err);
+        setError(true);
       } finally {
         setAttendanceLoading(false); // ✅ 끝
       }
@@ -97,6 +102,7 @@ export default function AttendanceForm({
         setSeasonId(recentSeason._id);
       } catch (err) {
         console.log(err);
+        setError(true);
         showToast({
           message: "최근 시즌을 불러올 수 없습니다.",
           type: "error",
@@ -162,10 +168,13 @@ export default function AttendanceForm({
           type: "error",
         });
       }
+      setError(true);
     } finally {
       setLoading(false);
     }
   };
+
+  if (error) return <ErrorMessage />;
 
   return (
     <div className="w-full flex justify-center">

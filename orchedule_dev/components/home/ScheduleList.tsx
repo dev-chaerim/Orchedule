@@ -8,6 +8,7 @@ import MoreLink from "../MoreLink";
 import LoadingSkeleton from "../common/LoadingSkeleton";
 import { getNearestDate } from "@/lib/utils/getNearestDate";
 import { Schedule } from "@/lib/types/schedule";
+import ErrorMessage from "../common/ErrorMessage";
 
 export default function ScheduleList() {
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
@@ -46,12 +47,7 @@ export default function ScheduleList() {
     fetchSchedules();
   }, [selectedSeason?._id]);
 
-  if (error)
-    return (
-      <p className="px-4 text-sm text-red-500">
-        일정을 불러오는 데 실패했습니다.
-      </p>
-    );
+  if (error) return <ErrorMessage />;
 
   return (
     <section className="px-4 py-2">

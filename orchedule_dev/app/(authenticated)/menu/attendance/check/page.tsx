@@ -8,6 +8,7 @@ import { Schedule } from "@/src/lib/types/schedule";
 import { useSeasonStore } from "@/lib/store/season";
 import { getNearestDate } from "@/src/lib/utils/getNearestDate";
 import LoadingText from "@/components/common/LoadingText";
+import ErrorMessage from "@/components/common/ErrorMessage";
 
 export default function AttendanceCheckPage() {
   const [attendanceRecords, setAttendanceRecords] = useState<
@@ -16,6 +17,7 @@ export default function AttendanceCheckPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [nearestSchedule, setNearestSchedule] = useState<Schedule | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
 
@@ -51,6 +53,7 @@ export default function AttendanceCheckPage() {
         setNearestSchedule(nearest);
       } catch (err) {
         console.error("일정 조회 실패", err);
+        setError(true);
       } finally {
         setIsLoading(false);
       }
@@ -66,6 +69,8 @@ export default function AttendanceCheckPage() {
   if (isLoading) {
     return <LoadingText message="출석부를 불러오는 중입니다..." />;
   }
+
+  if (error) return <ErrorMessage />;
 
   if (isNotCurrentSeason) {
     return (

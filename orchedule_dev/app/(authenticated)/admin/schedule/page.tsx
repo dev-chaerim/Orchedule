@@ -5,11 +5,13 @@ import { useSeasonStore } from "@/lib/store/season";
 import { useRouter } from "next/navigation";
 import ScheduleCard from "@/components/admin/ScheduleCard";
 import type { Schedule } from "@/src/lib/types/schedule"; // ✅ 공통 Schedule 타입 import
+import ErrorMessage from "@/components/common/ErrorMessage";
 
 export default function SchedulePage() {
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [isLoading, setIsLoading] = useState(false); // ✅ 로딩 상태 추가
+  const [error, setError] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -27,6 +29,7 @@ export default function SchedulePage() {
         console.log("관리자 연습일정 data", data);
       } catch (err) {
         console.error("일정 불러오기 실패:", err);
+        setError(true);
       } finally {
         setIsLoading(false); // ✅ 로딩 종료
       }
@@ -46,6 +49,8 @@ export default function SchedulePage() {
       alert("삭제에 실패했습니다.");
     }
   };
+
+  if (error) return <ErrorMessage />;
 
   return (
     <div className="p-6 max-w-2xl mx-auto">

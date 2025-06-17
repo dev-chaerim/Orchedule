@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import ErrorMessage from "@/components/common/ErrorMessage";
 
 interface Member {
   _id: string;
@@ -22,6 +23,7 @@ export default function AdminSeasonPage() {
   // ✅ 상태 관리
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState(false);
 
   // ✅ 시즌 목록 가져오기
   useEffect(() => {
@@ -41,6 +43,7 @@ export default function AdminSeasonPage() {
         setSeasons(sortedSeasons); // ✅ API 데이터를 상태에 저장
       } catch (error) {
         console.error("시즌 목록 불러오기 오류:", error);
+        setError(true);
       } finally {
         setIsLoading(false);
       }
@@ -48,6 +51,8 @@ export default function AdminSeasonPage() {
 
     fetchSeasons();
   }, []);
+
+  if (error) return <ErrorMessage />;
 
   return (
     <main className="max-w-3xl mx-auto p-6">

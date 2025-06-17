@@ -10,6 +10,7 @@ import { Music } from "lucide-react"; //
 import type { Comment } from "@/src/lib/types/sheet";
 import { isNew } from "@/src/lib/utils/isNew";
 import NewBadge from "../common/NewBadge";
+import ErrorMessage from "../common/ErrorMessage";
 
 interface UnifiedSheet {
   _id: string;
@@ -25,6 +26,7 @@ interface UnifiedSheet {
 export default function SheetPreviewList() {
   const [sheets, setSheets] = useState<UnifiedSheet[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
   const seasonId = selectedSeason?._id;
 
@@ -72,6 +74,7 @@ export default function SheetPreviewList() {
         setSheets(merged.slice(0, 3));
       } catch (err) {
         console.error("악보 리스트 불러오기 오류:", err);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -79,6 +82,8 @@ export default function SheetPreviewList() {
 
     fetchSheets();
   }, [seasonId]);
+
+  if (error) return <ErrorMessage />;
 
   return (
     <section className="px-4 py-4">

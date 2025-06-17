@@ -7,6 +7,7 @@ import MoreLink from "../MoreLink";
 import LoadingSkeleton from "../common/LoadingSkeleton";
 import { isNew } from "@/src/lib/utils/isNew";
 import NewBadge from "../common/NewBadge";
+import ErrorMessage from "../common/ErrorMessage";
 
 interface Notice {
   _id: string;
@@ -18,6 +19,7 @@ interface Notice {
 export function NoticeList() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchNotices = async () => {
@@ -28,6 +30,7 @@ export function NoticeList() {
         setNotices(data.slice(0, 4)); // 홈 화면에서는 최대 4개만 표시
       } catch (err) {
         console.error("공지사항 불러오기 오류:", err);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -35,6 +38,8 @@ export function NoticeList() {
 
     fetchNotices();
   }, []);
+
+  if (error) return <ErrorMessage />;
 
   return (
     <section className="px-4 py-2">

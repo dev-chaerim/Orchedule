@@ -5,6 +5,7 @@ import { useSeasonStore } from "@/lib/store/season";
 import { orderedParts, partLabels } from "@/constants/parts";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import AlertModal from "@/components/modals/AlertModal";
+import ErrorMessage from "@/components/common/ErrorMessage";
 
 interface Member {
   _id: string;
@@ -37,6 +38,7 @@ export default function AdminSeatAssignmentsPage() {
     Record<string, boolean>
   >({});
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -53,6 +55,7 @@ export default function AdminSeatAssignmentsPage() {
         setMembers(data.members || []);
       } catch (error) {
         console.error("시즌 멤버 불러오기 오류:", error);
+        setError(true);
       } finally {
         setIsLoading(false);
       }
@@ -86,6 +89,7 @@ export default function AdminSeatAssignmentsPage() {
         setAssignments(seatMap);
       } catch (error) {
         console.error("seat-assignments 가져오기 오류:", error);
+        setError(true);
       }
     };
 
@@ -259,6 +263,8 @@ export default function AdminSeatAssignmentsPage() {
     checkForDuplicates(memberId, currentSeatNumber, newSeatSide);
     setIsDirty(true);
   };
+
+  if (error) return <ErrorMessage />;
 
   return (
     <div className="p-6">

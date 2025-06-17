@@ -9,6 +9,7 @@ import { isNew } from "@/src/lib/utils/isNew";
 import NewBadge from "@/components/common/NewBadge";
 import RegisterButton from "@/components/common/RegisterButton";
 import Image from "next/image";
+import ErrorMessage from "@/components/common/ErrorMessage";
 
 interface Notice {
   _id: string;
@@ -25,6 +26,7 @@ interface Notice {
 export default function AdminNoticePage() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [isLoading, setIsLoading] = useState(false); // ✅ 로딩 상태 추가
+  const [error, setError] = useState(false);
   const selectedSeason = useSeasonStore((state) => state.selectedSeason);
   const seasonId = selectedSeason?._id;
   const router = useRouter();
@@ -43,6 +45,7 @@ export default function AdminNoticePage() {
         setNotices(data);
       } catch (err) {
         console.error("공지 불러오기 실패:", err);
+        setError(true);
       } finally {
         setIsLoading(false); // ✅ 로딩 종료
       }
@@ -75,6 +78,7 @@ export default function AdminNoticePage() {
     } catch (err) {
       alert("삭제 중 오류가 발생했습니다.");
       console.error(err);
+      setError(true);
     } finally {
       setModalOpen(false);
       setTargetId(null);
@@ -84,6 +88,8 @@ export default function AdminNoticePage() {
   const handleItemClick = (id: string) => {
     router.push(`/menu/notice/announcement/${id}?from=admin`);
   };
+
+  if (error) return <ErrorMessage />;
 
   return (
     <main className="max-w-3xl mx-auto p-6">
