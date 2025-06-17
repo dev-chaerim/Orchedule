@@ -128,8 +128,8 @@ export default function MyAttendancePage() {
 
   return (
     <div className="w-full flex justify-center">
-      <div className="w-full max-w-[640px] px-4 py-3 space-y-8">
-        <div className="flex items-center gap-4">
+      <div className="w-full max-w-[640px] px-4 py-1 -mt-3 space-y-8">
+        <div className="flex items-center gap-4 pb-2">
           <div className="w-12 h-12 bg-[#f0f0f0] rounded-full overflow-hidden">
             <Image
               src="/icons/userIcon.svg"
