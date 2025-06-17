@@ -68,7 +68,7 @@ export default function ScheduleList() {
         filteredSchedules.map((schedule) => (
           <div
             key={schedule._id}
-            className="relative rounded-xl shadow-sm bg-white p-5 mb-4 pt-15  text-sm text-[#3E3232]"
+            className="relative rounded-xl shadow-sm bg-white p-4 mb-4 pt-15  text-sm text-[#3E3232]"
           >
             <div className="absolute top-4 left-4 flex gap-2 items-center">
               <div className="bg-[#a08e8e] text-white text-xs font-semibold rounded-full px-3 py-1 leading-tight">
@@ -86,21 +86,20 @@ export default function ScheduleList() {
 
             {/* 특이사항 */}
             {schedule.specialNotices && schedule.specialNotices.length > 0 && (
-              <div className="mb-1">
-                <p className="font-semibold flex items-center mb-1 text-[#3E3232]">
-                  <span className="mr-1 text-gray-400 text-sm">📌</span>
-                  특이사항
+              <div className="mb-5 mt-1">
+                <p className="font-semibold flex items-center mb-1 text-sm">
+                  <span className="mr-1 text-gray-400">📌</span> 특이사항
                 </p>
                 <ul className="space-y-1 ml-4">
                   {schedule.specialNotices.map((notice, i) => (
                     <li
                       key={i}
-                      className={`whitespace-pre-line ${
+                      className={`whitespace-pre-line text-xs ${
                         notice.level === "important"
                           ? "text-[#b54949] font-semibold"
                           : notice.level === "warning"
                           ? "text-[#cc9900]"
-                          : "text-[#3E3232]"
+                          : ""
                       }`}
                     >
                       {notice.content}
@@ -109,21 +108,45 @@ export default function ScheduleList() {
                 </ul>
               </div>
             )}
+            {/* 자리오디션 */}
+            {schedule.auditionSessions &&
+              schedule.auditionSessions.length > 0 && (
+                <div className="mb-5">
+                  <p className="font-semibold flex items-center mb-1 text-sm">
+                    <span className="mr-1 text-gray-400">🪑</span> 자리오디션
+                  </p>
+                  <ul className="space-y-1 ml-4 text-sm">
+                    {schedule.auditionSessions.map((s, i) => (
+                      <li key={i}>
+                        <p className="mb-1">
+                          ▸{s.time}
+                          {/* <span className="text-xs">{session.conductor}</span>{" "} */}
+                          <span className="block sm:inline text-xs text-[#7e6a5c] ml-2">
+                            #{s.conductor} #{s.location}
+                          </span>
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
             {/* 파트레슨 */}
             {schedule.partSessions && schedule.partSessions.length > 0 && (
               <div className="mb-5">
-                <p className="font-semibold flex items-center mb-1 text-[#3E3232]">
-                  <span className="mr-2 text-gray-400 text-sm">👥</span>
-                  파트레슨
+                <p className="font-semibold flex items-center mb-1 text-sm">
+                  <span className="mr-1 pb-1 text-gray-400">👥</span> 파트레슨
                 </p>
-                <ul className="space-y-1 ml-4">
+                <ul className="space-y-1 ml-4 text-sm">
                   {schedule.partSessions.map((s, i) => (
                     <li key={i}>
-                      <span className="text-[#3E3232]">
-                        {s.time} – {s.title}
-                      </span>{" "}
-                      <span className="text-[#7e6a5c]">#{s.location}</span>
+                      <p className="mb-1">
+                        ▸{s.time}
+                        {/* <span className="text-xs">{session.conductor}</span>{" "} */}
+                        <span className="block sm:inline text-xs text-[#7e6a5c] ml-2">
+                          #{s.conductor} #{s.location}
+                        </span>
+                      </p>
                     </li>
                   ))}
                 </ul>
@@ -140,30 +163,28 @@ export default function ScheduleList() {
                   </p>
 
                   {schedule.orchestraSessions.map((session, i) => (
-                    <div key={i} className="ml-4 mb-3">
+                    <div key={i} className="ml-4 mb-3 text-sm">
                       <p className="mb-1">
-                        {session.time} –{" "}
-                        <span className="text-[#3E3232] font-medium">
-                          {session.conductor}
-                        </span>{" "}
-                        <span className="text-[#7e6a5c]">
-                          #{session.location}
+                        ▸{session.time}
+                        {/* <span className="text-xs">{session.conductor}</span>{" "} */}
+                        <span className="block sm:inline text-xs text-[#7e6a5c] ml-2">
+                          #{session.conductor} #{session.location}
                         </span>
                       </p>
                       <ul className="space-y-2">
                         {session.pieces.map((piece, idx) => (
                           <li key={idx}>
-                            <p className="italic">
-                              ▸ {piece.title}
+                            <p className="italic text-xs">
+                              - {piece.title}
                               {piece.movements &&
-                                piece.movements.length > 0 && (
-                                  <span className="ml-1 text-[#b36b5e] font-semibold">
+                                piece.movements?.length > 0 && (
+                                  <span className="block sm:inline  ml-1 text-[#b36b5e] font-semibold">
                                     ({piece.movements.join(", ")})
                                   </span>
                                 )}
                             </p>
                             {piece.note && (
-                              <p className="text-xs text-[#7e6a5c] italic mt-0.5 ml-4">
+                              <p className="text-xs text-[#7e6a5c] italic mt-0.5 ml-4 leading-snug">
                                 {piece.note}
                               </p>
                             )}

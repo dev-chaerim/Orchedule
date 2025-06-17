@@ -9,6 +9,7 @@ import { isNew } from "@/src/lib/utils/isNew";
 import NewBadge from "../common/NewBadge";
 import ErrorMessage from "../common/ErrorMessage";
 import { useSeasonStore } from "@/src/lib/store/season";
+import { format } from "date-fns";
 
 interface Notice {
   _id: string;
@@ -65,9 +66,10 @@ export function NoticeList() {
             <Link
               key={notice._id}
               href={`/menu/notice/announcement/${notice._id}`}
-              className="flex justify-between items-center p-1 text-sm  hover:bg-[#f8f5f1] hover:rounded-sm rounded transition"
+              className="flex items-center justify-between p-1 text-sm hover:bg-[#f8f5f1] rounded transition"
             >
-              <div className="flex items-center gap-2">
+              {/* 왼쪽: 아이콘 + 제목 + NEW */}
+              <div className="flex items-center gap-2 flex-1 overflow-hidden">
                 <Image
                   src={
                     notice.pinned ? "/icons/pin-filled.svg" : "/icons/pin.svg"
@@ -76,10 +78,16 @@ export function NoticeList() {
                   width={14}
                   height={14}
                 />
-                <span>{notice.title}</span>
+                <span className="text-xs truncate" title={notice.title}>
+                  {notice.title}
+                </span>
                 {isNew(notice.date) && <NewBadge />}
               </div>
-              <span className="text-xs text-gray-400">{notice.date}</span>
+
+              {/* 오른쪽: 날짜 */}
+              <span className="text-xs text-gray-400 shrink-0 pl-2">
+                {format(new Date(notice.date), "yy-MM-dd")}
+              </span>
             </Link>
           ))}
         </div>

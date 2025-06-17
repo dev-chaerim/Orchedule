@@ -11,6 +11,7 @@ import type { Comment } from "@/src/lib/types/sheet";
 import { isNew } from "@/src/lib/utils/isNew";
 import NewBadge from "../common/NewBadge";
 import ErrorMessage from "../common/ErrorMessage";
+import { format } from "date-fns";
 
 interface UnifiedSheet {
   _id: string;
@@ -101,7 +102,8 @@ export default function SheetPreviewList() {
           </p>
         ) : (
           sheets.map((sheet) => {
-            const createdAt = new Date(sheet.date);
+            const createdAt = format(new Date(sheet.date), "yy-MM-dd");
+
             const contentPreview =
               sheet.content.replace(/\n/g, " ").slice(0, 80) +
               (sheet.content.length > 80 ? "..." : "");
@@ -118,43 +120,46 @@ export default function SheetPreviewList() {
               >
                 <div className="flex justify-between items-start mb-1">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <Music size={16} className="text-[#7E6363]" />
+                    <Music size={14} className="text-[#7E6363]" />
                     <div className="flex items-center gap-1 truncate pr-3">
-                      <div className="font-semibold text-sm truncate">
+                      <div className="font-medium text-xs truncate">
                         {sheet.title}
                       </div>
                       {isNew(sheet.date) && <NewBadge />}
                     </div>
                   </div>
                   <span className="text-xs text-gray-400 whitespace-nowrap mt-0.5">
-                    {createdAt.toLocaleDateString("ko-KR")}
+                    {createdAt}
                   </span>
                 </div>
 
-                <div className="text-xs text-[#7e6a5c] mb-3">
-                  {sheet.author}
-                </div>
-
-                <div className="text-xs text-[#7e6a5c] mt-2 leading-relaxed line-clamp-2">
+                <div className="text-xs text-[#7e6a5c] mt-3 leading-relaxed line-clamp-2">
                   {contentPreview}
                 </div>
-
-                {sheet.source === "season" ? (
-                  <div className="text-xs text-gray-400 mt-3">
-                    💬 댓글 {sheet.comments?.length ?? 0}
-                  </div>
-                ) : sheet.parts && sheet.parts.length > 0 ? (
-                  <div className="flex flex-wrap gap-2 mt-4 ml-1">
-                    {sheet.parts.map((part, idx) => (
-                      <span
-                        key={idx}
-                        className="text-xs text-[#7e6a5c] bg-[#f4ece7] px-2 py-1 rounded-full"
-                      >
-                        #{part}
+                <div className="flex justify-between items-center mt-3">
+                  {/* 왼쪽: 댓글 or 태그 */}
+                  <div className="flex flex-wrap gap-2 text-xs text-[#7e6a5c]">
+                    {sheet.source === "season" ? (
+                      <span className="text-gray-400">
+                        💬 댓글 {sheet.comments?.length ?? 0}
                       </span>
-                    ))}
+                    ) : (
+                      sheet.parts?.map((part, idx) => (
+                        <span
+                          key={idx}
+                          className="bg-[#f4ece7] px-2 py-1  rounded-full"
+                        >
+                          #{part}
+                        </span>
+                      ))
+                    )}
                   </div>
-                ) : null}
+
+                  {/* 오른쪽: 작성자 */}
+                  <div className="text-xs text-[#7e6a5c] ml-2">
+                    {sheet.author}
+                  </div>
+                </div>
               </Link>
             );
           })

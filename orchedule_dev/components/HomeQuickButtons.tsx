@@ -19,18 +19,22 @@ const items = [
     icon: "/icons/sheet-active.svg",
     href: "/menu/sheetmusic/sheet",
   },
-  { label: "자리", icon: "/icons/seat.svg", href: "/menu/notice/seatNoti" },
+  {
+    label: "자리",
+    icon: "/icons/seat.svg",
+    href: "/menu/notice/seatNoti",
+  },
 ];
 
 export default function HomeQuickButtons() {
   return (
-    <div className="flex justify-center md:hidden">
-      <div className="flex gap-10 px-4 py-2">
+    <div className="md:hidden px-4 pt-1">
+      <div className="grid grid-cols-4 gap-4">
         {items.map(({ label, icon, href }) => (
           <Link
             href={href}
             key={label}
-            className="flex flex-col items-center justify-between gap-1 px-4 py-3 bg-white rounded-xl shadow-md w-18"
+            className="flex flex-col items-center gap-1 bg-white rounded-xl shadow-md py-3"
           >
             <Image
               src={icon}

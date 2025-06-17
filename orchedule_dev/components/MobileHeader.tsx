@@ -24,7 +24,7 @@ export default function MobileHeader() {
   };
 
   return (
-    <div className="flex flex-col pt-4 pb-2 md:hidden relative">
+    <div className="flex flex-col px-2 pt-6 pb-2 md:hidden relative">
       {/* 로고 + 아이콘 */}
       <div className="flex justify-between items-center w-full px-4">
         <Logo />
