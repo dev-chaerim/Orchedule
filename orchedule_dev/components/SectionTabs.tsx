@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import clsx from 'clsx';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import clsx from "clsx";
 
 interface TabItem {
   name: string;
@@ -22,10 +22,10 @@ export default function SectionTabs({ tabs }: { tabs: TabItem[] }) {
             key={tab.href}
             href={tab.href}
             className={clsx(
-              'text-sm font-medium px-3 py-1 rounded-lg transition-colors',
+              "text-xs font-medium px-3 py-1 rounded-lg transition-colors",
               isActive
-                ? 'text-[#3E3232] font-semibold'
-                : 'text-[#B0A7A0] hover:text-[#3E3232] hover:font-semibold'
+                ? "text-[#3E3232] font-semibold"
+                : "text-[#B0A7A0] hover:text-[#3E3232] hover:font-semibold"
             )}
           >
             {tab.name}
