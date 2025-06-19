@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
   console.log("✅ middleware 실행됨");
   console.log("🍪 token:", token);
 
-  const protectedPaths = ['/menu', '/board', '/practice', '/admin'];
+  const protectedPaths = ['/','/menu', '/board', '/practice', '/admin'];
   const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
 
   // 1. 로그인 상태에서 /login 접근 시 → 홈으로 리디렉션
