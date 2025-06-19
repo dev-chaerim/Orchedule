@@ -26,7 +26,7 @@ function AttendanceLegend() {
             className="flex items-center gap-2 text-sm text-[#7e6a5c]"
           >
             <span
-              className="inline-block w-3 h-3 rounded-full"
+              className="inline-block w-3 h-3 rounded-full text-xs"
               style={{ backgroundColor: color }}
             />
             {label}
@@ -91,7 +91,7 @@ export default function AttendanceStatusPage() {
   }, [selectedSeason]);
 
   const formattedDate = selectedDate
-    ? format(new Date(selectedDate), "yyyy년 M월 d일")
+    ? format(new Date(selectedDate), "yy. M. d")
     : "";
 
   const isCancelled = nearestSchedule?.isCancelled;
