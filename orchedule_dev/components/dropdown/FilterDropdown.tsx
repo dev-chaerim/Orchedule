@@ -10,6 +10,7 @@ interface FilterDropdownProps {
   onChange: (value: string) => void;
   buttonClassName?: string;
   optionClassName?: string;
+  width?: string;
 }
 
 export default function FilterDropdown({
@@ -18,10 +19,11 @@ export default function FilterDropdown({
   onChange,
   buttonClassName = "bg-[#f8f6f2] text-[#3e3232d4]",
   optionClassName = "text-[#3e3232]",
+  width = "w-[100px]",
 }: FilterDropdownProps) {
   return (
     <Listbox value={selected} onChange={onChange}>
-      <div className="relative w-[100px]">
+      <div className={`relative ${width}`}>
         <Listbox.Button
           className={`relative w-full cursor-pointer rounded-xl py-2 pl-4 pr-8 text-sm text-center shadow font-semibold ${buttonClassName}`}
         >

@@ -186,10 +186,10 @@ export default function AttendanceForm({
             ⏳ 출결 데이터를 불러오는 중이에요...
           </div>
         ) : (
-          <div className="p-4 py-6 mx-4">
-            <div className="flex justify-center items-center gap-4 flex-wrap w-full">
+          <div className="py-4 px-4 w-full">
+            <div className="flex justify-between items-center gap-4 flex-wrap w-full">
               {selectedDate && (
-                <div className="flex flex-col items-center justify-center w-[100px] h-[90px] bg-white rounded-xl shadow">
+                <div className="flex flex-col items-center justify-center w-[80px] h-[78px] bg-white rounded-xl shadow">
                   <div className="text-[13px] text-[#7e6a5c]">
                     {format(new Date(selectedDate), "MMM")}
                   </div>
@@ -199,7 +199,7 @@ export default function AttendanceForm({
                 </div>
               )}
 
-              <div className="w-[100px] h-[90px] flex items-center justify-center bg-[#D7C0AE] text-white text-sm font-semibold rounded-xl shadow">
+              <div className="w-[80px] h-[78px] flex items-center justify-center bg-[#D7C0AE] text-white text-sm font-semibold rounded-xl shadow">
                 {selectedStatus}
               </div>
 
@@ -208,12 +208,13 @@ export default function AttendanceForm({
                   options={statuses}
                   selected={selectedStatus}
                   onChange={setSelectedStatus}
-                  buttonClassName="w-[100px] bg-[#f8f6f2] text-[#3e3232d4]"
+                  buttonClassName=" bg-[#f8f6f2] text-[#3e3232d4]"
+                  width="w-[80px]"
                 />
                 <button
                   onClick={handleSave}
                   disabled={loading}
-                  className={`w-[100px] bg-[#e5d5ae] text-white rounded-xl py-2 text-sm font-semibold shadow hover:opacity-90 transition text-center ${
+                  className={`w-[80px] bg-[#e5d5ae] text-white rounded-xl py-2 text-sm font-semibold shadow hover:opacity-90 transition text-center ${
                     loading ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
