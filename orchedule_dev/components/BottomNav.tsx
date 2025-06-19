@@ -25,11 +25,14 @@ export default function BottomNav() {
   }, []);
 
   const navClass = `fixed bottom-0 w-full z-10 flex items-center justify-around border-t border-gray-200 md:hidden bg-white rounded-t-2xl ${
-    isAndroid ? "h-20 pb-2" : "h-20 pb-2"
+    isAndroid ? "h-[92px] pb-10" : "h-20 pb-2"
   }`;
 
   return (
-    <nav className={navClass}>
+    <nav
+      className={navClass}
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
       {navItems.map(({ href, label, icon }) => {
         const isActive = pathname === href || pathname.startsWith(`${href}/`);
         const iconSrc = isActive
