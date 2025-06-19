@@ -173,7 +173,7 @@ export default function MyAttendancePage() {
                 <div className="text-sm mb-2 text-[#7e6a5c] text-center">
                   출석률
                 </div>
-                <div className="relative w-28 h-28">
+                <div className="relative w-full aspect-square max-w-[112px]">
                   <svg
                     className="w-full h-full transform -rotate-90"
                     viewBox="0 0 36 36"
