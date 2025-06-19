@@ -9,6 +9,7 @@ import {
   YAxis,
   LabelList,
 } from "recharts";
+import { useWindowWidth } from "@/src/hooks/useWindowSize";
 
 interface ChartData {
   month: string;
@@ -24,6 +25,9 @@ export default function MonthlyAttendanceChart({ seasonId, userId }: Props) {
   const [monthlyData, setMonthlyData] = useState<ChartData[]>([]);
   const [isLoading, setIsLoading] = useState(true); // 🔹 로딩 상태 추가
 
+  const windowWidth = useWindowWidth();
+  console.log("#####windowWidth", windowWidth);
+
   useEffect(() => {
     if (!seasonId || !userId) return;
 
@@ -37,11 +41,13 @@ export default function MonthlyAttendanceChart({ seasonId, userId }: Props) {
 
         const data: ChartData[] = await res.json();
 
+        const monthCount = windowWidth < 500 ? 3 : 5;
+
         const now = new Date();
         const currentMonth = now.getMonth() + 1;
 
-        const recentMonths = Array.from({ length: 5 }, (_, i) => {
-          const month = currentMonth - (4 - i);
+        const recentMonths = Array.from({ length: monthCount }, (_, i) => {
+          const month = currentMonth - (monthCount - 1 - i);
           return month > 0 ? { month: `${month}월`, value: 0 } : null;
         }).filter(Boolean) as ChartData[];
 
@@ -59,7 +65,7 @@ export default function MonthlyAttendanceChart({ seasonId, userId }: Props) {
     };
 
     fetchMonthlyData();
-  }, [seasonId, userId]);
+  }, [seasonId, userId, windowWidth]);
 
   // ✅ 로딩 중일 때 별도 메시지 출력
   if (isLoading) {
