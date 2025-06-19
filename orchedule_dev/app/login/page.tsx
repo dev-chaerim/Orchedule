@@ -34,7 +34,7 @@ export default function LoginPage() {
       const user = data.user;
       login(user);
       localStorage.setItem("orchedule-user", JSON.stringify(user));
-      router.push("/");
+      window.location.href = "/";
     } else {
       setErrorMessage("이메일 또는 비밀번호가 올바르지 않습니다.");
       setPassword(""); // 보안상 비밀번호 초기화
