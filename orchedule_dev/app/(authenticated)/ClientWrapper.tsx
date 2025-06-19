@@ -7,8 +7,8 @@ import MobileHeader from "../../components/MobileHeader";
 import DesktopHeader from "../../components/DesktopHeader";
 import SectionTabs from "../../components/SectionTabs";
 import { noticeTabs, attendanceTabs, scoreTabs } from "@/constants/sectionTabs";
-import { AttendanceProvider, useAttendance } from "@/context/AttendanceContext";
-import { FilterChips } from "@/components/attendance/FilterChips";
+import { AttendanceProvider } from "@/context/AttendanceContext";
+// import { FilterChips } from "@/components/attendance/FilterChips";
 import { useUserStore } from "@/lib/store/user";
 import { useSearchStore } from "@/lib/store/search";
 import SearchOverlay from "@/components/search/SearchOverlay";
@@ -56,20 +56,20 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
     tabsToShow = scoreTabs;
   }
 
-  function StickyFilter() {
-    const { families, selectedFamily, setSelectedFamily } = useAttendance();
-    return (
-      <div className="bg-[#FAF9F6] px-6 pt-4 pb-2">
-        <div className="flex justify-center">
-          <FilterChips
-            families={families}
-            selected={selectedFamily}
-            onSelect={setSelectedFamily}
-          />
-        </div>
-      </div>
-    );
-  }
+  // function StickyFilter() {
+  //   const { families, selectedFamily, setSelectedFamily } = useAttendance();
+  //   return (
+  //     <div className="bg-[#FAF9F6] px-6 pt-4 pb-2">
+  //       <div className="flex justify-center">
+  //         <FilterChips
+  //           families={families}
+  //           selected={selectedFamily}
+  //           onSelect={setSelectedFamily}
+  //         />
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   const layout = (
     <div className="flex-1 flex flex-col">
@@ -92,7 +92,7 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
         )}
 
         {/* 3) 출석현황 전용 필터칩 */}
-        {pathname === "/menu/attendance/status" && <StickyFilter />}
+        {/* {pathname === "/menu/attendance/status" && <StickyFilter />} */}
       </header>
 
       {/* 4) 본문 */}

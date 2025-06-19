@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { useSeasonStore } from "@/lib/store/season";
 import { Schedule } from "@/src/lib/types/schedule";
 import LoadingText from "@/components/common/LoadingText";
+import FilterDropdown from "@/components/dropdown/FilterDropdown"; // 경로는 프로젝트 구조에 따라 조정
 
 function AttendanceLegend() {
   const items = [
@@ -18,15 +19,15 @@ function AttendanceLegend() {
   ];
 
   return (
-    <div className="flex justify-end mt-4 pr-2">
-      <div className="flex gap-4">
+    <div className="flex justify-end mt-4 pr-1">
+      <div className="flex gap-3">
         {items.map(({ label, color }) => (
           <div
             key={label}
-            className="flex items-center gap-2 text-sm text-[#7e6a5c]"
+            className="flex items-center gap-1 text-sm text-[#7e6a5c]"
           >
             <span
-              className="inline-block w-3 h-3 rounded-full text-xs"
+              className="inline-block w-2 h-2 rounded-full text-xs"
               style={{ backgroundColor: color }}
             />
             {label}
@@ -39,6 +40,7 @@ function AttendanceLegend() {
 
 export default function AttendanceStatusPage() {
   const { selectedFamily } = useAttendance();
+  const { setSelectedFamily } = useAttendance();
   const { selectedSeason } = useSeasonStore();
 
   const [selectedDate, setSelectedDate] = useState("");
@@ -91,7 +93,7 @@ export default function AttendanceStatusPage() {
   }, [selectedSeason]);
 
   const formattedDate = selectedDate
-    ? format(new Date(selectedDate), "yy. M. d")
+    ? format(new Date(selectedDate), "yyyy년 M월 d일")
     : "";
 
   const isCancelled = nearestSchedule?.isCancelled;
@@ -135,19 +137,25 @@ export default function AttendanceStatusPage() {
 
   // ✅ 5. 정상 렌더링
   return (
-    <div className="px-4 bg-[#FAF9F6]">
-      <div className="flex items-end justify-between px-1 mt-4 mb-2">
-        {/* 왼쪽 날짜 */}
-        <p className="text-sm text-[#7e6a5c] flex items-center gap-1">
+    <div className="px-2 -mt-3 bg-[#FAF9F6]">
+      <FilterDropdown
+        options={Object.keys(partFamilies)} // 예: ["현악", "목관", ...]
+        selected={selectedFamily}
+        onChange={(value) => setSelectedFamily(value)}
+        buttonClassName="mb-4 min-w-[80px] max-w-[100px] bg-white text-[#3e3232d4] truncate"
+        optionClassName="bg-[#ede5de] hover:bg-[#dfd7d0] text-[#3e3232]"
+      />
+      <div className="flex items-end justify-between px-1 pt-2">
+        <p className="text-sm text-[#7e6a5c] flex items-center gap-1 mb-2">
           <span className="relative top-[1px]">📅</span>
           <strong>{formattedDate}</strong>
         </p>
 
         {/* 오른쪽 범례 */}
-        <AttendanceLegend />
       </div>
+      <AttendanceLegend />
 
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
         {selectedDate &&
           orderedParts
             .filter((part) => partFamilies[selectedFamily].includes(part))
