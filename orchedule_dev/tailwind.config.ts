@@ -6,7 +6,11 @@ module.exports = {
       './styles/**/*.{css,scss}',
     ],
     theme: {
-      extend: {},
+       extend: {
+       padding: {
+          safe: 'env(safe-area-inset-bottom)', // ✅ 하단 safe area 대응
+        },
+      },
     },
     plugins: [],
   };
