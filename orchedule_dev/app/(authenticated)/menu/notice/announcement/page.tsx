@@ -82,15 +82,17 @@ export default function NoticeListPage() {
           href={`/menu/notice/announcement/${notice._id}`}
           className="block bg-white p-4 rounded-lg shadow-sm hover:bg-gray-50 transition"
         >
-          <div className="flex justify-between items-start mb-1">
-            <div className="flex items-center gap-1">
+          <div className="flex justify-between items-center mb-1">
+            <div className="flex items-center gap-1 max-w-[80%]">
               {notice.pinned && <span>📌</span>}
-              <div className="flex items-center gap-1 font-semibold text-sm">
-                <span className="text-sm font-semibold">{notice.title}</span>
+              <div className="flex items-center gap-1 font-semibold text-sm truncate">
+                <span className="text-sm font-semibold truncate overflow-hidden text-ellipsis whitespace-nowrap">
+                  {notice.title}
+                </span>
                 {isNew(notice.date) && <NewBadge />}
               </div>
             </div>
-            <span className="text-xs text-gray-400 whitespace-nowrap">
+            <span className="text-xs text-gray-400 whitespace-nowrap pl-2 pt-[1px]">
               {notice.date}
             </span>
           </div>
