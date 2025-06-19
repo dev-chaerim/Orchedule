@@ -25,7 +25,7 @@ export default function BottomNav() {
   }, []);
 
   const navClass = `fixed bottom-0 w-full z-10 flex items-center justify-around border-t border-gray-200 md:hidden bg-white rounded-t-2xl ${
-    isAndroid ? "h-[92px] pb-10" : "h-20 pb-2"
+    isAndroid ? "h-[95px] pt-2 pb-10" : "h-20 pb-2"
   }`;
 
   return (
