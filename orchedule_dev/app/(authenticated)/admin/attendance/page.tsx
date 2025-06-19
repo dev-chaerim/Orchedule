@@ -172,7 +172,7 @@ export default function AttendanceDashboardPage() {
       <h1 className="text-lg font-bold text-[#3E3232] mb-6">출석현황 관리</h1>
       {/* 필터 */}
       <div className="flex items-center gap-4 mb-4 text-sm">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2">
           <label className="text-[#7E6363] font-medium">출석 날짜:</label>
           <select
             value={selectedDate}
@@ -187,7 +187,7 @@ export default function AttendanceDashboardPage() {
           </select>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2">
           <label className="text-[#7E6363] font-medium">파트:</label>
           <select
             value={selectedPart}
@@ -208,19 +208,19 @@ export default function AttendanceDashboardPage() {
 
       {/* 통계 */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-white border-2 border-[#d8d2c4] rounded-xl p-5 text-center">
+        <div className="bg-white border-2 border-[#d8d2c4] rounded-xl px-5 py-3 text-center">
           <div className="text-xs text-[#7E6363] mb-1 tracking-wide">출석</div>
           <div className="text-xl font-bold text-[#3E3232]">
             {counts.출석}명
           </div>
         </div>
-        <div className="bg-white border-2 border-[#ccb997] rounded-xl p-5 text-center">
+        <div className="bg-white border-2 border-[#ccb997] rounded-xl px-5 py-3 text-center">
           <div className="text-xs text-[#7E6363] mb-1 tracking-wide">지각</div>
           <div className="text-xl font-bold text-[#a96d00]">
             {counts.지각}명
           </div>
         </div>
-        <div className="bg-white border-2 border-[#e4b3b3] rounded-xl p-5 text-center">
+        <div className="bg-white border-2 border-[#e4b3b3] rounded-xl px-5 py-3 text-center">
           <div className="text-xs text-[#7E6363] mb-1 tracking-wide">불참</div>
           <div className="text-xl font-bold text-[#B00020]">
             {counts.불참}명
@@ -236,7 +236,7 @@ export default function AttendanceDashboardPage() {
       ) : (
         <div className="border border-[#e4e0dc] rounded-xl overflow-x-auto">
           <table className="min-w-full text-sm text-center">
-            <thead className="bg-[#f5f4f2] text-[#3E3232]">
+            <thead className="bg-[#f5f4f2] text-[#3E3232] text-xs">
               <tr>
                 <th className="px-4 py-3 font-semibold">이름</th>
                 <th className="px-4 py-3 font-semibold">파트</th>

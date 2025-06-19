@@ -308,13 +308,13 @@ export default function AdminSeatAssignmentsPage() {
               <table className="w-full table-auto border border-[#e0dada] bg-white text-sm mb-4">
                 <thead className="bg-[#f9f7f5] text-[#7e6a5c]">
                   <tr>
-                    <th className="border border-[#e0dada] px-3 py-2 text-left">
+                    <th className="border border-[#e0dada] px-3 py-2 text-left w-1/2">
                       이름
                     </th>
-                    <th className="border border-[#e0dada] px-3 py-2 text-left">
+                    <th className="border border-[#e0dada] px-3 py-2 text-left w-[80px]">
                       풀트
                     </th>
-                    <th className="border border-[#e0dada] px-3 py-2 text-left">
+                    <th className="border border-[#e0dada] px-3 py-2 text-left w-[120px]">
                       좌/우
                     </th>
                   </tr>

@@ -130,8 +130,11 @@ export default function AdminNoticePage() {
                         height={14}
                       />
                     )}
-                    <div className="flex items-center gap-1 font-semibold text-sm">
-                      <span className="text-sm font-semibold">
+                    <div className="flex items-center gap-1 max-w-[180px] sm:max-w-[200px] md:max-w-full overflow-hidden">
+                      <span
+                        className="truncate block whitespace-nowrap text-sm font-semibold"
+                        title={notice.title}
+                      >
                         {notice.title}
                       </span>
                       {isNew(notice.date) && <NewBadge />}
