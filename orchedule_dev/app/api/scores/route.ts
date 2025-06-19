@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/src/lib/mongoose";
-import Score from "@/models/score";
+import ScoreCheck from "@/models/scoreCheck";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   if (tag) filter.tags = tag;
 
   try {
-    const scores = await Score.find(filter).sort({ date: -1 });
+    const scores = await ScoreCheck.find(filter).sort({ date: -1 });
     return NextResponse.json(scores);
   } catch (err) {
     console.error("악보 조회 실패:", err);
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const newScore = await Score.create({
+    const newScore = await ScoreCheck.create({
       title,
       content: content || "",
       fileUrl,

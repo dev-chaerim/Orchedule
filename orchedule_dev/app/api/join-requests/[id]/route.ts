@@ -7,11 +7,11 @@ import Member from "@/src/models/member";
 // ✅ PATCH: 가입 요청 승인
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   await connectDB();
   try {
-    const { id } = params;
+    const { id } =  await context.params;
     const { status } = await req.json();
 
     if (!status) {
@@ -49,11 +49,11 @@ export async function PATCH(
 // ✅ DELETE: 가입 요청 거절
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   await connectDB();
   try {
-    const { id } = params;
+    const { id } = await context.params;
 
     const deletedRequest = await JoinRequest.findByIdAndDelete(id);
     if (!deletedRequest) {

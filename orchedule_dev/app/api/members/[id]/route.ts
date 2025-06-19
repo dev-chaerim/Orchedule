@@ -6,12 +6,12 @@ import SeatAssignment from "@/src/models/seatAssignment";
 // ✅ 단원 정보 수정
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+   context: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
     const { name, part } = await req.json();
-    const { id } = params;
+    const { id } = await context.params;
 
     // ✅ 유효성 검사
     if (!name || !part) {
@@ -54,11 +54,11 @@ export async function PATCH(
 // ✅ 단원 삭제
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
-    const { id } = params;
+    const { id } =  await context.params;
 
     const deletedMember = await Member.findByIdAndDelete(id);
     if (!deletedMember) {

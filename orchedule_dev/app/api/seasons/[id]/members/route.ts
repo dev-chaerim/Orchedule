@@ -4,12 +4,13 @@ import Season from "@/src/models/season";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   await connectDB();
+  const { id } = await context.params;
 
   try {
-    const season = await Season.findById(params.id).populate("members");
+    const season = await Season.findById(id).populate("members");
     if (!season) {
       return NextResponse.json({ message: "시즌을 찾을 수 없습니다." }, { status: 404 });
     }

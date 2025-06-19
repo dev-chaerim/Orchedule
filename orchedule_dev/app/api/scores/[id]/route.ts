@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/src/lib/mongoose";
-import Score from "@/models/score";
+import ScoreCheck from "@/models/scoreCheck";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +13,7 @@ export async function DELETE(
   const { id } = await context.params;
 
   try {
-    const deleted = await Score.findByIdAndDelete(id);
+    const deleted = await ScoreCheck.findByIdAndDelete(id);
     if (!deleted) {
       return NextResponse.json({ message: "악보를 찾을 수 없습니다." }, { status: 404 });
     }
@@ -27,14 +27,14 @@ export async function DELETE(
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   await connectDB();
 
-  const { id } = await params;
+  const { id } = await context.params;
 
   try {
-    const sheet = await Score.findById(id);
+    const sheet = await ScoreCheck.findById(id);
     if (!sheet) {
       return NextResponse.json({ message: "Not found" }, { status: 404 });
     }
@@ -48,16 +48,16 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   await connectDB();
 
-  const { id } = await params;
+  const { id } = await context.params;
 
   try {
     const updateData = await req.json();
 
-    const updated = await Score.findByIdAndUpdate(id, updateData, {
+    const updated = await ScoreCheck.findByIdAndUpdate(id, updateData, {
       new: true,
     });
 
