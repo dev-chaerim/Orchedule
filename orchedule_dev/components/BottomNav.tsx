@@ -3,7 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ComingSoonItemBottomNav } from "@/components/common/ComingSoonItemBottomNav"; // ✅ import 추가
+import { useEffect, useState } from "react";
+import { ComingSoonItemBottomNav } from "@/components/common/ComingSoonItemBottomNav";
 
 const navItems = [
   { href: "/", label: "홈", icon: "home" },
@@ -14,16 +15,28 @@ const navItems = [
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const [isAndroid, setIsAndroid] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const ua = navigator.userAgent.toLowerCase();
+      setIsAndroid(/android/i.test(ua));
+    }
+  }, []);
+
+  const navClass = `fixed bottom-0 w-full z-10 flex items-center justify-around border-t border-gray-200 md:hidden bg-white rounded-t-2xl ${
+    isAndroid ? "h-[92px] pb-10" : "h-20 pb-2"
+  }`;
 
   return (
-    <nav className="pb-safe fixed bottom-0 w-full h-23 pb-8 rounded-2xl bg-white z-10 flex items-center justify-around border-t border-gray-200 md:hidden">
+    <nav className={navClass}>
       {navItems.map(({ href, label, icon }) => {
         const isActive = pathname === href || pathname.startsWith(`${href}/`);
         const iconSrc = isActive
           ? `/icons/${icon}-active.svg`
           : `/icons/${icon}.svg`;
 
-        const isComingSoon = href === "/practice" || href === "/board"; // ✅ ComingSoon 체크
+        const isComingSoon = href === "/practice" || href === "/board";
 
         if (isComingSoon) {
           return (
