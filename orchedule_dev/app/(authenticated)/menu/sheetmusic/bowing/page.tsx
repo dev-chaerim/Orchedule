@@ -9,21 +9,33 @@ import { Music } from "lucide-react";
 import { parts } from "@/constants/parts"; // ✅ Part 목록 가져오기 (기존에 사용하던 parts)
 import { isNew } from "@/src/lib/utils/isNew";
 import NewBadge from "@/components/common/NewBadge";
+import { useSeasonStore } from "@/lib/store/season";
 
 export default function SheetScoreCheckList() {
   const [scoreChecks, setScoreChecks] = useState<ScoreCheck[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPart, setSelectedPart] = useState<string>("전체"); // ✅ 추가
 
+  const { selectedSeason } = useSeasonStore();
+  const seasonId = selectedSeason?._id;
+
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch("/api/score-checks");
-      const data = await res.json();
-      setScoreChecks(data);
-      setLoading(false);
+      try {
+        setLoading(true);
+        const query = seasonId ? `?seasonId=${seasonId}` : "";
+        const res = await fetch(`/api/score-checks${query}`);
+        const data = await res.json();
+        setScoreChecks(data);
+      } catch (error) {
+        console.error("악보 체크 데이터를 불러오지 못했습니다:", error);
+      } finally {
+        setLoading(false);
+      }
     };
+
     fetchData();
-  }, []);
+  }, [seasonId]);
 
   // ✅ 필터링된 악보 목록 계산
   const filteredScoreChecks =
