@@ -81,5 +81,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/','/menu/:path*', '/board/:path*', '/practice/:path*', '/admin/:path*', '/login', '/reset-password', '/forgot-password'],
+  matcher: [
+    // API, 정적 파일, PWA 관련 경로는 예외 처리
+    "/((?!api|_next/static|_next/image|favicon.ico|manifest.json|manifest.webmanifest|robots.txt|sitemap.xml|sw.js).*)",
+  ],
 };
+
