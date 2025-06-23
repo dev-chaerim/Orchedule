@@ -91,7 +91,7 @@ export default function ScoreCheckDetailPage() {
   };
 
   return (
-    <div className="space-y-4 px-4 max-w-3xl mx-auto -mt-2">
+    <div className="space-y-4 max-w-3xl mx-auto -mt-2">
       {/* 상단: 목록 버튼 + 수정/삭제 */}
       <div className="flex justify-between items-center">
         <BackButton fallbackHref="/menu/sheetmusic/bowing" label="목록" />

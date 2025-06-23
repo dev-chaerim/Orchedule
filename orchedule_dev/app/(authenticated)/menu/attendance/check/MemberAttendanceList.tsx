@@ -127,7 +127,7 @@ export default function MemberAttendanceList({
   // ✅ 정상 렌더링
   return (
     <div className="w-full flex justify-center">
-      <div className="w-full max-w-[640px] p-4">
+      <div className="w-full max-w-[640px] p-2">
         <div className="text-sm font-semibold text-[#7e6a5c] mb-4">결원</div>
 
         {absentOrLate.length === 0 ? (

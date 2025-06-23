@@ -102,7 +102,7 @@ export default function EditNoticePage() {
   }
 
   return (
-    <main className="max-w-2xl mx-auto p-6">
+    <main className="max-w-2xl mx-auto px-3 py-1">
       <h1 className="text-xl font-bold mb-4 text-[#3E3232]">공지 수정</h1>
 
       <div className="flex items-center gap-4 mb-2">
@@ -112,7 +112,7 @@ export default function EditNoticePage() {
             checked={isGlobal}
             onChange={(e) => setIsGlobal(e.target.checked)}
           />
-          모든 시즌에 표시
+          모든 시즌
         </label>
 
         <label className="flex items-center gap-2 text-sm text-[#3E3232]">

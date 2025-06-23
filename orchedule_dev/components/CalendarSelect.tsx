@@ -46,7 +46,7 @@ const CalendarSelect = () => {
   }, []);
 
   return (
-    <div className="w-full flex flex-col xl:flex-row items-start justify-center xl:gap-12 px-4 py-1 xl:py-12">
+    <div className="w-full flex flex-col xl:flex-row items-start justify-center xl:gap-12 py-1 xl:py-12">
       {/* 📅 달력 */}
       <div className="w-full xl:w-[500px] flex justify-center mb-6 xl:mb-0">
         <div className="w-full max-w-[500px]">

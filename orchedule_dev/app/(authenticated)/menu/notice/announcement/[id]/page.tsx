@@ -73,7 +73,7 @@ export default function NoticeDetailPage() {
   if (!notice) return notFound();
 
   return (
-    <div className="p-3 space-y-4">
+    <div className="space-y-4">
       {/* 목록 + 수정/삭제 버튼 */}
       <div className="flex justify-between items-center">
         <BackButton fallbackHref="/menu/notice/announcement" label="목록" />

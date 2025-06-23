@@ -41,7 +41,7 @@ export default function SeasonSheetListPage() {
   }, [seasonId]);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 space-y-4 -mt-2">
+    <div className="max-w-4xl mx-auto px-1 space-y-4 -mt-2">
       {/* 관리자 전용 등록 버튼 */}
       {user?.role === "admin" && (
         <RegisterButton href="/menu/sheetmusic/sheet/new">

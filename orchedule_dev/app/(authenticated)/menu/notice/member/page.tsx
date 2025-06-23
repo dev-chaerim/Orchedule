@@ -38,7 +38,7 @@ const MemberListPage = () => {
   }, [seasonId]);
 
   return (
-    <div className="px-4 pb-24 bg-[#FAF9F6]">
+    <div className=" pb-24 bg-[#FAF9F6]">
       <h1 className="text-lg font-bold text-[#3E3232] mb-4 px-1">단원 명단</h1>
 
       {loading ? (

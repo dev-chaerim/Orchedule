@@ -111,7 +111,7 @@ export default function SheetScoreCheckEditPage() {
   }
 
   return (
-    <main className="max-w-2xl mx-auto px-6 space-y-4">
+    <main className="max-w-2xl mx-auto px-2 space-y-4">
       <h1 className="text-xl font-bold text-[#3E3232]">악보 수정</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">

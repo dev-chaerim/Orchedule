@@ -44,7 +44,7 @@ export default function SheetScoreCheckList() {
       : scoreChecks.filter((check) => check.parts.includes(selectedPart));
 
   return (
-    <div className="max-w-3xl mx-auto px-4 space-y-4 -mt-2">
+    <div className="max-w-3xl mx-auto px-1 space-y-4 -mt-2">
       {/* 상단 필터 + 등록 버튼 */}
       <div className="flex justify-between items-center mb-4">
         <FilterDropdown
