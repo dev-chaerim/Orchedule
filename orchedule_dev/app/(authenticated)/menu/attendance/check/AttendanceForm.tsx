@@ -186,8 +186,8 @@ export default function AttendanceForm({
             ⏳ 출결 데이터를 불러오는 중이에요...
           </div>
         ) : (
-          <div className="py-4 px-4 w-full">
-            <div className="flex justify-between items-center gap-4 flex-wrap w-full">
+          <div className="py-4 w-full">
+            <div className="flex justify-center items-center gap-4 flex-wrap w-full">
               {selectedDate && (
                 <div className="flex flex-col items-center justify-center w-[80px] h-[78px] bg-white rounded-xl shadow">
                   <div className="text-[13px] text-[#7e6a5c]">
