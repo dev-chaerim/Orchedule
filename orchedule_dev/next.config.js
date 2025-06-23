@@ -45,4 +45,10 @@ module.exports = withPWA({
       "orchestra-schedule-pdf.s3.us-east-2.amazonaws.com",
     ],
   },
+  compiler: {
+    removeConsole: {
+      exclude: ["error", "warn"],
+    },
+  },
+  
 });
