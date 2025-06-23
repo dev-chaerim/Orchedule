@@ -8,7 +8,6 @@ export const metadata = {
   title: "Orchedule",
   description: "오케스트라 연습 도우미 앱",
   manifest: "/manifest.json",
-  themeColor: "#ffffff",
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-icon.png",

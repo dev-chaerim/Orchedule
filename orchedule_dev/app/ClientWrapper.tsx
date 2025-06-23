@@ -9,7 +9,10 @@ export default function ClientWrapper({
   children: React.ReactNode;
 }) {
   useEffect(() => {
-    if ("serviceWorker" in navigator) {
+    if (
+      process.env.NODE_ENV === "production" && // ✅ 배포일 때만
+      "serviceWorker" in navigator
+    ) {
       navigator.serviceWorker
         .register("/sw.js")
         .then((registration) => {
@@ -18,6 +21,8 @@ export default function ClientWrapper({
         .catch((error) => {
           console.error("❌ 서비스워커 등록 실패:", error);
         });
+    } else {
+      console.log("🛑 개발 환경에서는 Service Worker 등록 생략");
     }
   }, []);
 

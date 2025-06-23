@@ -1,13 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
 import { useUserStore } from "@/lib/store/user";
 import Link from "next/link";
-
 export default function LoginPage() {
-  const router = useRouter();
   const login = useUserStore((state) => state.login);
 
   const [email, setEmail] = useState("");
@@ -120,13 +117,12 @@ export default function LoginPage() {
           </button>
 
           <div className="text-center mt-1">
-            <button
-              type="button"
-              onClick={() => router.push("/join")}
+            <Link
+              href="/join"
               className="text-sm text-[#7E6363] underline hover:text-[#3E3232] transition"
             >
               회원가입
-            </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -41,15 +41,28 @@ export async function middleware(request: NextRequest) {
   }
 
     if (pathname.startsWith('/forgot-password')) {
-    if (!token) return NextResponse.next(); // 비로그인 사용자는 통과
+      if (!token) return NextResponse.next(); // 비로그인 사용자는 통과
 
-    try {
-      await jwtVerify(token, encoder.encode(SECRET));
-      return NextResponse.redirect(new URL('/', request.url));
-    } catch {
-      return NextResponse.next();
+      try {
+        await jwtVerify(token, encoder.encode(SECRET));
+        return NextResponse.redirect(new URL('/', request.url));
+      } catch {
+        return NextResponse.next();
+      }
     }
-  }
+
+    if (pathname.startsWith('/join')) {
+      if (!token) return NextResponse.next(); // 비로그인 사용자는 통과
+
+      try {
+        await jwtVerify(token, encoder.encode(SECRET));
+        // 로그인 되어 있으면 홈으로 이동
+        return NextResponse.redirect(new URL('/', request.url));
+      } catch {
+        return NextResponse.next(); // 토큰이 있지만 유효하지 않으면 그냥 통과
+      }
+    }
+
 
 
 
