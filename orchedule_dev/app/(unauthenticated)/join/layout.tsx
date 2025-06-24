@@ -1,5 +1,5 @@
 import "@/styles/globals.css";
-import { notoSansKr } from "@/app/(authenticated)/fonts";
+import { notoSansKr } from "@/src/lib/fonts";
 
 export default function JoinLayout({
   children,

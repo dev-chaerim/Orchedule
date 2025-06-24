@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { vibur } from "@/app/(authenticated)/fonts";
+import { vibur } from "@/src/lib/fonts";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl";

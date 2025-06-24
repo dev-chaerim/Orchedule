@@ -1,5 +1,5 @@
 import "@/styles/globals.css";
-import { notoSansKr } from "./(authenticated)/fonts";
+import { notoSansKr } from "../src/lib/fonts";
 import Toast from "@/components/common/Toast";
 import ClientWrapper from "./ClientWrapper";
 
