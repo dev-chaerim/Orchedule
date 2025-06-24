@@ -4,12 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useUserStore } from "@/lib/store/user";
-import Logo from "./Logo";
+import Logo from "../ui/Logo";
 import { useState } from "react";
-import SettingDropdown from "./dropdown/SettingDropdown";
+import SettingDropdown from "../dropdown/SettingDropdown";
 import { ShieldCheck } from "lucide-react";
 import { partLabels, PartKey } from "@/src/constants/parts";
-import { ComingSoonItem } from "./common/ComingSoonItem";
+import { ComingSoonItem } from "../common/ComingSoonItem";
 
 const navItems = [
   { href: "/", label: "홈", icon: "home", match: "^/$" },

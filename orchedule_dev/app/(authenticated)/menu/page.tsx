@@ -1,6 +1,6 @@
 "use client";
 
-import MenuCategoryCard from "../../../components/MenuCategoryCard";
+import MenuCategoryCard from "../../../components/ui/MenuCategoryCard";
 
 interface MenuItem {
   label: string;

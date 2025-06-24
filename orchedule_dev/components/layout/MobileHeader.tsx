@@ -1,12 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import Logo from "./Logo";
-import SeasonDropdown from "./dropdown/SeasonDropdown";
-import SettingDropdown from "./dropdown/SettingDropdown";
+import Logo from "../ui/Logo";
+import SeasonDropdown from "../dropdown/SeasonDropdown";
+import SettingDropdown from "../dropdown/SettingDropdown";
 import { useState } from "react";
-import SearchButton from "./search/SearchButton";
-import TopNotification from "./TopNotification";
+import SearchButton from "../search/SearchButton";
+import TopNotification from "../ui/TopNotification";
 
 export default function MobileHeader() {
   const [showDropdown, setShowDropdown] = useState(false);

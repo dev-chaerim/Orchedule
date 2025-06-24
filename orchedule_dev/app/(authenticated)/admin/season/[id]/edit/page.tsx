@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams, notFound } from "next/navigation";
-import BackButton from "@/components/BackButton";
+import BackButton from "@/components/ui/BackButton";
 import LoadingText from "@/components/common/LoadingText";
 import Select from "react-select";
 

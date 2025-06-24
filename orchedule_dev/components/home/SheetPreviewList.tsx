@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import MoreLink from "../MoreLink";
+import MoreLink from "../common/MoreLink";
 import LoadingSkeleton from "../common/LoadingSkeleton";
 import type { Sheet, ScoreCheck } from "@/src/lib/types/sheet";
 import { useSeasonStore } from "@/lib/store/season";

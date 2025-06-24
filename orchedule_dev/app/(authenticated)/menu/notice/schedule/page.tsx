@@ -1,4 +1,4 @@
-import CalendarSelect from '@/components/CalendarSelect';
+import CalendarSelect from "@/components/ui/CalendarSelect";
 
 export default function SchedulePage() {
   return (

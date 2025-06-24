@@ -1,6 +1,6 @@
-import "../styles/globals.css";
+import "@/styles/globals.css";
 import { notoSansKr } from "./(authenticated)/fonts";
-import Toast from "@/components/Toast";
+import Toast from "@/components/common/Toast";
 import ClientWrapper from "./ClientWrapper";
 
 // ✅ 여기에 metadata 설정 추가

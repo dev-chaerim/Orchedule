@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import MoreLink from "../MoreLink";
+import MoreLink from "../common/MoreLink";
 import LoadingSkeleton from "../common/LoadingSkeleton";
 import { isNew } from "@/src/lib/utils/isNew";
 import NewBadge from "../common/NewBadge";

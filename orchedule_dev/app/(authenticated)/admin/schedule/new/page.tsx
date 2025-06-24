@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSeasonStore } from "@/lib/store/season";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import { useState } from "react";
-import BackButton from "@/components/BackButton";
+import BackButton from "@/components/ui/BackButton";
 import {
   PracticeSession,
   OrchestraSession,

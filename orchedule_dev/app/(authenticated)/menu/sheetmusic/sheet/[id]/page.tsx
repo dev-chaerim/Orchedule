@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import BackButton from "@/components/BackButton";
+import BackButton from "@/components/ui/BackButton";
 import { useUserStore } from "@/lib/store/user";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import ActionButtons from "@/components/common/ActionButtons";

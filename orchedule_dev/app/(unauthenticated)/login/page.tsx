@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Logo from "@/components/Logo";
+import Logo from "@/components/ui/Logo";
 import { useUserStore } from "@/lib/store/user";
 import Link from "next/link";
 export default function LoginPage() {

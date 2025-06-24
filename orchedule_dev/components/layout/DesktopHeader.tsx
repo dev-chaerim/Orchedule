@@ -1,8 +1,8 @@
 "use client";
 
-import SeasonDropdown from "./dropdown/SeasonDropdown";
-import SearchButton from "./search/SearchButton";
-import TopNotification from "./TopNotification";
+import SeasonDropdown from "../dropdown/SeasonDropdown";
+import SearchButton from "../search/SearchButton";
+import TopNotification from "../ui/TopNotification";
 
 export default function DesktopHeader() {
   return (

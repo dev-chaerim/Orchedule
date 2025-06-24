@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSeasonStore } from "@/lib/store/season";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
-import MoreLink from "../MoreLink";
+import MoreLink from "../common/MoreLink";
 import LoadingSkeleton from "../common/LoadingSkeleton";
 import { getNearestDate } from "@/lib/utils/getNearestDate";
 import { Schedule } from "@/lib/types/schedule";

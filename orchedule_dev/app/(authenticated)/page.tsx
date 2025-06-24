@@ -1,5 +1,5 @@
 // import DesktopHeader from "../components/DesktopHeader";
-import HomeQuickButtons from "../../components/HomeQuickButtons";
+import HomeQuickButtons from "../../components/home/HomeQuickButtons";
 import { NoticeList } from "../../components/home/NoticeList";
 import ScheduleList from "@/components/home/ScheduleList";
 import SheetPreviewList from "../../components/home/SheetPreviewList";

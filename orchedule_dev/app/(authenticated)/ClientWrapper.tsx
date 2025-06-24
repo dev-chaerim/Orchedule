@@ -2,10 +2,10 @@
 
 import { usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
-import BottomNav from "../../components/BottomNav";
-import MobileHeader from "../../components/MobileHeader";
-import DesktopHeader from "../../components/DesktopHeader";
-import SectionTabs from "../../components/SectionTabs";
+import BottomNav from "../../components/layout/BottomNav";
+import MobileHeader from "@/components/layout/MobileHeader";
+import DesktopHeader from "@/components/layout/DesktopHeader";
+import SectionTabs from "../../components/layout/SectionTabs";
 import { noticeTabs, attendanceTabs, scoreTabs } from "@/constants/sectionTabs";
 import { AttendanceProvider } from "@/context/AttendanceContext";
 // import { FilterChips } from "@/components/attendance/FilterChips";
