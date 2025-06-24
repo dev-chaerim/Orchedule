@@ -1,9 +1,7 @@
 # orchedule
 오케스트라를 위한 연습 일정 알림, 출석체크 및 자료 관리 사이트
 
-#### 🚀 배포 주소
-
-- [https://www.orchedule.live](https://www.orchedule.live)
+#### 🚀 배포 주소 : [https://www.orchedule.live](https://www.orchedule.live)
 
 
 ## 🖥️ 프로젝트 소개
@@ -29,7 +27,7 @@
 - **ORM** : Mongoose  
 - **Deployment** : Vercel  
 
-## 📌 주요 기능
+#### 📌 주요 기능
 
 - **연습 일정 관리**
   - 달력 기반의 연습 일정 조회
@@ -64,6 +62,7 @@
 - **PWA 지원**
   - 모바일 홈 화면에 앱 설치 가능
   - 일부 기능은 오프라인에서도 접근 가능
+
  
 
 ## 📸 서비스 미리보기
@@ -71,6 +70,7 @@
 | 홈 화면 | 출석 | 악보 |
 |:--:|:--:|:--:|
 | ![home](./screenshots/home.png) | ![attendance](./screenshots/attendance.png) | ![sheet](./screenshots/sheet.png) |
+
 
  
 
