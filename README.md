@@ -3,7 +3,7 @@
 
 ## 🚀 배포 주소
 
-👉 **오케쥴 정식 배포 사이트**: [https://www.orchedule.live](https://www.orchedule.live)
+- [https://www.orchedule.live](https://www.orchedule.live)
 
 
 ## 🖥️ 프로젝트 소개
@@ -12,7 +12,9 @@
 원래 네이버 밴드를 통해 관리하고 있었던 연습 일정과 출석 확인, 필요한 자료 찾기 기능 등 불편했던 기능들 위주로 개발을 시작하게 되었습니다. 
 
 ## 🕰️ 개발 기간
-* 25.03.21일 - 진행중
+
+- 프로젝트 시작: 2025년 3월 21일  
+- 현재까지 기능 추가 및 유지보수 중
 
 ### 🧑‍🤝‍🧑 맴버구성
 - 권채림 : 처음부터 끝까지 혼자 개발해보고 싶어서 단독 개발 진행
@@ -62,6 +64,14 @@
 - **PWA 지원**
   - 모바일 홈 화면에 앱 설치 가능
   - 일부 기능은 오프라인에서도 접근 가능
+ 
+
+## 📸 서비스 미리보기
+
+| 홈 화면 | 출석 | 악보 |
+|:--:|:--:|:--:|
+| ![home](./pubilc/screenshots/home.png) | ![attendance](./pubilc/screenshots/attendance.png) | ![sheet](./pubilc/screenshots/sheet.png) |
+
  
 
 ## 🛠 개발 예정 기능
