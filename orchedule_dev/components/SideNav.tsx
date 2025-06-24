@@ -65,7 +65,7 @@ export default function SideNav() {
           <Logo />
           <hr className="border-t border-dashed border-[#C3C3C3] my-4" />
         </div>
-        <div className="flex-1 overflow-y-auto mt-[88px] px-6 pb-[120px]">
+        <div className="flex-1 overflow-y-auto mt-[78px] px-6 pb-[120px]">
           <div className="space-y-4">
             {navItems.map(({ href, label, icon, match }) => {
               const isActive = new RegExp(match).test(pathname);
@@ -91,7 +91,7 @@ export default function SideNav() {
           </div>
 
           {/* other things */}
-          <p className="mt-8 mb-4 text-gray-400 text-xs">other things</p>
+          <p className="mt-5 mb-4 text-gray-400 text-xs">other things</p>
           <div className="space-y-2">
             {otherItems.map(({ href, label, icon, match }) => {
               const isActive = new RegExp(match).test(pathname);
@@ -146,23 +146,20 @@ export default function SideNav() {
             />
           )}
 
-          {/* 관리자 섹션 - admin 권한일 때만 노출 */}
-
           {user?.role === "admin" && (
-            <>
-              <p className="mt-10 mb-2 text-gray-400 text-xs">admin</p>
-              <Link
-                href="/admin"
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
-                  pathname.startsWith("/admin")
-                    ? "bg-[#f3f3f3] text-[#7E6363] font-bold"
-                    : "text-[#a3a3a3] hover:bg-[#f3f3f3]"
-                }`}
-              >
-                <ShieldCheck size={17} />
-                <span>관리자 페이지</span>
-              </Link>
-            </>
+            <Link
+              href="/admin"
+              className={`flex items-center gap-2 px-3 -ml-[1px] mt-[5px] py-2 rounded-lg ${
+                pathname.startsWith("/admin")
+                  ? "bg-[#f3f3f3] text-[#7E6363] font-bold"
+                  : "text-[#a3a3a3] hover:bg-[#f3f3f3]"
+              }`}
+            >
+              <ShieldCheck size={21} />
+              <span className="hover:text-[#7E6363] hover:bg-[#f3f3f3]">
+                관리자 페이지
+              </span>
+            </Link>
           )}
 
           {/* <p className="mt-10 mb-2 text-gray-400 text-xs">recent</p> */}
