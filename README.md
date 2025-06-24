@@ -70,7 +70,7 @@
 
 | 홈 화면 | 출석 | 악보 |
 |:--:|:--:|:--:|
-| ![home](./pubilc/screenshots/home.png) | ![attendance](./pubilc/screenshots/attendance.png) | ![sheet](./pubilc/screenshots/sheet.png) |
+| ![home](./screenshots/home.png) | ![attendance](./screenshots/attendance.png) | ![sheet](./screenshots/sheet.png) |
 
  
 
