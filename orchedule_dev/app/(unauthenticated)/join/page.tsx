@@ -16,6 +16,9 @@ export default function JoinPage() {
   const showToast = useToastStore((state) => state.showToast);
   const [loading, setLoading] = useState(false);
 
+  const [emailValid, setEmailValid] = useState<null | boolean>(null);
+  const [checkingEmail, setCheckingEmail] = useState(false);
+
   const [form, setForm] = useState({
     name: "",
     part: "",
@@ -27,13 +30,36 @@ export default function JoinPage() {
 
   const groupOptions = ["아람 필하모닉"];
 
+  const checkEmailDuplication = async () => {
+    if (!form.email) return;
+    if (!isValidEmail(form.email)) {
+      setEmailValid(null);
+      return;
+    }
+
+    setCheckingEmail(true);
+    try {
+      const res = await fetch(`/api/check-email?email=${form.email}`);
+      const data = await res.json();
+      setEmailValid(!data.exists);
+    } catch (err) {
+      console.error("이메일 중복 확인 실패", err);
+      setEmailValid(null);
+    } finally {
+      setCheckingEmail(false);
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name === "name") {
-      const noSpaceValue = value.replace(/\s/g, ""); // 공백 제거
-      setForm((prev) => ({ ...prev, [name]: noSpaceValue }));
-    } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: name === "name" ? value.replace(/\s/g, "") : value,
+    }));
+
+    if (name === "email") {
+      setEmailValid(null); // 이메일 중복 상태 초기화
     }
   };
 
@@ -145,6 +171,7 @@ export default function JoinPage() {
             name="email"
             value={form.email}
             onChange={handleChange}
+            onBlur={checkEmailDuplication}
             required
             placeholder="예: example@email.com"
             className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:ring-2 focus:ring-[#A5796E] focus:border-[#A5796E]"
@@ -152,6 +179,19 @@ export default function JoinPage() {
           {form.email && !isValidEmail(form.email) && (
             <p className="text-xs text-red-500 mt-1">
               올바른 이메일 형식이 아닙니다.
+            </p>
+          )}
+          {checkingEmail && (
+            <p className="text-xs text-gray-500 mt-1">이메일 확인 중...</p>
+          )}
+          {form.email && isValidEmail(form.email) && emailValid === false && (
+            <p className="text-xs text-red-500 mt-1">
+              이미 사용 중인 이메일입니다.
+            </p>
+          )}
+          {form.email && isValidEmail(form.email) && emailValid === true && (
+            <p className="text-xs text-green-600 mt-1">
+              사용 가능한 이메일입니다.
             </p>
           )}
         </div>
@@ -203,9 +243,11 @@ export default function JoinPage() {
         {/* 제출 버튼 */}
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || emailValid === false}
           className={`w-full py-2 text-white text-sm font-semibold rounded-md transition ${
-            loading ? "bg-[#c3bcbc]" : "bg-[#7E6363] hover:bg-[#685b5b]"
+            loading || emailValid === false
+              ? "bg-[#c3bcbc] cursor-not-allowed"
+              : "bg-[#7E6363] hover:bg-[#685b5b]"
           }`}
         >
           {loading ? "가입 중..." : "가입 신청하기"}
