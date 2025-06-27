@@ -208,7 +208,7 @@ export default function JoinPage() {
             loading ? "bg-[#c3bcbc]" : "bg-[#7E6363] hover:bg-[#685b5b]"
           }`}
         >
-          {loading ? "가입입 중..." : "가입 신청하기"}
+          {loading ? "가입 중..." : "가입 신청하기"}
         </button>
       </form>
     </div>
